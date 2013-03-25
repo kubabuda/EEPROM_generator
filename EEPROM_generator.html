@@ -1,0 +1,33 @@
+<head><title>ESI / EEPROM Generator for SOES</title>
+<script src="EEPROM_generator.js"></script>
+</head>
+
+<body>
+<form name="SlaveForm" action="#" onsubmit="updatevalues(this); return false;">
+<table>
+<tr><td><input type="submit" value="Submit"></td>
+</tr>
+<td>Device Name:<input type = "text" name="DeviceName" value="SOES Simple Open EtherCAT Slave">
+Name of Vendor:<input type = "text" name="VendorName" value="ACME EtherCAT Devices"></td>
+</tr>
+<tr>
+<td>VendorID:0x<input type = "text" name="VendorID" value="123ABC0">
+ProductCode:0x<input type = "text" name="ProductCode" value="001">
+RevisionNumber:0x<input type = "text" name="RevisionNumber" value="002">
+SerialNumber:0x<input type = "text" name="SerialNumber" value="001" style="background-color: #CCCCCC"></td>
+</tr>
+<tr>
+<td>Hardware version:<input type = "text" name="HWversion" value="0.0.1" style="background-color: #CCCCCC">
+Software version:<input type = "text" name="SWversion" value="0.0.1" style="background-color: #CCCCCC"></td>
+</tr>
+<tr><td><hr></td</tr>
+<tr>
+<td>Number of <strong>bytes</strong> in EEPROM:<input type = "text" name="EEPROMsize" value="2048"></td>
+</tr>
+</table>
+<br><br>
+<textarea cols = "150" rows = "12" name="ESI">ESI File</textarea><br><br>
+<textarea cols = "150" rows = "12" name="HEX">Hex File</textarea><br><br>
+<textarea cols = "150" rows = "12" name="objlist">Objlist.h</textarea><br><br>
+</form>
+</body>
