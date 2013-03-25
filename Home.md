@@ -1,42 +1,13 @@
-# Welcome
+# Welcome to the SOES - Simple Open EtherCAT Slave Wiki
 
-Welcome to your wiki! This is the default page we've installed for your convenience. Go ahead and edit it.
+This Wiki was created to document the SOES code, and help developpers to create an EtherCAT slave based on the SOES code. The code is written by Arthur Ketels from [SMF Ketels](http://www.smfk.nl), who also wrote the Simple Open EtherCAT master that can be found [here](https://developer.berlios.de/projects/soem/). Installing SOEM on your develoment machine is encouraged as it provides valuable debugging tools to develop your own slave. 
+This Wiki is created as part of a project to create a small (in physical size) EtherCAT slave based on the STM32F0. The code can be used on other architectures aswell, hints will be given in the documentation. The development is just starting out, so please be a bit patient on the results. 
 
-## Wiki features
-
-This wiki uses the [Markdown](http://daringfireball.net/projects/markdown/) syntax.
-
-The wiki itself is actually a git repository, which means you can clone it, edit it locally/offline, add images or any other file type, and push it back to us. It will be live immediately.
-
-Go ahead and try:
-
-```
-$ git clone https://bitbucket.org/utwente_bss/soes_arm.git/wiki
-```
-
-Wiki pages are normal files, with the .md extension. You can edit them locally, as well as creating new ones.
-
-## Syntax highlighting
+## Code repository, useful links
+* The code is hosted on bitbucket, [click here for the sources][Repository].
+* The code is maintained in a [git](www.git-scm.com) repository. If you want to know more about git, I can recommend [git immersion as a quick start](http://www.gitimmersion.com).
+* To use GIT repositories on Windows, [Git Extensions](http://code.google.com/p/gitextensions/) is one of the few (or only?) GUIs to use with GIT.
+* Go to [Beckhoff's website](www.beckhoff.com) and the site of the [EtherCAT Technology Group](www.ethercat.org), and register as EtherCAT Technology Group Member to access the documents referred to in this Wiki. The EtherCAT Technology Group maintains the EtherCAT standards, which are the basis of all EtherCAT communication. If you want to create your own slave, you'll have to request a Vendor ID as well.
 
 
-You can also highlight snippets of text (we use the excellent [Pygments][] library).
-
-[Pygments]: http://www.pygments.org/
-
-
-Here's an example of some Python code:
-
-```
-#!python
-
-def wiki_rocks(text):
-    formatter = lambda t: "funky"+t
-    return formatter(text)
-```
-
-
-You can check out the source of this page to see how that's done, and make sure to bookmark [the vast library of Pygment lexers][lexers], we accept the 'short name' or the 'mimetype' of anything in there.
-[lexers]: http://pygments.org/docs/lexers/
-
-
-Have fun!
+[Repository]: http://bitbucket.org/utwente_bss/soes_arm
