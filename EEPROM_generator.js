@@ -35,24 +35,38 @@ function esi_generator(form)
 function hex_generator(form)
 {
 	var hex ="";
-	var rule_start=':20';
-	var record_type_datarecord  = '00';
-	var address = 0;//format to 4 hex digits
-	var maxAddress = parseInt(form.EEPROMsize.value, 10);
-	for (address  = 0 ; address < maxAddress ; address++)
+	var record = [0,0];
+	record.length = parseInt(form.EEPROMsize.value,10);
+	var bytes_per_rule = 32;
+	for(var count = 0 ; count < record.length ; count++) //initialize array
+		record[count] = 0xFF;
+	for (var rulenumber = 0 ; rulenumber < (record.length/bytes_per_rule) ; rulenumber++)
 	{
-		if(address % 32 == 0)
-		{
-			//create start of new rule
-			hex += '\n' + rule_start + generate_hex_address(address) + record_type_datarecord; 
-		}
-		hex += 'FF';
+		hex += CreateiHexRule(bytes_per_rule, rulenumber, record.slice(rulenumber*bytes_per_rule,bytes_per_rule+(rulenumber*bytes_per_rule)));
 	}
 	//end of file marker
-	hex += '\n:00000001FF'
-	//remove starting newline
-	hex = hex.slice(1,hex.length);
-	return hex;
+	hex += ':00000001FF'
+	return hex.toUpperCase();
+}
+
+function CreateiHexRule(bytes_per_rule, rulenumber, record)
+{
+	var record_type_datarecord  = '00';
+	var rule = ':'+ bytes_per_rule.toString(16).slice(-2) + generate_hex_address(rulenumber*bytes_per_rule) + record_type_datarecord;
+	for(var byteposition = 0; byteposition < bytes_per_rule ; byteposition++)
+	{
+		rule += record[byteposition].toString(16).slice(-2);
+	}
+	var checksum  = 0;
+	for(var rule_pos = 0 ; rule_pos < (rule.length-1)/2 ; rule_pos++)
+	{
+		var byte = parseInt(rule.slice(1+(2*rule_pos), 3+(2*rule_pos)),16);
+		checksum  += byte;
+	}
+	checksum %= 0x100; //leave last byte
+	checksum = 0x100-checksum; //two's complement
+    rule += checksum.toString(16).slice(-2) + '\n';
+    return rule;
 }
 
 function generate_hex_address(number)
