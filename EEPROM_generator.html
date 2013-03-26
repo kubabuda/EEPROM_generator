@@ -11,10 +11,10 @@
 Name of Vendor:<input type = "text" name="VendorName" value="ACME EtherCAT Devices"></td>
 </tr>
 <tr>
-<td>VendorID:0x<input type = "text" name="VendorID" value="123ABC0">
-ProductCode:0x<input type = "text" name="ProductCode" value="001">
-RevisionNumber:0x<input type = "text" name="RevisionNumber" value="002">
-SerialNumber:0x<input type = "text" name="SerialNumber" value="001" style="background-color: #CCCCCC"></td>
+<td>VendorID:<input type = "text" name="VendorID" value="0x500">
+ProductCode:<input type = "text" name="ProductCode" value="0x00908001">
+RevisionNumber:<input type = "text" name="RevisionNumber" value="0x002">
+SerialNumber:<input type = "text" name="SerialNumber" value="0x001" style="background-color: #CCCCCC"></td>
 </tr>
 <tr>
 <td>Hardware version:<input type = "text" name="HWversion" value="0.0.1" style="background-color: #CCCCCC">
@@ -24,10 +24,23 @@ Software version:<input type = "text" name="SWversion" value="0.0.1" style="back
 <tr>
 <td>Number of <strong>bytes</strong> in EEPROM:<input type = "text" name="EEPROMsize" value="2048"></td>
 </tr>
+<td>RxMailbox Offset:<input type = "text" name="RxMailboxOffset" value="0x1000">
+TxMailbox Offset:<input type = "text" name="TxMailboxOffset" value="0x1080">
+Tx AND Rx Mailbox Size:<input type = "text" name="MailboxSize" value="0x80"></td>
+</tr>
+<tr>
+<td>SyncManager 2 offset<input type = "text" name="SM2Offset" value="0x1100">
+SyncManager 3 offset<input type = "text" name="SM3Offset" value="0x1180"></td>
+</tr>
+<tr><td>Text 1:<input type = "text" name="TextLine1" value="SOES sample application"></td></tr>
+<tr><td>Text 2:<input type = "text" name="TextLine2" value="SOES"></td></tr>
+<tr><td>Text 3:<input type = "text" name="TextLine3" value="IMGCBY"></td></tr>
+<tr><td>Text 4:<input type = "text" name="TextLine4" value="SOES Simple Open EtherCAT Slave"></td></tr>
 </table>
 <br><br>
 <textarea cols = "150" rows = "12" name="ESI">ESI File</textarea><br><br>
 <textarea cols = "150" rows = "12" name="HEX">Hex File</textarea><br><br>
-<textarea cols = "150" rows = "12" name="objlist">Objlist.h</textarea><br><br>
+<textarea cols = "150" rows = "12" name="objlist">objlist.h</textarea><br><br>
+<textarea cols = "150" rows = "12" name="esc_h">esc.h</textarea><br><br>
 </form>
 </body>
