@@ -3,7 +3,7 @@
 </head>
 
 <body>
-<form name="SlaveForm" action="#" onsubmit="updatevalues(this); return false;">
+<form name="SlaveForm" action="" onsubmit="updatevalues(this); return false;">
 <table>
 <tr><td><input type="submit" value="Submit"></td>
 </tr>
@@ -32,10 +32,23 @@ Tx AND Rx Mailbox Size:<input type = "text" name="MailboxSize" value="0x80"></td
 <td>SyncManager 2 offset<input type = "text" name="SM2Offset" value="0x1100">
 SyncManager 3 offset<input type = "text" name="SM3Offset" value="0x1180"></td>
 </tr>
-<tr><td>Text 1:<input type = "text" name="TextLine1" value="SOES sample application"></td></tr>
-<tr><td>Text 2:<input type = "text" name="TextLine2" value="SOES"></td></tr>
-<tr><td>Text 3:<input type = "text" name="TextLine3" value="IMGCBY"></td></tr>
-<tr><td>Text 4:<input type = "text" name="TextLine4" value="SOES Simple Open EtherCAT Slave"></td></tr>
+<tr><td>Device Order number:<input type = "text" name="TextLine1" value="SOES sample application"></td></tr>
+<tr><td>Group Info:<input type = "text" name="TextLine2" value="SOES"></td></tr>
+<tr><td>Image Name:<input type = "text" name="TextLine3" value="IMGCBY"></td></tr>
+<tr><td>Device Information:<input type = "text" name="TextLine4" value="SOES Simple Open EtherCAT Slave"></td></tr>
+<tr><td><hr></td</tr>
+<tr><td>Port 0 Physical interface:<select name="Port0Physical"><option value="Y" selected>MII</option><option value="H">MII-Fast Hot Connect</option><option value="K">EBUS</option><option value=" ">Not Used</option></select></td></tr>
+<tr><td>Port 1 Physical interface:<select name="Port1Physical"><option value="Y" selected>MII</option><option value="H">MII-Fast Hot Connect</option><option value="K">EBUS</option><option value=" ">Not Used</option></select></td></tr>
+<tr><td>Port 2 Physical interface:<select name="Port2Physical"><option value="Y">MII</option><option value="H">MII-Fast Hot Connect</option><option value="K">EBUS</option><option value=" " selected>Not Used</option></select></td></tr>
+<tr><td>Port 3 Physical interface:<select name="Port3Physical"><option value="Y">MII</option><option value="H">MII-Fast Hot Connect</option><option value="K">EBUS</option><option value=" " selected>Not Used</option></select></td></tr>
+<tr><td><hr></td</tr>
+<tr><td><input type="checkbox" name="CoeDetails" value="EnableSDO" checked>Enable SDO<br>
+<input type="checkbox" name="CoeDetails" value="EnableSDOInfo" checked>Enable SDO Info<br>
+<input type="checkbox" name="CoeDetails" value="EnablePDOAssign">Enable PDO Assign<br>
+<input type="checkbox" name="CoeDetails" value="EnablePDOConfiguration">Enable PDO Configuration<br>
+<input type="checkbox" name="CoeDetails" value="EnableUploadAtStartup" checked>Enable Upload at startup<br>
+<input type="checkbox" name="CoeDetails" value="EnableSDOCompleteAccess">Enable SDO complete access <br>
+</td></tr>
 </table>
 <br><br>
 <textarea cols = "150" rows = "12" name="ESI">ESI File</textarea><br><br>

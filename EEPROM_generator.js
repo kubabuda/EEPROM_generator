@@ -22,6 +22,7 @@ function objlist_generator(form)
 	return objlist;
 }
 
+//See ETG2000 for ESI format
 function esi_generator(form)
 {
 //VendorID
@@ -29,7 +30,9 @@ function esi_generator(form)
 //VendorName
 	esi += '		<Name>'+ form.VendorName.value + '</Name>\n	</Vendor>\n';
 //Groups
-	esi += '		<Groups>\n			<Group>\n				<Type>SMFKPROTO</Type>\n				<Name>SOES</Name>\n			</Group>\n		</Groups>\n		<Devices>\n			<Device Physics="YY">\n				<Type ProductCode="#x'+ parseInt(form.ProductCode.value).toString(16) + '" RevisionNo="#x' + parseInt(form.RevisionNumber.value).toString(16) + '">'+ form.DeviceName.value + '</Type>\n';
+	esi += '		<Groups>\n			<Group>\n				<Type>SMFKPROTO</Type>\n				<Name>SOES</Name>\n			</Group>\n		</Groups>\n		<Devices>\n';
+//Physics	
+	esi += '			<Device Physics="'+ form.Port0Physical.value + form.Port1Physical.value + form.Port2Physical.value + form.Port3Physical.value +'">\n				<Type ProductCode="#x'+ parseInt(form.ProductCode.value).toString(16) + '" RevisionNo="#x' + parseInt(form.RevisionNumber.value).toString(16) + '">'+ form.DeviceName.value + '</Type>\n';
 //Add  Name info
 	esi += '				<Name><![CDATA['+ form.DeviceName.value +']]></Name>\n';
 //Add in between
@@ -105,19 +108,125 @@ function hex_generator(form)
 	////////////////////////////////////
 	
 	//Strings
-	var array_of_strings = [form.TextLine1.value, form.TextLine2.value, form.TextLine3.value, form.TextLine4.value]
+	var array_of_strings = [form.TextLine1.value, form.TextLine2.value, form.TextLine3.value, form.TextLine4.value];
 	var offset = 0;
-	offset = writeEEPROMstrings(record, 0x80, array_of_strings);
+	offset = writeEEPROMstrings(record, 0x80, array_of_strings);//See ETG1000.6 Table20
+	//General info
+	offset = writeEEPROMgeneral_settings(form,offset,record);//See ETG1000.6 Table21
+	//FMMU
+	offset = writeFMMU(form,offset, record); //see Table 22 ETG1000.6
+	//SyncManagers
+	//offset = writeSyncManagers(form, offset, record); //See Table 23 ETG1000.6
 	//End of EEPROM contents
 	for (var rulenumber = 0 ; rulenumber < (record.length/bytes_per_rule) ; rulenumber++)
 	{
 		hex += CreateiHexRule(bytes_per_rule, rulenumber, record.slice(rulenumber*bytes_per_rule,bytes_per_rule+(rulenumber*bytes_per_rule)));
 	}
 	//end of file marker
-	hex += ':00000001FF'
+	hex += ':00000001FF';
 	return hex.toUpperCase();
 }
 
+//See Table 23 ETG1000.6
+writeSyncManagers(form, offset, record)
+{
+	writeEEPROMword_wordaddress(0x29,offset/2,record); //SyncManager
+	offset += 2;
+	writeEEPROMword_wordaddress(4, offset/2, record); //size of structure category
+	offset += 2;
+	writeEEPROMword_wordaddress(parseInt(form.RxMailboxOffset.value),offset/2, record); //Physical start address
+	offset += 2;
+	writeEEPROMword_wordaddress(parseInt(form.RxMailboxSize.value),offset/2, record); //Physical size
+	offset += 2;
+	writeEEPROMbyte_byteaddress(0x26,offset++, record); //Mode of operation
+	writeEEPROMbyte_byteaddress(0,offset++, record); //don't care
+	writeEEPROMbyte_byteaddress(1,offset++, record); //Enable Syncmanager; bit0: enable, bit 1: fixed content, bit 2: virtual SyncManager, bit 3: Op Only
+	writeEEPROMbyte_byteaddress(1,offset++, record); //SyncManagerType; 0: not used, 1: Mbx out, 2: Mbx In, 3: PDO, 4: PDI
+	return offset;
+}
+
+//see Table 22 ETG1000.6
+function writeFMMU(form,offset, record)
+{
+	writeEEPROMword_wordaddress(0x28,offset/2,record);
+	offset += 2;
+	writeEEPROMword_wordaddress(1, offset/2, record); //length = 1 word = 2bytes: 2 FMMU's.
+	offset += 2;
+	writeEEPROMbyte_byteaddress(1, offset++, record); //FMMU0 used for Outputs; see Table 22 ETG1000.6
+	writeEEPROMbyte_byteaddress(2, offset++, record); //FMMU1 used for Outputs; see Table 22 ETG1000.6
+	return offset;
+}
+//See ETG1000.6 Table21
+function writeEEPROMgeneral_settings(form,offset,record)
+{
+	categorysize = 0x1E;
+	//Clear memory region
+	for(wordcount = 0; wordcount < categorysize+2 ; wordcount++)
+		writeEEPROMword_wordaddress(0,(offset/2) + wordcount, record);
+	//write code 30, 'General type'. See ETG1000.6, Table 19
+	writeEEPROMword_wordaddress(30,offset/2,record);
+	//write length of General Category data
+	writeEEPROMword_wordaddress(categorysize, 1+(offset/2), record);
+	offset +=4;
+	writeEEPROMbyte_byteaddress(2,offset++,record);//index to string for Group Info
+	writeEEPROMbyte_byteaddress(3,offset++,record);//index to string for Image Name
+	writeEEPROMbyte_byteaddress(1,offset++,record);//index to string for Device Order Number
+	writeEEPROMbyte_byteaddress(4,offset++,record);//index to string for Device Name Information
+	offset++; //byte 4 is reserved
+	writeEEPROMbyte_byteaddress(getCOEdetails(form),offset++,record);//CoE Details
+	writeEEPROMbyte_byteaddress(0,offset++,record); //Enable FoE
+	writeEEPROMbyte_byteaddress(0,offset++,record); //Enable EoE
+	writeEEPROMbyte_byteaddress(0,offset++,record); //reserved
+	writeEEPROMbyte_byteaddress(0,offset++,record); //reserved
+	writeEEPROMbyte_byteaddress(0,offset++,record); //reserved
+	writeEEPROMbyte_byteaddress(1,offset++,record); //flags (Bit0: Enable SafeOp, Bit1: Enable notLRW
+	writeEEPROMword_wordaddress(0x0000, offset/2, record); //current consumption in mA
+	offset += 2;
+	writeEEPROMword_wordaddress(0x0000, offset/2, record); //2 pad bytes
+	offset += 2;
+	writeEEPROMword_wordaddress(getPhysicalPort(form), offset/2, record);
+	offset += 2;
+	offset += 14; //14 pad bytes
+	return offset;
+}
+
+// ETG1000.6 Table 21
+function getPhysicalPort(form)
+{
+	portinfo = 0;
+	physicals = [form.Port3Physical.value, form.Port2Physical.value, form.Port1Physical.value, form.Port0Physical.value];
+	for (var physicalcounter = 0; physicalcounter < physicals.length ; physicalcounter++)
+	{
+		portinfo = (portinfo << 4); //shift previous result
+		switch(physicals[physicalcounter])
+		{
+		case 'Y':
+		case 'H':
+			portinfo |= 0x01; //MII
+			break;
+		case 'K':
+			portinfo |= 0x03; //EBUS
+			break;
+		default:
+			portinfo |= 0; 	//No connection
+		}
+	}
+	return portinfo;
+}
+
+
+function getCOEdetails(form)
+{
+	coedetails = 0;
+	if(form.CoeDetails[0].checked) coedetails |= 0x01; 	//Enable SDO
+	if(form.CoeDetails[1].checked) coedetails |= 0x02;	//Enable SDO Info
+	if(form.CoeDetails[2].checked) coedetails |= 0x04;	//Enable PDO Assign
+	if(form.CoeDetails[3].checked) coedetails |= 0x08;	//Enable PDO Configuration
+	if(form.CoeDetails[4].checked) coedetails |= 0x10;	//Enable Upload at startup
+	if(form.CoeDetails[5].checked) coedetails |= 0x20;	//Enable SDO complete access
+	return coedetails;
+}
+//See ETG1000.6 Table20 for Category string
 function writeEEPROMstrings(record, offset, a_strings)
 {
 	var number_of_strings = a_strings.length;
@@ -130,26 +239,24 @@ function writeEEPROMstrings(record, offset, a_strings)
 	total_string_data_length += number_of_strings; //for each string a byte is needed to indicate the length
 	total_string_data_length += 1; //for byte to give 'number of strings'
 	if(total_string_data_length %2) //if length is even (ends at word boundary)
-		length_is_even = true;
-	else
 		length_is_even = false;
+	else
+		length_is_even = true;
 	writeEEPROMword_wordaddress(0x000A,offset/2,record); //Type: STRING
 	writeEEPROMword_wordaddress(Math.ceil(total_string_data_length/2),(offset/2)+1, record); //write length of complete package
 	offset += 4; //2 words written
+	writeEEPROMbyte_byteaddress(number_of_strings, offset++, record);
 	for(var strcounter = 0; strcounter < number_of_strings ; strcounter++)
 	{
-		writeEEPROMbyte_byteaddress(a_strings[strcounter].length, offset, record);
-		offset++;
+		writeEEPROMbyte_byteaddress(a_strings[strcounter].length, offset++, record);
 		for(var charcounter = 0 ; charcounter < a_strings[strcounter].length ; charcounter++)
 		{
-			writeEEPROMbyte_byteaddress(a_strings[strcounter].charCodeAt(charcounter), offset, record);
-			offset++;
+			writeEEPROMbyte_byteaddress(a_strings[strcounter].charCodeAt(charcounter), offset++, record);
 		}	
 	}
 	if(length_is_even == false)
 	{
-		writeEEPROMbyte_byteaddress(0, offset, record);
-		offset++;
+		writeEEPROMbyte_byteaddress(0, offset++, record);
 	}
 	return offset;
 }
