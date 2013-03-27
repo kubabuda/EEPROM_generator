@@ -78,7 +78,7 @@ function hex_generator(form)
 	writeEEPROMword_wordaddress(0x00,6,record); //Reserved, 0
 	writeEEPROMword_wordaddress(FindCRC(record,14),7,record); //CRC
 	for (var bytecount = 0 ; bytecount < 7 ; bytecount++)
-		configdata += (record[bytecount]+0x100).toString(16).slice(-2).toUpperCase();
+		configdata += (record[bytecount]+0x100).toString(16).slice(-2).toUpperCase();//store EEPROM data for future use in ESI file
 	//WORD ADDRESS 8-15
 	writeEEPROMDword_wordaddress(parseInt(form.VendorID.value),8,record);		//CoE 0x1018:01
 	writeEEPROMDword_wordaddress(parseInt(form.ProductCode.value),10,record);	//CoE 0x1018:02
@@ -110,13 +110,13 @@ function hex_generator(form)
 	//Strings
 	var array_of_strings = [form.TextLine1.value, form.TextLine2.value, form.TextLine3.value, form.TextLine4.value];
 	var offset = 0;
-	offset = writeEEPROMstrings(record, 0x80, array_of_strings);//See ETG1000.6 Table20
+	offset = writeEEPROMstrings(record, 0x80, array_of_strings); //See ETG1000.6 Table20
 	//General info
-	offset = writeEEPROMgeneral_settings(form,offset,record);//See ETG1000.6 Table21
+	offset = writeEEPROMgeneral_settings(form,offset,record); //See ETG1000.6 Table21
 	//FMMU
 	offset = writeFMMU(form,offset, record); //see Table 22 ETG1000.6
 	//SyncManagers
-	//offset = writeSyncManagers(form, offset, record); //See Table 23 ETG1000.6
+	offset = writeSyncManagers(form, offset, record); //See Table 23 ETG1000.6
 	//End of EEPROM contents
 	for (var rulenumber = 0 ; rulenumber < (record.length/bytes_per_rule) ; rulenumber++)
 	{
@@ -127,21 +127,48 @@ function hex_generator(form)
 	return hex.toUpperCase();
 }
 
-//See Table 23 ETG1000.6
-writeSyncManagers(form, offset, record)
-{
+function writeSyncManagers(form, offset, record)
+{//See Table 23 ETG1000.6
 	writeEEPROMword_wordaddress(0x29,offset/2,record); //SyncManager
 	offset += 2;
-	writeEEPROMword_wordaddress(4, offset/2, record); //size of structure category
+	writeEEPROMword_wordaddress(0x10, offset/2, record); //size of structure category
 	offset += 2;
+	//SM0
 	writeEEPROMword_wordaddress(parseInt(form.RxMailboxOffset.value),offset/2, record); //Physical start address
 	offset += 2;
-	writeEEPROMword_wordaddress(parseInt(form.RxMailboxSize.value),offset/2, record); //Physical size
+	writeEEPROMword_wordaddress(parseInt(form.MailboxSize.value),offset/2, record); //Physical size
 	offset += 2;
 	writeEEPROMbyte_byteaddress(0x26,offset++, record); //Mode of operation
 	writeEEPROMbyte_byteaddress(0,offset++, record); //don't care
 	writeEEPROMbyte_byteaddress(1,offset++, record); //Enable Syncmanager; bit0: enable, bit 1: fixed content, bit 2: virtual SyncManager, bit 3: Op Only
 	writeEEPROMbyte_byteaddress(1,offset++, record); //SyncManagerType; 0: not used, 1: Mbx out, 2: Mbx In, 3: PDO, 4: PDI
+	//SM1
+	writeEEPROMword_wordaddress(parseInt(form.TxMailboxOffset.value),offset/2, record); //Physical start address
+	offset += 2;
+	writeEEPROMword_wordaddress(parseInt(form.MailboxSize.value),offset/2, record); //Physical size
+	offset += 2;
+	writeEEPROMbyte_byteaddress(0x22,offset++, record); //Mode of operation
+	writeEEPROMbyte_byteaddress(0,offset++, record); //don't care
+	writeEEPROMbyte_byteaddress(1,offset++, record); //Enable Syncmanager; bit0: enable, bit 1: fixed content, bit 2: virtual SyncManager, bit 3: Op Only
+	writeEEPROMbyte_byteaddress(2,offset++, record); //SyncManagerType; 0: not used, 1: Mbx out, 2: Mbx In, 3: PDO, 4: PDI
+	//SM2
+	writeEEPROMword_wordaddress(parseInt(form.SM2Offset.value),offset/2, record); //Physical start address
+	offset += 2;
+	writeEEPROMword_wordaddress(0,offset/2, record); //Physical size
+	offset += 2;
+	writeEEPROMbyte_byteaddress(0x24,offset++, record); //Mode of operation
+	writeEEPROMbyte_byteaddress(0,offset++, record); //don't care
+	writeEEPROMbyte_byteaddress(1,offset++, record); //Enable Syncmanager; bit0: enable, bit 1: fixed content, bit 2: virtual SyncManager, bit 3: Op Only
+	writeEEPROMbyte_byteaddress(3,offset++, record); //SyncManagerType; 0: not used, 1: Mbx out, 2: Mbx In, 3: PDO, 4: PDI
+	//SM3
+	writeEEPROMword_wordaddress(parseInt(form.SM3Offset.value),offset/2, record); //Physical start address
+	offset += 2;
+	writeEEPROMword_wordaddress(0,offset/2, record); //Physical size
+	offset += 2;
+	writeEEPROMbyte_byteaddress(0x20,offset++, record); //Mode of operation
+	writeEEPROMbyte_byteaddress(0,offset++, record); //don't care
+	writeEEPROMbyte_byteaddress(1,offset++, record); //Enable Syncmanager; bit0: enable, bit 1: fixed content, bit 2: virtual SyncManager, bit 3: Op Only
+	writeEEPROMbyte_byteaddress(4,offset++, record); //SyncManagerType; 0: not used, 1: Mbx out, 2: Mbx In, 3: PDO, 4: PDI
 	return offset;
 }
 
@@ -159,7 +186,7 @@ function writeFMMU(form,offset, record)
 //See ETG1000.6 Table21
 function writeEEPROMgeneral_settings(form,offset,record)
 {
-	categorysize = 0x1E;
+	categorysize = 0x10;
 	//Clear memory region
 	for(wordcount = 0; wordcount < categorysize+2 ; wordcount++)
 		writeEEPROMword_wordaddress(0,(offset/2) + wordcount, record);
