@@ -12,13 +12,13 @@ function updatevalues(form)
 function objlist_generator(form)
 {
 	//Device Name
-	var objlist='/** Definiton of Device Name */\nchar ac1008_00[]="' + form.DeviceName.value +"\n";
+	var objlist='/** Definiton of Device Name */\nchar ac1008_00[]="' + form.TextLine4.value +'";\n';
 	//Hardware Version, Software Version
-	objlist += '/** Definition of Hardware version*/\nchar ac1009_00[]="' + form.HWversion.value+'";\n/** Definition of Software version*/\nchar ac100A_00[]="' + form.SWversion.value + '";\n"';
+	objlist += '/** Definition of Hardware version*/\nchar ac1009_00[]="' + form.HWversion.value+'";\n/** Definition of Software version*/\nchar ac100A_00[]="' + form.SWversion.value + '";\n';
 	//Fixed stuff; Filling in data
 	objlist += '/** Service Data Object 1000: Device Type */\nconst _objd SDO1000[]=\n{{0x00,DTYPE_UNSIGNED32,32,ATYPE_R,&acName1000[0],0x00000000}};\n/** Service Data Object 1008: Device Name */\nconst _objd SDO1008[]=\n{{0x00,DTYPE_VISIBLE_STRING,sizeof(ac1008_00)<<3,ATYPE_R,&acName1008[0],0,&ac1008_00[0]}};\n/** Service Data Object 1009: Hardware Version */\nconst _objd SDO1009[]=\n{{0x00,DTYPE_VISIBLE_STRING,sizeof(ac1009_00)<<3,ATYPE_R,&acName1009[0],0,&ac1009_00[0]}};\n/** Service Data Object 100A: Software Version */\nconst _objd SDO100A[]=\n{{0x00,DTYPE_VISIBLE_STRING,sizeof(ac100A_00)<<3,ATYPE_R,&acName100A[0],0,&ac100A_00[0]}};\n';	
 	//Identity Object
-	objlist += "const _objd SDO1018[]=                                              //See ETG.1000.6 'Identity Object'\n {{0x00,DTYPE_UNSIGNED8,8,ATYPE_R,&acNameNOE[0],0x04},               //Number of Entries\n  {0x01,DTYPE_UNSIGNED32,32,ATYPE_R,&acName1018_01[0]," + form.VendorID.value + "},  //Vendor ID\n  {0x02,DTYPE_UNSIGNED32,32,ATYPE_R,&acName1018_02[0]," + form.ProductCode.value + " },  //Product Code\n  {0x03,DTYPE_UNSIGNED32,32,ATYPE_R,&acName1018_03[0]," + form.RevisionNumber.value + "},  //Revision Number\n  {0x04,DTYPE_UNSIGNED32,32,ATYPE_R,&acName1018_04[0]," + form.SerialNumber.value + "}   //Serial Number};\n"
+	objlist += "const _objd SDO1018[]=                                              //See ETG.1000.6 'Identity Object'\n {{0x00,DTYPE_UNSIGNED8,8,ATYPE_R,&acNameNOE[0],0x04},               //Number of Entries\n  {0x01,DTYPE_UNSIGNED32,32,ATYPE_R,&acName1018_01[0]," + form.VendorID.value + "},  //Vendor ID\n  {0x02,DTYPE_UNSIGNED32,32,ATYPE_R,&acName1018_02[0]," + form.ProductCode.value + " },  //Product Code\n  {0x03,DTYPE_UNSIGNED32,32,ATYPE_R,&acName1018_03[0]," + form.RevisionNumber.value + "},  //Revision Number\n  {0x04,DTYPE_UNSIGNED32,32,ATYPE_R,&acName1018_04[0]," + form.SerialNumber.value + "}   //Serial Number\n};\n"
 	return objlist;
 }
 
@@ -30,11 +30,11 @@ function esi_generator(form)
 //VendorName
 	esi += '		<Name>'+ form.VendorName.value + '</Name>\n	</Vendor>\n';
 //Groups
-	esi += '		<Groups>\n			<Group>\n				<Type>SMFKPROTO</Type>\n				<Name>SOES</Name>\n			</Group>\n		</Groups>\n		<Devices>\n';
+	esi += '		<Groups>\n			<Group>\n				<Type>SMFKPROTO</Type>\n				<Name>' + form.TextLine2.value + '</Name>\n			</Group>\n		</Groups>\n		<Devices>\n';
 //Physics	
-	esi += '			<Device Physics="'+ form.Port0Physical.value + form.Port1Physical.value + form.Port2Physical.value + form.Port3Physical.value +'">\n				<Type ProductCode="#x'+ parseInt(form.ProductCode.value).toString(16) + '" RevisionNo="#x' + parseInt(form.RevisionNumber.value).toString(16) + '">'+ form.DeviceName.value + '</Type>\n';
+	esi += '			<Device Physics="'+ form.Port0Physical.value + form.Port1Physical.value + form.Port2Physical.value + form.Port3Physical.value +'">\n				<Type ProductCode="#x'+ parseInt(form.ProductCode.value).toString(16) + '" RevisionNo="#x' + parseInt(form.RevisionNumber.value).toString(16) + '">'+ form.TextLine4.value + '</Type>\n';
 //Add  Name info
-	esi += '				<Name><![CDATA['+ form.DeviceName.value +']]></Name>\n';
+	esi += '				<Name><![CDATA['+ form.TextLine4.value +']]></Name>\n';
 //Add in between
 	esi += '				<GroupType>SMFKPROTO</GroupType>\n				<Fmmu>Outputs</Fmmu>\n				<Fmmu>Inputs</Fmmu>\n';
 //Add Rxmailbox sizes
@@ -46,7 +46,7 @@ function esi_generator(form)
 //Add SM3
 	esi += '				<Sm StartAddress="#x' + parseInt(form.SM3Offset.value).toString(16) +'" ControlByte="#x20" Enable="1">Inputs</Sm>\n';	
 //Add Mailbox DLL
-	esi += '				<Mailbox DataLinkLayer="true">\n					<CoE SdoInfo="true" CompleteAccess="false" PdoUpload="true"/>\n				</Mailbox>\n';
+	esi += '				<Mailbox DataLinkLayer="true">\n					<CoE '+ getCoEString(form) + '  />\n				</Mailbox>\n';
 //Add DC
 	esi += '				<Dc>\n					<OpMode>\n						<Name>DcOff</Name>\n						<Desc>DC unused</Desc>\n					<AssignActivate>#x0000</AssignActivate>\n					</OpMode>\n				</Dc>\n';
 //Add EEPROM
@@ -56,6 +56,36 @@ function esi_generator(form)
 	return esi;	
 }
 
+//See Table 40 ETG2000
+function getCoEString(form)
+{
+	var result = ""
+//	if(form.CoeDetails[0].checked) 
+//		result += 'SdoInfo="true" ';
+//	else
+//		result += 'SdoInfo="false" ';
+	if(form.CoeDetails[1].checked) 
+		result += 'SdoInfo="true" ';
+	else
+		result += 'SdoInfo="false" ';
+	if(form.CoeDetails[2].checked) 
+		result += 'PdoAssign="true" ';	
+	else
+		result += 'PdoAssign="false" ';
+	if(form.CoeDetails[3].checked) 
+		result += 'PdoConfig="true" ';
+	else
+		result += 'PdoConfig="false" ';
+	if(form.CoeDetails[4].checked) 
+		result += 'PdoUpload="true" ';
+	else 
+		result += 'PdoUpload="false" ';
+	if(form.CoeDetails[5].checked) 
+		result += 'Complete access="true" ';
+	else 
+		result +='Complete access="false" ';
+	return result;										
+}
 function hex_generator(form)
 {
 	var hex ="";
@@ -206,7 +236,7 @@ function writeEEPROMgeneral_settings(form,offset,record)
 	writeEEPROMbyte_byteaddress(0,offset++,record); //reserved
 	writeEEPROMbyte_byteaddress(0,offset++,record); //reserved
 	writeEEPROMbyte_byteaddress(0,offset++,record); //reserved
-	writeEEPROMbyte_byteaddress(1,offset++,record); //flags (Bit0: Enable SafeOp, Bit1: Enable notLRW
+	writeEEPROMbyte_byteaddress(0,offset++,record); //flags (Bit0: Enable SafeOp, Bit1: Enable notLRW
 	writeEEPROMword_wordaddress(0x0000, offset/2, record); //current consumption in mA
 	offset += 2;
 	writeEEPROMword_wordaddress(0x0000, offset/2, record); //2 pad bytes

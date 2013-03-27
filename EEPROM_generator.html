@@ -1,13 +1,14 @@
 <head><title>ESI / EEPROM Generator for SOES</title>
 <script src="EEPROM_generator.js"></script>
+<!--<script src="saveRestore.js"></script>-->
 </head>
 
 <body>
-<form name="SlaveForm" action="" onsubmit="updatevalues(this); return false;">
+<form  name="SlaveForm" id="SlaveForm" action="" onsubmit="updatevalues(this); return false;">
 <table>
-<tr><td><input type="submit" value="Submit"></td>
+<tr><td><input type="submit" value="Submit"><!--<input type="button" value="Save to Cookie" onClick='saveSelections(document.getElementById("SlaveForm"));'><input type="button" value="Restore from Cookie" onClick='loadSelections(document.getElementById("SlaveForm"));'>--></td>
 </tr>
-<td>Device Name:<input type = "text" name="DeviceName" value="SOES Simple Open EtherCAT Slave">
+<td><!--Device Name:<input type = "text" name="DeviceName" value="SOES Simple Open EtherCAT Slave">-->
 Name of Vendor:<input type = "text" name="VendorName" value="ACME EtherCAT Devices"></td>
 </tr>
 <tr>
