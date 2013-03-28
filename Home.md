@@ -9,7 +9,7 @@ This Wiki is created as part of a project to create a small (in physical size) E
 * To use GIT repositories on Windows, [Git Extensions](http://code.google.com/p/gitextensions/) is one of the few (or only?) GUIs to use with GIT.
 * Go to [Beckhoff's website](www.beckhoff.com) and the site of the [EtherCAT Technology Group](www.ethercat.org), and register as EtherCAT Technology Group Member to access the documents referred to in this Wiki. The EtherCAT Technology Group maintains the EtherCAT standards, which are the basis of all EtherCAT communication. If you want to create your own slave, you'll have to request a Vendor ID as well.
 
-
+[EEPROM Contents](EEPROM Contents)
 [Repository]: http://bitbucket.org/utwente_bss/soes_arm
 
 Objlist
