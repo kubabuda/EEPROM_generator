@@ -11,3 +11,15 @@ This Wiki is created as part of a project to create a small (in physical size) E
 
 
 [Repository]: http://bitbucket.org/utwente_bss/soes_arm
+
+Objlist
+70010108-> 
+			Index:		7001
+			Subindex: 	  01
+			Size:		   8 bits
+			
+Size moet kloppen met variablele in module
+aantal variabelen moet kloppen in eerste string, en in SOobjects, 3de item
+
+Subindexen oplopend!
+Waar is de volgorde van variablen in Processdata gedefinieerd? Nu: hele struct wordt gestuurd, maar via mailbox is 'echte' waarde te lezen?
