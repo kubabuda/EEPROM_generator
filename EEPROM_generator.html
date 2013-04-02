@@ -1,60 +1,115 @@
 <head><title>ESI / EEPROM Generator for SOES</title>
 <script src="EEPROM_generator.js"></script>
 <!--<script src="saveRestore.js"></script>-->
+<style>
+tr td:nth-child(3) { 
+   text-align: center;
+}
+tr td:nth-child(4) { 
+   text-align: center;
+}
+tr td:nth-child(5) { 
+   text-align: center;
+}
+tr td:nth-child(6) { 
+   text-align: center;
+}
+</style>
 </head>
 
 <body>
+<font face="Arial, Helvetica, Helverica">This page serves as a tool to generate consistent data across your code, ESI file and EEPROM data. Hover over the fields to get additional info about the items you can change. <br><br>
+<p>For more detail on how these values translate to the corresponding files, and where you can find more info in the ETG documentation, look into the <a href="EEPROM_generator.js">source of the javascript that generates these files</a>.</p>
+</font>
 <form  name="SlaveForm" id="SlaveForm" action="" onsubmit="updatevalues(this); return false;">
-<table>
-<tr><td><input type="submit" value="Submit"><!--<input type="button" value="Save to Cookie" onClick='saveSelections(document.getElementById("SlaveForm"));'><input type="button" value="Restore from Cookie" onClick='loadSelections(document.getElementById("SlaveForm"));'>--></td>
-</tr>
-<td><!--Device Name:<input type = "text" name="DeviceName" value="SOES Simple Open EtherCAT Slave">-->
-Name of Vendor:<input type = "text" name="VendorName" value="ACME EtherCAT Devices"></td>
+<table border="0">
+<tr>
+<td><strong>Item:</strong></td><td><strong>Value</strong></td><td width="12%"><strong>ESI</strong></td><td width="12%"><strong>EEPROM</strong></td><td width="12%"><strong>objlist.h</strong></td><td width="12%"><strong>esc.h</strong></td>
 </tr>
 <tr>
-<td>VendorID:<input type = "text" name="VendorID" value="0x500">
-ProductCode:<input type = "text" name="ProductCode" value="0x00908001">
-RevisionNumber:<input type = "text" name="RevisionNumber" value="0x002">
-SerialNumber:<input type = "text" name="SerialNumber" value="0x001" style="background-color: #CCCCCC"></td>
+<td>Name of Vendor:</td><td><input type = "text" name="VendorName" value="ACME EtherCAT Devices" title="Enter the name as how you are known in the EtherCAT Technology Group members list"></td><td>x</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>
 </tr>
 <tr>
-<td>Hardware version:<input type = "text" name="HWversion" value="0.0.1" style="background-color: #CCCCCC">
-Software version:<input type = "text" name="SWversion" value="0.0.1" style="background-color: #CCCCCC"></td>
-</tr>
-<tr><td><hr></td</tr>
-<tr>
-<td>Number of <strong>bytes</strong> in EEPROM:<input type = "text" name="EEPROMsize" value="2048"></td>
-</tr>
-<td>RxMailbox Offset:<input type = "text" name="RxMailboxOffset" value="0x1000">
-TxMailbox Offset:<input type = "text" name="TxMailboxOffset" value="0x1080">
-Tx AND Rx Mailbox Size:<input type = "text" name="MailboxSize" value="0x80"></td>
+<td>VendorID:</td><td><input type = "text" name="VendorID" value="0x500" title="You need to be member of the ETG to get a VendorID!&#013; Enter in hex (0x...) or decimal."></td><td>x</td><td>x</td><td>x</td><td>&nbsp;</td>
 </tr>
 <tr>
-<td>SyncManager 2 offset<input type = "text" name="SM2Offset" value="0x1100">
-SyncManager 3 offset<input type = "text" name="SM3Offset" value="0x1180"></td>
+<td>ProductCode:</td><td><input type = "text" name="ProductCode" value="0x00908001" title="The code of your Product...&#013;Each different product should have its own code.&#013;Enter in hex (0x...) or decimal."></td><td>x</td><td>x</td><td>x</td><td>&nbsp;</td>
 </tr>
-<tr><td>Device Order number:<input type = "text" name="TextLine1" value="SOES sample application"></td></tr>
-<tr><td>Group Info:<input type = "text" name="TextLine2" value="SOES"></td></tr>
-<tr><td>Image Name:<input type = "text" name="TextLine3" value="IMGCBY"></td></tr>
-<tr><td>Device Information:<input type = "text" name="TextLine4" value="SOES Simple Open EtherCAT Slave"></td></tr>
-<tr><td><hr></td</tr>
-<tr><td>Port 0 Physical interface:<select name="Port0Physical"><option value="Y" selected>MII</option><option value="H">MII-Fast Hot Connect</option><option value="K">EBUS</option><option value=" ">Not Used</option></select></td></tr>
-<tr><td>Port 1 Physical interface:<select name="Port1Physical"><option value="Y" selected>MII</option><option value="H">MII-Fast Hot Connect</option><option value="K">EBUS</option><option value=" ">Not Used</option></select></td></tr>
-<tr><td>Port 2 Physical interface:<select name="Port2Physical"><option value="Y">MII</option><option value="H">MII-Fast Hot Connect</option><option value="K">EBUS</option><option value=" " selected>Not Used</option></select></td></tr>
-<tr><td>Port 3 Physical interface:<select name="Port3Physical"><option value="Y">MII</option><option value="H">MII-Fast Hot Connect</option><option value="K">EBUS</option><option value=" " selected>Not Used</option></select></td></tr>
-<tr><td><hr></td</tr>
+<tr>
+<td>RevisionNumber:</td><td><input type = "text" name="RevisionNumber" value="0x002" title="Revision of Product&#013; Enter in hex (0x...) or decimal."></td><td>x</td><td>x</td><td>x</td><td>&nbsp;</td>
+</tr>
+<tr>
+<td>SerialNumber:</td><td><input type = "text" name="SerialNumber" value="0x001" title="Serial number; may be used in production.&#013; Enter in hex (0x...) or decimal."></td><td>x</td><td>x</td><td>x</td><td>&nbsp;</td>
+</tr>
+<tr>
+<td>Hardware version:</td><td><input type = "text" name="HWversion" value="0.0.1" title="Enter HW version as string"><td>x</td><td>x</td><td>x</td><td>&nbsp;</td>
+</tr>
+<tr>
+<td>Software version:</td><td><input type = "text" name="SWversion" value="0.0.1" title="Enter SW version as string"></td><td>x</td><td>x</td><td>x</td><td>&nbsp;</td>
+</tr>
+<tr><td colspan="6"><hr></td</tr>
+<tr>
+<td>Number of <strong>bytes</strong> in EEPROM:</td><td><input type = "text" name="EEPROMsize" value="2048" title="Number of bytes in EEPROM; 2048&#013;2048*8=16kilobit&#013;Enter in hex (0x...) or decimal."></td><td>x</td><td>x</td><td>&nbsp;</td><td>&nbsp;</td>
+</tr>
+<td>RxMailbox Offset:</td><td><input type = "text" name="RxMailboxOffset" value="0x1000" title="Offset in memory. Do not change unless you are really sure what you're doing"></td><td>x</td><td>x</td><td>&nbsp;</td><td>x</td>
+</tr>
+<tr>
+<td>TxMailbox Offset:</td><td><input type = "text" name="TxMailboxOffset" value="0x1080" title="Offset in memory. Do not change unless you are really sure what you're doing"></td><td>x</td><td>x</td><td>&nbsp;</td><td>x</td>
+</tr>
+<tr>
+<td>Tx AND Rx Mailbox Size:</td><td><input type = "text" name="MailboxSize" value="0x80" title="Size of mailbox in WORDS (16-bit).&#013;Maximum is 0x80 for SOES.&#013Do not change unless you are really sure what you're doing."></td><td>x</td><td>x</td><td>&nbsp;</td><td>x</td>
+</tr>
+<tr>
+<td>SyncManager 2 offset:</td><td><input type = "text" name="SM2Offset" value="0x1100" title="Offset in memory. Do not change unless you are really sure what you're doing"></td><td>x</td><td>x</td><td>&nbsp;</td><td>x</td>
+</tr>
+<tr>
+<td>SyncManager 3 offset:</td><td><input type = "text" name="SM3Offset" value="0x1180" title="Offset in memory. Do not change unless you are really sure what you're doing"></td><td>x</td><td>x</td><td>&nbsp;</td><td>x</td>
+</tr>
+<tr>
+<td>Device Order number:</td><td><input type = "text" name="TextLine1" value="SOES sample application" title="Name or order code of product"></td><td>x</td><td>x</td><td>x</td><td>&nbsp;</td>
+</tr>
+<tr>
+<td>Group Info:</td><td><input type = "text" name="TextLine2" value="SOES" title="Name of procuct group&#013;See ETG2000, this is used for grouping in the ESI file"></td><td>x</td><td>x</td><td>&nbsp;</td><td>&nbsp;</td>
+</tr>
+<tr>
+<td>Image Name:</td><td><input type = "text" name="TextLine3" value="IMGCBY" title="Name of image used in EtherCAT Configurator"></td><td>&nbsp;</td><td>x</td><td>&nbsp;</td><td>&nbsp;</td>
+</tr>
+<tr>
+<td>Device Information:</td><td><input type = "text" name="TextLine4" value="SOES Simple Open EtherCAT Slave" title="Description of your device"></td><td>x</td><td>x</td><td>x</td><td>&nbsp;</td>
+</tr>
+<tr><td colspan="6"><hr></td</tr>
+<tr>
+<td>Port 0 Physical interface:</td><td><select name="Port0Physical" title="Select which physical connection is used on each physical port of your Beckhoff ASIC (ET1100, ET1200)"><option value="Y" selected>MII</option><option value="H">MII-Fast Hot Connect</option><option value="K">EBUS</option><option value=" ">Not Used</option></select></td><td>x</td><td>x</td><td>&nbsp;</td><td>&nbsp;</td>
+</tr>
+<tr>
+<td>Port 1 Physical interface:</td><td><select name="Port1Physical" title="Select which physical connection is used on each physical port of your Beckhoff ASIC (ET1100, ET1200)"><option value="Y" selected>MII</option><option value="H">MII-Fast Hot Connect</option><option value="K">EBUS</option><option value=" ">Not Used</option></select></td><td>x</td><td>x</td><td>&nbsp;</td><td>&nbsp;</td>
+</tr>
+<tr>
+<td>Port 2 Physical interface:</td><td><select name="Port2Physical" title="Select which physical connection is used on each physical port of your Beckhoff ASIC (ET1100, ET1200)"><option value="Y">MII</option><option value="H">MII-Fast Hot Connect</option><option value="K">EBUS</option><option value=" " selected>Not Used</option></select></td><td>x</td><td>x</td><td>&nbsp;</td><td>&nbsp;</td>
+</tr>
+<tr>
+<td>Port 3 Physical interface:</td><td><select name="Port3Physical" title="Select which physical connection is used on each physical port of your Beckhoff ASIC (ET1100, ET1200)"><option value="Y">MII</option><option value="H">MII-Fast Hot Connect</option><option value="K">EBUS</option><option value=" " selected>Not Used</option></select></td><td>x</td><td>x</td><td>&nbsp;</td><td>&nbsp;</td>
+</tr>
+<tr><td colspan="6"><hr></td</tr>
 <tr><td><input type="checkbox" name="CoeDetails" value="EnableSDO" checked>Enable SDO<br>
 <input type="checkbox" name="CoeDetails" value="EnableSDOInfo" checked>Enable SDO Info<br>
 <input type="checkbox" name="CoeDetails" value="EnablePDOAssign">Enable PDO Assign<br>
 <input type="checkbox" name="CoeDetails" value="EnablePDOConfiguration">Enable PDO Configuration<br>
 <input type="checkbox" name="CoeDetails" value="EnableUploadAtStartup" checked>Enable Upload at startup<br>
 <input type="checkbox" name="CoeDetails" value="EnableSDOCompleteAccess">Enable SDO complete access <br>
-</td></tr>
+</td><td>&nbsp;</td><td>x</td><td>x</td><td>&nbsp;</td><td>&nbsp;</td>
+</tr>
+<tr><td colspan="6" align="center"><input type="submit" value="&nbsp;Submit&nbsp;"><!--<input type="button" value="Save to Cookie" onClick='saveSelections(document.getElementById("SlaveForm"));'><input type="button" value="Restore from Cookie" onClick='loadSelections(document.getElementById("SlaveForm"));'>--></td>
+</tr>
 </table>
 <br><br>
+ESI file:<br>
 <textarea cols = "150" rows = "12" name="ESI">ESI File</textarea><br><br>
+Hex file:<br>
 <textarea cols = "150" rows = "12" name="HEX">Hex File</textarea><br><br>
+Part of objlist.h:<br>
 <textarea cols = "150" rows = "12" name="objlist">objlist.h</textarea><br><br>
+Part of esc.h:<br>
 <textarea cols = "150" rows = "12" name="esc_h">esc.h</textarea><br><br>
 </form>
 </body>

@@ -32,7 +32,7 @@ function esi_generator(form)
 //Groups
 	esi += '		<Groups>\n			<Group>\n				<Type>SMFKPROTO</Type>\n				<Name>' + form.TextLine2.value + '</Name>\n			</Group>\n		</Groups>\n		<Devices>\n';
 //Physics	
-	esi += '			<Device Physics="'+ form.Port0Physical.value + form.Port1Physical.value + form.Port2Physical.value + form.Port3Physical.value +'">\n				<Type ProductCode="#x'+ parseInt(form.ProductCode.value).toString(16) + '" RevisionNo="#x' + parseInt(form.RevisionNumber.value).toString(16) + '">'+ form.TextLine4.value + '</Type>\n';
+	esi += '			<Device Physics="'+ form.Port0Physical.value + form.Port1Physical.value + form.Port2Physical.value + form.Port3Physical.value +'">\n				<Type ProductCode="#x'+ parseInt(form.ProductCode.value).toString(16) + '" RevisionNo="#x' + parseInt(form.RevisionNumber.value).toString(16) + '">'+ form.TextLine1.value + '</Type>\n';
 //Add  Name info
 	esi += '				<Name><![CDATA['+ form.TextLine4.value +']]></Name>\n';
 //Add in between
@@ -50,7 +50,7 @@ function esi_generator(form)
 //Add DC
 	esi += '				<Dc>\n					<OpMode>\n						<Name>DcOff</Name>\n						<Desc>DC unused</Desc>\n					<AssignActivate>#x0000</AssignActivate>\n					</OpMode>\n				</Dc>\n';
 //Add EEPROM
-	esi +='				<Eeprom>\n					<ByteSize>' + parseInt(form.EEPROMsize.value,10) + '</ByteSize>\n					<ConfigData>'+ configdata +'</ConfigData>\n				</Eeprom>\n';
+	esi +='				<Eeprom>\n					<ByteSize>' + parseInt(form.EEPROMsize.value) + '</ByteSize>\n					<ConfigData>'+ configdata +'</ConfigData>\n				</Eeprom>\n';
 //Close all items
 	esi +='			</Device>\n		</Devices>\n	</Descriptions>\n</EtherCATInfo>';
 	return esi;	
@@ -91,7 +91,7 @@ function hex_generator(form)
 	var hex ="";
 	configdata = "";
 	var record = [0,0];
-	record.length = parseInt(form.EEPROMsize.value,10);
+	record.length = parseInt(form.EEPROMsize.value);
 	var bytes_per_rule = 32;
 	for(var count = 0 ; count < record.length ; count++) //initialize array
 		record[count] = 0xFF;
