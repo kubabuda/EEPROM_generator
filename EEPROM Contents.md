@@ -8,8 +8,8 @@ To write the EEPROM contents you generated, use [SOEM][SOEM].
 ```
 #!bash
 
-     cd test\linux\eepromtool
-     sudo .\eepromtool 1 eth0 -wi eeprom.hex
+     cd test/linux/eepromtool
+     sudo ./eepromtool 1 eth0 -wi eeprom.hex
 ```
 
 [SOEM]:https://developer.berlios.de/projects/soem/
