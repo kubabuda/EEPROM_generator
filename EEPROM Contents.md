@@ -4,7 +4,7 @@ This info should be made available both in an XML-based ESI-file (**E**therCAT *
 
 #Writing the EEPROM
 To write the EEPROM contents you generated, use [SOEM][SOEM]. 
-`cd test\linux\eepromtool
-sudo .\eepromtool 1 eth0 -wi eeprom.hex`
+     cd test\linux\eepromtool
+     sudo .\eepromtool 1 eth0 -wi eeprom.hex
 
 [SOEM]:https://developer.berlios.de/projects/soem/
