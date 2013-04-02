@@ -5,6 +5,8 @@ This Wiki is created as part of a project to create a small (in physical size) E
 
 ## SOES Features
 These features are supported by the SOES code:
+
+
 * Compatible with ET1100, ET1200
 * Maximum mailbox size: 128 bytes
 * CoE configuration, Mailbox handling
