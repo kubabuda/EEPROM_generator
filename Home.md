@@ -8,6 +8,7 @@ These features are supported by the SOES code:
 
 
 * Compatible with ET1100, ET1200
+* SPI interface
 * Maximum mailbox size: 128 bytes
 * CoE configuration, Mailbox handling
 * Configurable TxPDO, RxPDO
@@ -21,6 +22,7 @@ These features are supported by the SOES code:
 ### not featured:
 * FoE (File Over EtherCAT), EoE (Ethernet over EtherCAT), ...
 * DC handling functions; however, if DC is programmed by master, you can use IO between uC and ASIC to trigger actions.
+* Digital I/O, 8/16-bit (A)sync uC interface
 
 In general, the idea of the SOES code is that the microcontroller exchanges data with the ESC RAM as often as possible, using a routine that may be interrupted, but does not interrupt itself. Thus, the main activity of the microcontroller can be the time-deterministic acquisistion / output with the 'real world' connected to it, while the EtherCAT process runs in the spare time. For most applications, this approach ensures both time accuracy of the 'core' process of the slave (dealing with the external world) and enough time to deal with EtherCAT. 
 The code in the [repository][Repository] was written for an Atmel 'mega' series microcontroller, and then rewritten by the me for the STM32F051. 
