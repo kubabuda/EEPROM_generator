@@ -7,6 +7,7 @@ For EtherCAT, CoE communication (CANOpen over EtherCAT) is a very important way 
 
 #Short description of configuration as in the repository
 The current configuration of objects uses the default mapping as suggested in ETG100.6 and ETG5001. The gloabl variable 'Rb' is mapped to TxPDO's , where a configurator can choose which part of Rb should be read by the master. The global variable Wb is mapped to an RxPDO, fixed, no configuration possible. 
+
 * SDO6000: inputs of slave
 * SDO7000: outputs of slave
 * SDO8000: configuration (mapped to Eb, meant for EEPROM storage)
