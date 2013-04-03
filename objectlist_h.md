@@ -30,4 +30,22 @@ typedef const struct
   } _objd;
 ```
 
-From the declarations above we can see that the first member is the subindex, and for an object that is a variable (not an ARRAY or RECORD), the data is stored in subindex 0. The data type is stored in the object, and is indicated by a number (see Table 63 of ETG1000.6). All types have been 'defined' in `objectlist.h`. The bitlength is the length of the data in bits (here calculatad by taking the 'sizeof' which returns size in bytes, and then multiplying by 8). Access should be Readonly according to Table 70, and is set so using the define 'ATYPE_R'. The name of the object points to this declaration above in the file: `_ac acName1009[]="Manufacturer Hardware Version";` value is zero (only used for scalars), and the data points to the hardware version string: `char ac1009_00[]="0.0.1";`. 
+From the declarations above we can see that the first member is the subindex, and for an object that is a variable (not an ARRAY or RECORD), the data is stored in subindex 0. The data type is stored in the object, and is indicated by a number (see Table 63 of ETG1000.6). All data types have been 'defined' in `objectlist.h`. The bitlength is the length of the data in bits (here calculatad by taking the 'sizeof' which returns size in bytes, and then multiplying by 8). Access should be Readonly according to Table 70, and is set so using the define 'ATYPE_R'. The name of the object points to this declaration above in the file: `_ac acName1009[]="Manufacturer Hardware Version";` value is zero (only used for scalars), and the data points to the hardware version string: `char ac1009_00[]="0.0.1";`. In general, this describes the structure of a variable holding a single variable.
+
+### A bit more complicated; CANOpen ARRAY object.
+An array is 'simply' an array of 'VAR' objects, with subindex 0 telling how many entries are listed:
+```
+#!c
+const _objd SDO1C13[]=                                              //TxPDO Assign objects ; CHANGEABLE, thus 'RWpre' mode
+{{0x00,DTYPE_UNSIGNED8,8,ATYPE_RWpre,&acNameNOE[0],0x02},               //Number of Entries
+  {0x01,DTYPE_UNSIGNED16,16,ATYPE_RWpre,&acNameMO[0],0x1A00},            //Send objects in index 0x1A00
+  {0x02,DTYPE_UNSIGNED16,16,ATYPE_RWpre,&acNameMO[0],0x1A10}             //Send objects in index 0x1A10
+};
+```
+This is SDO1C13, the Receive PDO mapping. In short, this object is an array of indexes to objects that can be sent from the slave to the master using the TxPDO communication (Syncmanager exchanges data between EtherCAT datagrams and local buffer. Data can be overwritten. This is using CANOpen objects to create settings for non-mailbox communication....).
+You can see that subindex 0 holds the amount of of subindexes (0x02), and that the subindexes themselves increase.
+
+** When adding or removing a subindex, change both the subindex self (first item in rule) AND the value at the end of subindex 0 **
+
+
+
