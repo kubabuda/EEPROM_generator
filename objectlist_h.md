@@ -15,3 +15,19 @@ I'm going to start with a very simple object, the 'hardware version":
 const _objd SDO1009[]=
 {{0x00,DTYPE_VISIBLE_STRING,sizeof(ac1009_00)<<3,ATYPE_R,&acName1009[0],0,&ac1009_00[0]}};
 ```
+This is a `const` array of '_objd' variables, called SDO1009. In ETG1000.6:5.6.7.4 (Table 70) we see that Object 1009 is a 'VAR' of type 'VisibleString'. Each object in `objectlist.h` is described as a struct of type `_objd`:
+```
+#!c
+typedef const struct
+  {
+    uint16        subindex;
+    uint16        datatype;
+    uint16        bitlength;
+    uint16        access;
+    char   const *name;
+    uint32        value;
+    void          *data;
+  } _objd;
+```
+
+From the declarations above we can see that the first member is the subindex, and for an object that is a variable (not an ARRAY or RECORD), the data is stored in subindex 0. The data type is stored in the object, and is indicated by a number (see Table 63 of ETG1000.6). All types have been 'defined' in `objectlist.h`. The bitlength is the length of the data in bits (here calculatad by taking the 'sizeof' which returns size in bytes, and then multiplying by 8). Access should be Readonly according to Table 70, and is set so using the define 'ATYPE_R'. The name of the object points to this declaration above in the file: `_ac acName1009[]="Manufacturer Hardware Version";` value is zero (only used for scalars), and the data points to the hardware version string: `char ac1009_00[]="0.0.1";`. 
