@@ -9,3 +9,9 @@ For EtherCAT, CoE communication (CANOpen over EtherCAT) is a very important way 
 When changing objects in `objlist.h' you have to be very careful to maintain consistent data across all objects. Somebody fancy writing a tool for this? If you're doing it wrong, the code will compile, but the master or configurator won't be able to get the correct information from your slave, and this will result in very messy behaviour starting (end mostly ending) in the PreOP state, when mailbox communication is enabled.
 
 ## Explanation of objects
+I'm going to start with a very simple object, the 'hardware version":
+```
+#!c
+const _objd SDO1009[]=
+{{0x00,DTYPE_VISIBLE_STRING,sizeof(ac1009_00)<<3,ATYPE_R,&acName1009[0],0,&ac1009_00[0]}};
+```
