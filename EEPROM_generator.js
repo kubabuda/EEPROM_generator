@@ -12,7 +12,7 @@ function updatevalues(form)
 function objlist_generator(form)
 {
 	//Device Name
-	var objlist='/** Definiton of Device Name */\nchar ac1008_00[]="' + form.TextLine4.value +'";\n';
+	var objlist='/** Definiton of Device Name */\nchar ac1008_00[]="' + form.TextDeviceName.value +'";\n';
 	//Hardware Version, Software Version
 	objlist += '/** Definition of Hardware version*/\nchar ac1009_00[]="' + form.HWversion.value+'";\n/** Definition of Software version*/\nchar ac100A_00[]="' + form.SWversion.value + '";\n';
 	//Fixed stuff; Filling in data
@@ -30,13 +30,13 @@ function esi_generator(form)
 //VendorName
 	esi += '		<Name>'+ form.VendorName.value + '</Name>\n	</Vendor>\n';
 //Groups
-	esi += '		<Groups>\n			<Group>\n				<Type>SMFKPROTO</Type>\n				<Name>' + form.TextLine2.value + '</Name>\n			</Group>\n		</Groups>\n		<Devices>\n';
+	esi += '		<Groups>\n			<Group>\n				<Type>' + form.TextGroupType.value + '</Type>\n				<Name>' + form.TextGroupName5.value + '</Name>\n			</Group>\n		</Groups>\n		<Devices>\n';
 //Physics	
-	esi += '			<Device Physics="'+ form.Port0Physical.value + form.Port1Physical.value + form.Port2Physical.value + form.Port3Physical.value +'">\n				<Type ProductCode="#x'+ parseInt(form.ProductCode.value).toString(16) + '" RevisionNo="#x' + parseInt(form.RevisionNumber.value).toString(16) + '">'+ form.TextLine1.value + '</Type>\n';
+	esi += '			<Device Physics="'+ form.Port0Physical.value + form.Port1Physical.value + form.Port2Physical.value + form.Port3Physical.value +'">\n				<Type ProductCode="#x'+ parseInt(form.ProductCode.value).toString(16) + '" RevisionNo="#x' + parseInt(form.RevisionNumber.value).toString(16) + '">'+ form.TextDeviceType.value + '</Type>\n';
 //Add  Name info
-	esi += '				<Name><![CDATA['+ form.TextLine4.value +']]></Name>\n';
+	esi += '				<Name><![CDATA['+ form.TextDeviceName.value +']]></Name>\n';
 //Add in between
-	esi += '				<GroupType>SMFKPROTO</GroupType>\n				<Fmmu>Outputs</Fmmu>\n				<Fmmu>Inputs</Fmmu>\n';
+	esi += '				<GroupType>' + form.TextGroupType.value + '</GroupType>\n				<Fmmu>Outputs</Fmmu>\n				<Fmmu>Inputs</Fmmu>\n';
 //Add Rxmailbox sizes
 	esi += '				<Sm DefaultSize="' + parseInt(form.MailboxSize.value).toString(10) +'" StartAddress="#x' + parseInt(form.RxMailboxOffset.value).toString(16) +'" ControlByte="#x26" Enable="1">MBoxOut</Sm>\n';
 //Add Txmailbox sizes
@@ -138,7 +138,7 @@ function hex_generator(form)
 	////////////////////////////////////
 	
 	//Strings
-	var array_of_strings = [form.TextLine1.value, form.TextLine2.value, form.TextLine3.value, form.TextLine4.value];
+	var array_of_strings = [form.TextDeviceType.value, form.TextGroupType.value, form.TextLine3.value, form.TextDeviceName.value];
 	var offset = 0;
 	offset = writeEEPROMstrings(record, 0x80, array_of_strings); //See ETG1000.6 Table20
 	//General info
