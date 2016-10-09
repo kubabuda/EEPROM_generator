@@ -54,4 +54,4 @@ The code in the [repository][Repository] was written for an Atmel 'mega' series 
 
 [Repository]: http://bitbucket.org/utwente_bss/soes_arm
 [SOEM]:https://developer.berlios.de/projects/soem/
-[EEPROMtool]:EEPROM_generator.html
+[EEPROMtool]:https://ctw-bw.bitbucket.io/EEPROM_generator.html
