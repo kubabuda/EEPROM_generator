@@ -4,7 +4,7 @@ The EEPROM also stores Hardware and Software version, Vendor ID and product code
 This info should be made available both in an XML-based ESI-file (**E**therCAT **S**lave **I**nformation), and in the EEPROM of the device. 
 
 
-**Be sure that the EEPROM, ESI file and source code are using the same data. You can do this by using [this tool: Generate consistent data in ESI, EEPROM and source](http://utwente_bss.bitbucket.org/EEPROM_generator.html)**
+**Be sure that the EEPROM, ESI file and source code are using the same data. You can do this by using [this tool: Generate consistent data in ESI, EEPROM and source](https://bravoembedded.bitbucket.io/EEPROM_generator.html)**
 
 #Writing the EEPROM
 To write the EEPROM contents you generated, use [SOEM][SOEM]. 
@@ -16,4 +16,4 @@ To write the EEPROM contents you generated, use [SOEM][SOEM].
      sudo ./eepromtool 1 eth0 -wi eeprom.hex
 ```
 
-[SOEM]:https://developer.berlios.de/projects/soem/
+[SOEM]:http://openethercatsociety.github.io/
