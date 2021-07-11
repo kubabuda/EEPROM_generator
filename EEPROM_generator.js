@@ -9,8 +9,76 @@ function updatevalues(form)
 	return true;
 }
 
+
+// OTYPE: VAR, ARRAY, RECORD
+const OD = {
+	'0x1000': { otype: 'VAR', dtype: 'UNSIGNED32', name: 'Device Type', value: 0x1389, pdoMappings: [] },
+
+	// getElement
+}
+
+function indexHexadecimal(i) {
+	return '0x' + i.toString(16);
+}
+
 function objectlist_generator(form)
 {
+	var objectlist  = '#include "esc_coe.h"\n#include "utypes.h"\n#include <stddef.h>\n\n';
+	var usedIndexes = [];
+	var dtype_bits = {
+		'BOOLEAN' : 8,
+		'INTEGER8' : 8,
+		'INTEGER16' : 16,
+		'INTEGER32' : 32,
+		'UNSIGNED8' : 8,
+		'UNSIGNED16' : 16,
+		'UNSIGNED32' : 32,
+		'REAL32' : 32,
+		'VISIBLE_STRING' : 8,  /* TODO */
+		'OCTET_STRING' : 8, /* TODO */
+		'UNICODE_STRING' : 8, /* TODO */
+		'INTEGER24' : 24,
+		'UNSIGNED24' : 24,
+		'INTEGER64' : 64,
+		'UNSIGNED64' : 64,
+		'REAL64' : 64,
+		'PDO_MAPPING' : 8, /* TODO */
+	}
+	const minIndex = 0x1000;
+
+	//Variable names
+	for (let i = minIndex; i <= minIndex; i++) {
+		const element = OD[indexHexadecimal(i)];
+		
+		if (element) {
+			usedIndexes.push(i);
+			switch (element.otype.toLowerCase()) {
+				case "var":
+					objectlist += `\nstatic const char acName${i.toString(16)}[] = "${element.name}";`;
+					break;
+				default:
+					alert("Unexpected object type om object dictionary")
+					break;
+			};
+		}
+	}
+	objectlist += '\n\n';
+	//SDO objects declaration
+	usedIndexes.forEach(i => {
+		const element = OD[indexHexadecimal(i)];
+		objectlist += `\nconst _objd SDO${i.toString(16)}[] = \n{\n  `;
+		switch (element.otype.toLowerCase()) {
+			case "var":
+				objectlist += `{0x0, DTYPE_${element.dtype}, ${dtype_bits[element.dtype]}, ATYPE_RO${''}, acName${i.toString(16)}, 0x${element.value.toString(16)}, ${element.pdoMappings != false ? 'TODO': 'NULL'}},`;
+				break;
+			case 'array':
+			default:
+				alert("Unexpected object type om object dictionary")
+				break;
+		};
+		objectlist += '\n};\n';
+	})
+	
 	//Device Name
 	var objlist='/** Definiton of Device Name */\nchar ac1008_00[]="' + form.TextDeviceName.value +'";\n';
 	//Hardware Version, Software Version
@@ -19,7 +87,8 @@ function objectlist_generator(form)
 	objlist += '/** Service Data Object 1000: Device Type */\nconst _objd SDO1000[]=\n{{0x00,DTYPE_UNSIGNED32,32,ATYPE_R,&acName1000[0],0x00000000}};\n/** Service Data Object 1008: Device Name */\nconst _objd SDO1008[]=\n{{0x00,DTYPE_VISIBLE_STRING,sizeof(ac1008_00)<<3,ATYPE_R,&acName1008[0],0,&ac1008_00[0]}};\n/** Service Data Object 1009: Hardware Version */\nconst _objd SDO1009[]=\n{{0x00,DTYPE_VISIBLE_STRING,sizeof(ac1009_00)<<3,ATYPE_R,&acName1009[0],0,&ac1009_00[0]}};\n/** Service Data Object 100A: Software Version */\nconst _objd SDO100A[]=\n{{0x00,DTYPE_VISIBLE_STRING,sizeof(ac100A_00)<<3,ATYPE_R,&acName100A[0],0,&ac100A_00[0]}};\n';	
 	//Identity Object
 	objlist += "const _objd SDO1018[]=                                              //See ETG.1000.6 'Identity Object'\n {{0x00,DTYPE_UNSIGNED8,8,ATYPE_R,&acNameNOE[0],0x04},               //Number of Entries\n  {0x01,DTYPE_UNSIGNED32,32,ATYPE_R,&acName1018_01[0]," + form.VendorID.value + "},  //Vendor ID\n  {0x02,DTYPE_UNSIGNED32,32,ATYPE_R,&acName1018_02[0]," + form.ProductCode.value + " },  //Product Code\n  {0x03,DTYPE_UNSIGNED32,32,ATYPE_R,&acName1018_03[0]," + form.RevisionNumber.value + "},  //Revision Number\n  {0x04,DTYPE_UNSIGNED32,32,ATYPE_R,&acName1018_04[0]," + form.SerialNumber.value + "}   //Serial Number\n};\n"
-	return objlist;
+	// return objlist;
+	return objectlist;
 }
 
 //See ETG2000 for ESI format
@@ -443,4 +512,9 @@ function FindCRC(data,datalen)         // computes crc value
     CRC &= 0xff;
   }
   return CRC;
+}
+
+window.onload = (event) => {
+	const form = document.getElementById('SlaveForm');
+	updatevalues(form);
 }
