@@ -48,7 +48,7 @@ const ATYPE = {
 	TXPDO : 'TXPDO',
 	RXPDO : 'RXPDO',
 };
-const requided_SDOs = [  // you cannot delete these
+const requided_SDOs = [  // these are required by minimal CiA 301 device
 	'1000',
 	'1008',
 	'1009',
@@ -56,65 +56,76 @@ const requided_SDOs = [  // you cannot delete these
 	'1018',
 	'1C00'
 ];
-const OD = {
-	'1000': { otype: OTYPE.VAR, dtype: DTYPE.UNSIGNED32, name: 'Device Type', value: 0x1389 },
-	'1008': { otype: OTYPE.VAR, dtype: DTYPE.VISIBLE_STRING, name: 'Device Name', data: '' },
-	'1009': { otype: OTYPE.VAR, dtype: DTYPE.VISIBLE_STRING, name: 'Hardware Version', data: '' },
-	'100A': { otype: OTYPE.VAR, dtype: DTYPE.VISIBLE_STRING, name: 'Software Version', data: '' },
-	'1018': { otype: OTYPE.RECORD, name: 'Identity Object', items: [
-		{ name: 'Max SubIndex' },
-		{ name: 'Vendor ID', dtype: DTYPE.UNSIGNED32, value: 600 },
-		{ name: 'Product Code', dtype: DTYPE.UNSIGNED32 },
-		{ name: 'Revision Number', dtype: DTYPE.UNSIGNED32 },
-		{ name: 'Serial Number', dtype: DTYPE.UNSIGNED32, data: '&Obj.serial' },
-	]},
-	'1C00': { otype: OTYPE.ARRAY, dtype: DTYPE.UNSIGNED8, name: 'Sync Manager Communication Type', items: [
-		{ name: 'Max SubIndex' },
-		{ name: 'Communications Type SM0', value: 1 },
-		{ name: 'Communications Type SM1', value: 2 },
-		{ name: 'Communications Type SM2', value: 3 },
-		{ name: 'Communications Type SM3', value: 4 },
-	]},
-};
-const usedIndexes = [];
+
+function get_default_od() {
+
+	const OD = {
+		'1000': { otype: OTYPE.VAR, dtype: DTYPE.UNSIGNED32, name: 'Device Type', value: 0x1389 },
+		'1008': { otype: OTYPE.VAR, dtype: DTYPE.VISIBLE_STRING, name: 'Device Name', data: '' },
+		'1009': { otype: OTYPE.VAR, dtype: DTYPE.VISIBLE_STRING, name: 'Hardware Version', data: '' },
+		'100A': { otype: OTYPE.VAR, dtype: DTYPE.VISIBLE_STRING, name: 'Software Version', data: '' },
+		'1018': { otype: OTYPE.RECORD, name: 'Identity Object', items: [
+			{ name: 'Max SubIndex' },
+			{ name: 'Vendor ID', dtype: DTYPE.UNSIGNED32, value: 600 },
+			{ name: 'Product Code', dtype: DTYPE.UNSIGNED32 },
+			{ name: 'Revision Number', dtype: DTYPE.UNSIGNED32 },
+			{ name: 'Serial Number', dtype: DTYPE.UNSIGNED32, data: '&Obj.serial' },
+		]},
+		'1C00': { otype: OTYPE.ARRAY, dtype: DTYPE.UNSIGNED8, name: 'Sync Manager Communication Type', items: [
+			{ name: 'Max SubIndex' },
+			{ name: 'Communications Type SM0', value: 1 },
+			{ name: 'Communications Type SM1', value: 2 },
+			{ name: 'Communications Type SM2', value: 3 },
+			{ name: 'Communications Type SM3', value: 4 },
+		]},
+	};
+	return OD;
+}
 
 function updatevalues(form)
 {
-	populate_od(form);
+	const od = get_default_od();
+	populate_od(form, od);
 
-	form.objectlist.value = objectlist_generator(form);
-	form.ecat_options.value = ecat_options_generator(form);
+	form.objectlist.value = objectlist_generator(form, od);
+	form.ecat_options.value = ecat_options_generator(form, od);
 	form.utypes.value = utypes_generator(form);
 	form.HEX.value = hex_generator(form); //HEX generator needs to be run first, data from hex is used in esi
 	form.ESI.value = esi_generator(form);
 	return true;
 }
 
-function populate_od(form) {
-	OD['1008'].data = form.TextDeviceName.value;
-	OD['1009'].data = form.HWversion.value;
-	OD['100A'].data = form.SWversion.value;
-	OD['1018'].items[1].value = parseInt(form.VendorID.value);
-	OD['1018'].items[2].value = parseInt(form.ProductCode.value);
-	OD['1018'].items[3].value = parseInt(form.RevisionNumber.value);
-	OD['1018'].items[4].value = parseInt(form.SerialNumber.value);
+function populate_od(form, od) {
+	od['1008'].data = form.TextDeviceName.value;
+	od['1009'].data = form.HWversion.value;
+	od['100A'].data = form.SWversion.value;
+	od['1018'].items[1].value = parseInt(form.VendorID.value);
+	od['1018'].items[2].value = parseInt(form.ProductCode.value);
+	od['1018'].items[3].value = parseInt(form.RevisionNumber.value);
+	od['1018'].items[4].value = parseInt(form.SerialNumber.value);
 
-	scan_indexes();
+	scan_indexes(od);
 }
 
-function scan_indexes() {
+_usedIndexes = [];
+
+function scan_indexes(od) {
 	const index_min = 0x1000;
 	const index_max = 0xFFFF;
 	// clear
-	while (usedIndexes.length > 0) { usedIndexes.pop(); }
+	_usedIndexes = [];
 	// scan index address space for ones used  
 	for (let i = index_min; i <= index_max; i++) {
 		const index = i.toString(16).toUpperCase();
-		const element = OD[index];
+		const element = od[index];
 		if (element) {
-			usedIndexes.push(index);
+			_usedIndexes.push(index);
 		}
 	}
+}
+
+function get_used_indexes() {
+	return _usedIndexes;
 }
 
 function subindex_padded(subindex) {
@@ -157,13 +168,14 @@ function get_objdBitsize(element) {
 	return bitsize;
 }
 
-function objectlist_generator(form)
+function objectlist_generator(form, od)
 {
 	var objectlist  = '#include "esc_coe.h"\n#include "utypes.h"\n#include <stddef.h>\n\n';
+	const indexes = get_used_indexes();
 
 	//Variable names
-	usedIndexes.forEach(index => {
-		const element = OD[index];
+	indexes.forEach(index => {
+		const element = od[index];
 		objectlist += `\nstatic const char acName${index}[] = "${element.name}";`;
 		switch (element.otype) {
 			case OTYPE.VAR:
@@ -182,8 +194,8 @@ function objectlist_generator(form)
 	});
 	objectlist += '\n';
 	//SDO objects declaration
-	usedIndexes.forEach(index => {
-		const element = OD[index];
+	indexes.forEach(index => {
+		const element = od[index];
 		objectlist += `\nconst _objd SDO${index}[] =\n{`;
 		
 		switch (element.otype) {
@@ -233,8 +245,8 @@ function objectlist_generator(form)
 
 	objectlist += '\n\nconst _objectlist SDOobjects[] =\n{';
 	//SDO object dictionary declaration
-	usedIndexes.forEach(index => {
-		const element = OD[index];
+	indexes.forEach(index => {
+		const element = od[index];
 		switch (element.otype) {
 			case OTYPE.VAR:
 			case OTYPE.ARRAY:
@@ -256,8 +268,9 @@ function objectlist_generator(form)
 }
 
 //See ETG2000 for ESI format
-function esi_generator(form)
+function esi_generator(form, od)
 {
+const indexes = get_used_indexes();
 //VendorID
 	var esi =`<?xml version="1.0" encoding="UTF-8"?>\n<EtherCATInfo>\n  <Vendor>\n    <Id>${parseInt(form.VendorID.value).toString()}</Id>\n`;
 //VendorName
