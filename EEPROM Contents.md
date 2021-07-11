@@ -6,7 +6,7 @@ This info should be made available both in an XML-based ESI-file (**E**therCAT *
 
 **Be sure that the EEPROM, ESI file and source code are using the same data. You can do this by using [this tool: Generate consistent data in ESI, EEPROM and source](https://bravoembedded.bitbucket.io/EEPROM_generator.html)**
 
-#Writing the EEPROM
+# Writing the EEPROM
 To write the EEPROM contents you generated, use [SOEM][SOEM]. 
 
 ```

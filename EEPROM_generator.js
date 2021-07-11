@@ -2,14 +2,14 @@ configdata = ""
 
 function updatevalues(form)
 {
-	form.objlist.value = objlist_generator(form);
+	form.objlist.value = objectlist_generator(form);
 	form.HEX.value = hex_generator(form); //HEX generator needs to be run first, data from hex is used in esi
 	form.ESI.value = esi_generator(form);
 	form.ecat_options.value = ecat_options_generator(form);
 	return true;
 }
 
-function objlist_generator(form)
+function objectlist_generator(form)
 {
 	//Device Name
 	var objlist='/** Definiton of Device Name */\nchar ac1008_00[]="' + form.TextDeviceName.value +'";\n';
