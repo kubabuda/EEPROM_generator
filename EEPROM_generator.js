@@ -392,20 +392,31 @@ function ecat_options_generator(form)
 				+ '\n#define MBX0_sme         MBX0_sma+MBX0_sml-1' 
 				+ '\n#define MBX0_smc         0x26\n';
 	//Mailbox 1 Config
-	ecat_options += '#define MBX1_sma         0x' + parseInt(form.TxMailboxOffset.value).toString(16)
+	ecat_options += '#define MBX1_sma         MBX0_sma+MBX0_sml' //'0x' + parseInt(form.TxMailboxOffset.value).toString(16)
 				+ '\n#define MBX1_sml         MBXSIZE' 
 				+ '\n#define MBX1_sme         MBX1_sma+MBX1_sml-1'
 				+ '\n#define MBX1_smc         0x22\n\n';
+	// Mailbox boot configuration
+	ecat_options += '#define MBX0_sma_b       0x' + parseInt(form.RxMailboxOffset.value).toString(16) 
+				+ '\n#define MBX0_sml_b       MBXSIZEBOOT' 
+				+ '\n#define MBX0_sme_b       MBX0_sma_b+MBX0_sml_b-1' 
+				+ '\n#define MBX0_smc_b       0x26\n';
+	ecat_options += '#define MBX1_sma_b       MBX0_sma_b+MBX0_sml_b' //'0x' + parseInt(form.TxMailboxOffset.value).toString(16)
+				+ '\n#define MBX1_sml_b       MBXSIZEBOOT' 
+				+ '\n#define MBX1_sme_b       MBX1_sma_b+MBX1_sml_b-1'
+				+ '\n#define MBX1_smc_b       0x22\n\n';
 	//SyncManager2 Config
 	ecat_options += '#define SM2_sma          0x' + parseInt(form.SM2Offset.value).toString(16)
 				+ '\n#define SM2_smc          0x24' 
-				+ '\n#define SM2_act          0x01\n';
+				+ '\n#define SM2_act          1\n';
 	//SyncManager3 Config
 	ecat_options += '#define SM3_sma          0x' + parseInt(form.SM3Offset.value).toString(16) 
 				+ '\n#define SM3_smc          0x20'
-				+ '\n#define SM3_act          0x01\n';
+				+ '\n#define SM3_act          1\n\n';
 	
-	ecat_options += '\n#endif /* __ECAT_OPTIONS_H__ */\n';
+	ecat_options += '#define MAX_RXPDO_SIZE   512'
+				+ '\n#define MAX_TXPDO_SIZE   512\n\n'
+				+ '#endif /* __ECAT_OPTIONS_H__ */\n';
 
 	return ecat_options;
 }
