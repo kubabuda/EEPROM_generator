@@ -49,6 +49,13 @@ const OD = {
 	'1008': { otype: OTYPE.VAR, dtype: DTYPE.VISIBLE_STRING, name: 'Device Name', data: '', pdoMappings: [], required: true },
 	'1009': { otype: OTYPE.VAR, dtype: DTYPE.VISIBLE_STRING, name: 'Hardware Version', data: '', pdoMappings: [], required: true },
 	'100A': { otype: OTYPE.VAR, dtype: DTYPE.VISIBLE_STRING, name: 'Software Version', data: '', pdoMappings: [], required: true },
+	'1C00': { otype: OTYPE.ARRAY, dtype: DTYPE.UNSIGNED8, name: 'Sync Manager Communication Type', required: true, items: [
+		{ name: 'Max SubIndex', data: '', pdoMappings: [] },
+		{ name: 'Communications Type SM0', value: 1, pdoMappings: [] },
+		{ name: 'Communications Type SM1', value: 2, pdoMappings: [] },
+		{ name: 'Communications Type SM2', value: 3, pdoMappings: [] },
+		{ name: 'Communications Type SM3', value: 4, pdoMappings: [] },
+	] },
 };
 let usedIndexes = [];
 
@@ -79,6 +86,14 @@ function populate_od_values(form) {
 	}
 }
 
+function subindex_padded(subindex) {
+	// pad with 0 if single digit
+	if (subindex > 9) {
+		return `${subindex}`;
+	}
+	return `0${subindex}`;
+}
+
 function objectlist_generator(form)
 {
 	populate_od_values(form);
@@ -91,6 +106,13 @@ function objectlist_generator(form)
 			case OTYPE.VAR:
 				objectlist += `\nstatic const char acName${index}[] = "${element.name}";`;
 				break;
+			case OTYPE.ARRAY:
+				objectlist += `\nstatic const char acName${index}[] = "${element.name}";`;
+				for (let subindex = 0; subindex < element.items.length; subindex++) {
+					const item = element.items[subindex];
+					objectlist += `\nstatic const char acName${index}_${subindex_padded(subindex)}[] = "${item.name}";`;
+				}
+				break;
 			default:
 				alert("Unexpected object type in object dictionary: ", element)
 				break;
@@ -101,9 +123,10 @@ function objectlist_generator(form)
 	usedIndexes.forEach(index => {
 		const element = OD[index];
 		objectlist += `\nconst _objd SDO${index}[] =\n{`;
+		let el_bitlength = dtype_bitsize[element.dtype];
+		
 		switch (element.otype) {
 			case OTYPE.VAR:
-				let el_bitlength = dtype_bitsize[element.dtype];
 				let el_value = '0';
 				let el_data = 'NULL';
 				let flags = 'ATYPE_RO'; /* TODO these can be set by PDO mappings */
@@ -117,11 +140,25 @@ function objectlist_generator(form)
 					el_value = `0x${element.value.toString(16)}`;
 				}
 				const varDeclaration = `\n  {0x0, DTYPE_${element.dtype}, ${el_bitlength}, ${flags}, acName${index}, ${el_value}, ${el_data}},`;
+
 				objectlist += varDeclaration;
 				break;
-			case 'array':
+			case OTYPE.ARRAY:
+				let arrDeclaration = `\n  {0x00, DTYPE_${DTYPE.UNSIGNED8}, ${8}, ${'ATYPE_RO'}, acName${index}_00, ${element.items.length - 1}, NULL},`;
+				subindex = 0;
+				element.items.forEach(item => {
+					if (subindex > 0) {
+						var subi = subindex_padded(subindex);
+						var flags = 'ATYPE_RO'; /* TODO flags modified by PDO mappings */
+						arrDeclaration += `\n  {0x${subi}, DTYPE_${element.dtype}, ${el_bitlength}, ${flags}, acName${index}_${subi}, ${item.value || 0}, ${item.data || 'NULL'}},`;
+					}
+					subindex ++;
+				});
+
+				objectlist += arrDeclaration;
+				break;
 			default:
-				alert("Unexpected object type om object dictionary")
+				alert("Unexpected object type om object dictionary");
 				break;
 		};
 		objectlist += '\n};';
@@ -133,9 +170,13 @@ function objectlist_generator(form)
 		const element = OD[index];
 		switch (element.otype) {
 			case OTYPE.VAR:
-				objectlist += `\n  {0x${index}, OTYPE_${element.otype}, ${element.maxsubindex || 0}, ${element.pad1 || 0}, acName${index}, SDO${index}},`;
+			case OTYPE.ARRAY:
+				let maxsubindex = 0;
+				if (element.items) {
+					maxsubindex = element.items.length - 1;
+				}
+				objectlist += `\n  {0x${index}, OTYPE_${element.otype}, ${maxsubindex}, ${element.pad1 || 0}, acName${index}, SDO${index}},`;
 				break;
-			case 'array':
 			default:
 				alert("Unexpected object type om object dictionary")
 				break;
