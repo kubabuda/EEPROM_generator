@@ -59,7 +59,7 @@ tr td:nth-child(6) {
       <td>TxMailbox Offset:</td><td><input type = "text" name="TxMailboxOffset" value="0x1080" title="Offset in memory. Do not change unless you are really sure what you're doing"></td><td>x</td><td>x</td><td>&nbsp;</td><td>x</td>
    </tr>
    <tr>
-      <td>Tx AND Rx Mailbox Size:</td><td><input type = "text" name="MailboxSize" value="0x80" title="Size of mailbox in bytes.&#013;Maximum is 0x80 for SOES.&#013Do not change unless you are really sure what you're doing."></td><td>x</td><td>x</td><td>&nbsp;</td><td>x</td>
+      <td>Tx AND Rx Mailbox Size:</td><td><input type = "text" name="MailboxSize" value="512" title="Size of mailbox in bytes.&#013;Do not change unless you are really sure what you're doing."></td><td>x</td><td>x</td><td>&nbsp;</td><td>x</td>
    </tr>
    <tr>
       <td>SyncManager 2 offset:</td><td><input type = "text" name="SM2Offset" value="0x1400" title="Offset in memory. Do not change unless you are really sure what you're doing"></td><td>x</td><td>x</td><td>&nbsp;</td><td>x</td>
@@ -113,10 +113,11 @@ tr td:nth-child(6) {
 ESI file:<br>
 <textarea cols = "150" rows = "12" name="ESI">ESI File</textarea><br><br>
 Hex file:<br>
-<textarea cols = "150" rows = "12" name="HEX">Hex File</textarea><br><br>
-Part of objlist.h:<br>
+<textarea cols = "150" rows = "12" name="HEX">Hex File</textarea><br>
+To flash generated binary, install SOEM and run <br><i>sudo ./eepromtool 1 eth0 -wi eeprom.hex</i><br><br>
+objlist.h:<br>
 <textarea cols = "150" rows = "12" name="objlist">objlist.h</textarea><br><br>
-Part of ecat_options.h:<br>
+ecat_options.h:<br>
 <textarea cols = "150" rows = "12" name="ecat_options">ecat_options.h</textarea><br><br>
 </form>
 </body>

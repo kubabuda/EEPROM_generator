@@ -383,11 +383,11 @@ function ecat_options_generator(form)
 	ecat_options = '#ifndef __ECAT_OPTIONS_H__\n#define __ECAT_OPTIONS_H__\n\n#define USE_FOE          0\n#define USE_EOE          0\n\n';
 
 	//Mailbox size
-	ecat_options += '#define MBXSIZE          0x' + parseInt(form.MailboxSize.value).toString(16)
-				+ '\n#define MBXSIZEBOOT      0x' + parseInt(form.MailboxSize.value).toString(16)
+	ecat_options += '#define MBXSIZE          ' + parseInt(form.MailboxSize.value).toString()
+				+ '\n#define MBXSIZEBOOT      ' + parseInt(form.MailboxSize.value).toString()
 				+ '\n#define MBXBUFFERS       3\n\n';
 	//Mailbox 0 Config
-	ecat_options += '#define MBX0_sma         0x' + parseInt(form.RxMailboxOffset.value).toString(16) 
+	ecat_options += '#define MBX0_sma         0x' + parseInt(form.RxMailboxOffset.value).toString(16)
 				+ '\n#define MBX0_sml         MBXSIZE' 
 				+ '\n#define MBX0_sme         MBX0_sma+MBX0_sml-1' 
 				+ '\n#define MBX0_smc         0x26\n';
@@ -406,14 +406,17 @@ function ecat_options_generator(form)
 				+ '\n#define MBX1_sme_b       MBX1_sma_b+MBX1_sml_b-1'
 				+ '\n#define MBX1_smc_b       0x22\n\n';
 	//SyncManager2 Config
-	ecat_options += '#define SM2_sma          0x' + parseInt(form.SM2Offset.value).toString(16)
+	ecat_options += '#define SM2_sma          0x' + parseInt(form.SM2Offset.value).toString(16).toUpperCase()
 				+ '\n#define SM2_smc          0x24' 
 				+ '\n#define SM2_act          1\n';
 	//SyncManager3 Config
-	ecat_options += '#define SM3_sma          0x' + parseInt(form.SM3Offset.value).toString(16) 
+	ecat_options += '#define SM3_sma          0x' + parseInt(form.SM3Offset.value).toString(16).toUpperCase()
 				+ '\n#define SM3_smc          0x20'
 				+ '\n#define SM3_act          1\n\n';
-	
+	// Mappings config
+	ecat_options += '#define MAX_MAPPINGS_SM2 ' + 2  /* TODO */
+				+ '\n#define MAX_MAPPINGS_SM3 ' + 10 /* TODO */ + '\n\n';
+	// PDO buffer config
 	ecat_options += '#define MAX_RXPDO_SIZE   512'
 				+ '\n#define MAX_TXPDO_SIZE   512\n\n'
 				+ '#endif /* __ECAT_OPTIONS_H__ */\n';
