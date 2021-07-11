@@ -1,5 +1,39 @@
 configdata = ""
 
+// OTYPE: VAR, ARRAY, RECORD
+const OTYPE = {
+	VAR: 'VAR',
+	ARRAY: 'ARRAY',
+	// RECORD: 'RECORD',
+};
+const OD = {
+	'1000': { otype: OTYPE.VAR, dtype: 'UNSIGNED32', name: 'Device Type', value: 0x1389, pdoMappings: [] },
+	'1008': { otype: OTYPE.VAR, dtype: 'VISIBLE_STRING', name: 'Device Name', data: '', pdoMappings: [] },
+	'1009': { otype: OTYPE.VAR, dtype: 'VISIBLE_STRING', name: 'Hardware Version', data: '', pdoMappings: [] },
+	'100A': { otype: OTYPE.VAR, dtype: 'VISIBLE_STRING', name: 'Software Version', data: '', pdoMappings: [] },
+	// getElement
+};
+const dtype_bitsize = {
+	'BOOLEAN' : 8,
+	'INTEGER8' : 8,
+	'INTEGER16' : 16,
+	'INTEGER32' : 32,
+	'UNSIGNED8' : 8,
+	'UNSIGNED16' : 16,
+	'UNSIGNED32' : 32,
+	'REAL32' : 32,
+	'VISIBLE_STRING' : 8,
+	// 'OCTET_STRING' : 8, /* TODO */
+	// 'UNICODE_STRING' : 8, /* TODO */
+	'INTEGER24' : 24,
+	'UNSIGNED24' : 24,
+	'INTEGER64' : 64,
+	'UNSIGNED64' : 64,
+	'REAL64' : 64,
+	// 'PDO_MAPPING' : 8, /* TODO */
+};
+let usedIndexes = [];
+
 function updatevalues(form)
 {
 	form.objectlist.value = objectlist_generator(form);
@@ -10,77 +44,47 @@ function updatevalues(form)
 	return true;
 }
 
+function populate_od_values(form) {
+	OD['1008'].data = form.TextDeviceName.value;
+	OD['1009'].data = form.HWversion.value;
+	OD['100A'].data = form.SWversion.value;
+	
+	const index_min = 0x1000;
+	const index_max = 0xFFFF;
 
-// OTYPE: VAR, ARRAY, RECORD
-const OD = {
-	'0x1000': { otype: 'VAR', dtype: 'UNSIGNED32', name: 'Device Type', value: 0x1389, pdoMappings: [] },
-	'0x1008': { otype: 'VAR', dtype: 'VISIBLE_STRING', name: 'Device Name', data: '', pdoMappings: [] },
-	'0x1009': { otype: 'VAR', dtype: 'VISIBLE_STRING', name: 'Hardware Version', data: '', pdoMappings: [] },
-	'0x100A': { otype: 'VAR', dtype: 'VISIBLE_STRING', name: 'Software Version', data: '', pdoMappings: [] },
-	// getElement
-}
-
-function indexHexadecimal(i) {
-	return '0x' + i.toString(16).toUpperCase();
-}
-
-function populate_object_values(form) {
-	OD['0x1008'].data = form.TextDeviceName.value;
-	OD['0x1009'].data = form.HWversion.value;
-	OD['0x100A'].data = form.SWversion.value;
+	for (let i = index_min; i <= index_max; i++) {
+		const index = i.toString(16).toUpperCase();
+		const element = OD[index];
+		if (element) {
+			usedIndexes.push(index);
+		}
+	}
 }
 
 function objectlist_generator(form)
 {
-	populate_object_values(form);
-	var usedIndexes = [];
-	const dtype_bitsize = {
-		'BOOLEAN' : 8,
-		'INTEGER8' : 8,
-		'INTEGER16' : 16,
-		'INTEGER32' : 32,
-		'UNSIGNED8' : 8,
-		'UNSIGNED16' : 16,
-		'UNSIGNED32' : 32,
-		'REAL32' : 32,
-		'VISIBLE_STRING' : 8,
-		// 'OCTET_STRING' : 8, /* TODO */
-		// 'UNICODE_STRING' : 8, /* TODO */
-		'INTEGER24' : 24,
-		'UNSIGNED24' : 24,
-		'INTEGER64' : 64,
-		'UNSIGNED64' : 64,
-		'REAL64' : 64,
-		// 'PDO_MAPPING' : 8, /* TODO */
-	}
-	const minindex = 0x1000;
-	const maxindex = 0xFFFF;
+	populate_od_values(form);
 	var objectlist  = '#include "esc_coe.h"\n#include "utypes.h"\n#include <stddef.h>\n\n';
 
 	//Variable names
-	for (let i = minindex; i <= maxindex; i++) {
-		const index = i.toString(16).toUpperCase();
-		const element = OD[`0x${index}`];
-		
-		if (element) {
-			usedIndexes.push(index);
-			switch (element.otype.toLowerCase()) {
-				case "var":
-					objectlist += `\nstatic const char acName${index}[] = "${element.name}";`;
-					break;
-				default:
-					alert("Unexpected object type om object dictionary")
-					break;
-			};
-		}
-	}
-	objectlist += '\n\n';
+	usedIndexes.forEach(index => {
+		const element = OD[index];
+		switch (element.otype) {
+			case OTYPE.VAR:
+				objectlist += `\nstatic const char acName${index}[] = "${element.name}";`;
+				break;
+			default:
+				alert("Unexpected object type in object dictionary: ", element)
+				break;
+		};
+	});
+	objectlist += '\n';
 	//SDO objects declaration
 	usedIndexes.forEach(index => {
-		const element = OD[`0x${index}`];
+		const element = OD[index];
 		objectlist += `\nconst _objd SDO${index}[] =\n{`;
-		switch (element.otype.toLowerCase()) {
-			case "var":
+		switch (element.otype) {
+			case OTYPE.VAR:
 				let el_bitlength = dtype_bitsize[element.dtype];
 				let el_value = '0';
 				let el_data = 'NULL';
@@ -108,9 +112,9 @@ function objectlist_generator(form)
 	objectlist += '\n\nconst _objectlist SDOobjects[] =\n{';
 	//SDO object dictionary declaration
 	usedIndexes.forEach(index => {
-		const element = OD[`0x${index}`];
-		switch (element.otype.toLowerCase()) {
-			case "var":
+		const element = OD[index];
+		switch (element.otype) {
+			case OTYPE.VAR:
 				objectlist += `\n  {0x${index}, OTYPE_${element.otype}, ${element.maxsubindex || 0}, ${element.pad1 || 0}, acName${index}, SDO${index}},`;
 				break;
 			case 'array':
@@ -192,9 +196,9 @@ function getCoEString(form)
 	else 
 		result += 'PdoUpload="false" ';
 	if(form.CoeDetails[5].checked) 
-		result += 'Complete access="true" ';
+		result += 'CompleteAccess="true" ';
 	else 
-		result +='Complete access="false" ';
+		result +='CompleteAccess="false" ';
 	return result;										
 }
 function hex_generator(form)
