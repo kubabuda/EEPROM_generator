@@ -59,10 +59,10 @@ const OD = {
 	'100A': { otype: OTYPE.VAR, dtype: DTYPE.VISIBLE_STRING, name: 'Software Version', data: '' },
 	'1018': { otype: OTYPE.RECORD, name: 'Identity Object', items: [
 		{ name: 'Max SubIndex' },
-		{ name: 'Vendor ID', dtype: DTYPE.DTYPE_UNSIGNED32 },
-		{ name: 'Product Code', dtype: DTYPE.DTYPE_UNSIGNED32 },
-		{ name: 'Revision Number', dtype: DTYPE.DTYPE_UNSIGNED32 },
-		{ name: 'Serial Number', dtype: DTYPE.DTYPE_UNSIGNED32, data: '&Obj.serial' },
+		{ name: 'Vendor ID', dtype: DTYPE.UNSIGNED32, value: 600 },
+		{ name: 'Product Code', dtype: DTYPE.UNSIGNED32 },
+		{ name: 'Revision Number', dtype: DTYPE.UNSIGNED32 },
+		{ name: 'Serial Number', dtype: DTYPE.UNSIGNED32, data: '&Obj.serial' },
 	]},
 	'1C00': { otype: OTYPE.ARRAY, dtype: DTYPE.UNSIGNED8, name: 'Sync Manager Communication Type', items: [
 		{ name: 'Max SubIndex' },
@@ -88,10 +88,15 @@ function populate_od_values(form) {
 	OD['1008'].data = form.TextDeviceName.value;
 	OD['1009'].data = form.HWversion.value;
 	OD['100A'].data = form.SWversion.value;
+	OD['1018'].items[1].value = parseInt(form.VendorID.value);
+	OD['1018'].items[2].value = parseInt(form.ProductCode.value);
+	OD['1018'].items[3].value = parseInt(form.RevisionNumber.value);
+	OD['1018'].items[4].value = parseInt(form.SerialNumber.value);
 	
 	const index_min = 0x1000;
 	const index_max = 0xFFFF;
 
+	while (usedIndexes.length > 0) { usedIndexes.pop(); }
 	for (let i = index_min; i <= index_max; i++) {
 		const index = i.toString(16).toUpperCase();
 		const element = OD[index];
@@ -107,6 +112,15 @@ function subindex_padded(subindex) {
 		return `${subindex}`;
 	}
 	return `0${subindex}`;
+}
+
+function getObjdFlags(variable) {
+	/* TODO these can be set by PDO mappings */
+	return "ATYPE_RO";
+}
+
+function getObjectlistData(variable) {
+	
 }
 
 function objectlist_generator(form)
@@ -138,41 +152,52 @@ function objectlist_generator(form)
 	usedIndexes.forEach(index => {
 		const element = OD[index];
 		objectlist += `\nconst _objd SDO${index}[] =\n{`;
-		let el_bitlength = dtype_bitsize[element.dtype];
+		el_bitlength = dtype_bitsize[element.dtype];
 		
 		switch (element.otype) {
 			case OTYPE.VAR:
-				let el_value = '0';
-				let el_data = 'NULL';
-				let flags = 'ATYPE_RO'; /* TODO these can be set by PDO mappings */
+				el_value = '0';
+				el_data = 'NULL';
 				if (element.dtype == 'VISIBLE_STRING') {
 					el_bitlength = el_bitlength * element.data.length;
 					el_data = `"${element.data}"`;
 				}
 				if (element.data) {
-					/* TODO indexData is assigned also for PDO mapped variables */
+					/* TODO el_data is assigned also for PDO mapped variables */
 				} else if (element.value && element.value != 0) {
 					el_value = `0x${element.value.toString(16)}`;
 				}
-				const varDeclaration = `\n  {0x0, DTYPE_${element.dtype}, ${el_bitlength}, ${flags}, acName${index}, ${el_value}, ${el_data}},`;
+				const var_objd = `\n  {0x0, DTYPE_${element.dtype}, ${el_bitlength}, ${getObjdFlags(element)}, acName${index}, ${el_value}, ${el_data}},`;
 
-				objectlist += varDeclaration;
+				objectlist += var_objd;
 				break;
-			case OTYPE.ARRAY:
-				let arrDeclaration = `\n  {0x00, DTYPE_${DTYPE.UNSIGNED8}, ${8}, ${'ATYPE_RO'}, acName${index}_00, ${element.items.length - 1}, NULL},`;
+			case OTYPE.ARRAY: 
+				arr_objd = `\n  {0x00, DTYPE_${DTYPE.UNSIGNED8}, ${8}, ATYPE_RO, acName${index}_00, ${element.items.length - 1}, NULL},`; // max subindex
 				subindex = 0;
 				element.items.forEach(item => {
-					if (subindex > 0) {
+					if (subindex > 0) { 	// skip max subindex, already done
 						var subi = subindex_padded(subindex);
-						var flags = 'ATYPE_RO'; /* TODO flags modified by PDO mappings */
-						arrDeclaration += `\n  {0x${subi}, DTYPE_${element.dtype}, ${el_bitlength}, ${flags}, acName${index}_${subi}, ${item.value || 0}, ${item.data || 'NULL'}},`;
+						arr_objd += `\n  {0x${subi}, DTYPE_${element.dtype}, ${el_bitlength}, ${getObjdFlags(item)}, acName${index}_${subi}, ${item.value || 0}, ${item.data || 'NULL'}},`;
 					}
 					subindex ++;
 				});
 
-				objectlist += arrDeclaration;
+				objectlist += arr_objd;
 				break;
-			case OTYPE.RECORD: break;
+			case OTYPE.RECORD: 
+				rec_objd = `\n  {0x00, DTYPE_${DTYPE.UNSIGNED8}, ${8}, ATYPE_RO, acName${index}_00, ${element.items.length - 1}, NULL},`; // max subindex
+				subindex = 0;
+				element.items.forEach(item => {
+					if (subindex > 0) { 	// skip max subindex, already done
+						var subi = subindex_padded(subindex);
+						el_bitlength = dtype_bitsize[item.dtype];
+						rec_objd += `\n  {0x${subi}, DTYPE_${item.dtype}, ${el_bitlength}, ${getObjdFlags(item)}, acName${index}_${subi}, ${item.value || 0}, ${item.data || 'NULL'}},`;
+					}
+					subindex ++;
+				});
+
+				objectlist += rec_objd;
+				break;
 			default:
 				alert("Unexpected object type om object dictionary");
 				break;
@@ -187,13 +212,13 @@ function objectlist_generator(form)
 		switch (element.otype) {
 			case OTYPE.VAR:
 			case OTYPE.ARRAY:
+			case OTYPE.RECORD:
 				let maxsubindex = 0;
 				if (element.items) {
 					maxsubindex = element.items.length - 1;
 				}
 				objectlist += `\n  {0x${index}, OTYPE_${element.otype}, ${maxsubindex}, ${element.pad1 || 0}, acName${index}, SDO${index}},`;
 				break;
-				case OTYPE.RECORD: break;
 			default:
 				alert("Unexpected object type om object dictionary")
 				break;
@@ -202,13 +227,32 @@ function objectlist_generator(form)
 	objectlist += '\n  {0xffff, 0xff, 0xff, 0xff, NULL, NULL}\n};\n';
 	
 	//Device Name
-	var objlist='/** Definiton of Device Name */\nchar ac1008_00[]="' + form.TextDeviceName.value +'";\n';
-	//Hardware Version, Software Version
-	objlist += '/** Definition of Hardware version*/\nchar ac1009_00[]="' + form.HWversion.value+'";\n/** Definition of Software version*/\nchar ac100A_00[]="' + form.SWversion.value + '";\n';
-	//Fixed stuff; Filling in data
-	objlist += '/** Service Data Object 1000: Device Type */\nconst _objd SDO1000[]=\n{{0x00,DTYPE_UNSIGNED32,32,ATYPE_R,&acName1000[0],0x00000000}};\n/** Service Data Object 1008: Device Name */\nconst _objd SDO1008[]=\n{{0x00,DTYPE_VISIBLE_STRING,sizeof(ac1008_00)<<3,ATYPE_R,&acName1008[0],0,&ac1008_00[0]}};\n/** Service Data Object 1009: Hardware Version */\nconst _objd SDO1009[]=\n{{0x00,DTYPE_VISIBLE_STRING,sizeof(ac1009_00)<<3,ATYPE_R,&acName1009[0],0,&ac1009_00[0]}};\n/** Service Data Object 100A: Software Version */\nconst _objd SDO100A[]=\n{{0x00,DTYPE_VISIBLE_STRING,sizeof(ac100A_00)<<3,ATYPE_R,&acName100A[0],0,&ac100A_00[0]}};\n';	
-	//Identity Object
-	objlist += "const _objd SDO1018[]=                                              //See ETG.1000.6 'Identity Object'\n {{0x00,DTYPE_UNSIGNED8,8,ATYPE_R,&acNameNOE[0],0x04},               //Number of Entries\n  {0x01,DTYPE_UNSIGNED32,32,ATYPE_R,&acName1018_01[0]," + form.VendorID.value + "},  //Vendor ID\n  {0x02,DTYPE_UNSIGNED32,32,ATYPE_R,&acName1018_02[0]," + form.ProductCode.value + " },  //Product Code\n  {0x03,DTYPE_UNSIGNED32,32,ATYPE_R,&acName1018_03[0]," + form.RevisionNumber.value + "},  //Revision Number\n  {0x04,DTYPE_UNSIGNED32,32,ATYPE_R,&acName1018_04[0]," + form.SerialNumber.value + "}   //Serial Number\n};\n"
+// 	var objlist='/** Definiton of Device Name */\nchar ac1008_00[]="' + form.TextDeviceName.value +'";\n';
+// 	//Hardware Version, Software Version
+// 	objlist += '/** Definition of Hardware version*/\nchar ac1009_00[]="' + form.HWversion.value+'";\n/** Definition of Software version*/\nchar ac100A_00[]="' + form.SWversion.value + '";\n';
+// 	//Fixed stuff; Filling in data
+// 	objlist += '/** Service Data Object 1000: Device Type 
+// const _objd SDO1000[]=
+// 	{{0x00,DTYPE_UNSIGNED32,32,ATYPE_R,&acName1000[0],0x00000000}};
+// 	/** Service Data Object 1008: Device Name */
+// 	const _objd SDO1008[]=
+// 	{{0x00,DTYPE_VISIBLE_STRING,sizeof(ac1008_00)<<3,ATYPE_R,&acName1008[0],0,&ac1008_00[0]}};
+// 	/** Service Data Object 1009: Hardware Version */
+// 	const _objd SDO1009[]=
+// 	{{0x00,DTYPE_VISIBLE_STRING,sizeof(ac1009_00)<<3,ATYPE_R,&acName1009[0],0,&ac1009_00[0]}};
+// 	/** Service Data Object 100A: Software Version */
+// 	const _objd SDO100A[]=
+// 	{{0x00,DTYPE_VISIBLE_STRING,sizeof(ac100A_00)<<3,ATYPE_R,&acName100A[0],0,&ac100A_00[0]}};
+// 	';	
+// 	//Identity Object
+// 	objlist += "const _objd SDO1018[]=                                              //See ETG.1000.6 'Identity Object'
+// 	 {{0x00,DTYPE_UNSIGNED8,8,ATYPE_R,&acNameNOE[0],0x04},               //Number of Entries
+// 	  {0x01,DTYPE_UNSIGNED32,32,ATYPE_R,&acName1018_01[0]," + form.VendorID.value + "},  //Vendor ID
+// 	  {0x02,DTYPE_UNSIGNED32,32,ATYPE_R,&acName1018_02[0]," + form.ProductCode.value + " },  //Product Code
+// 	  {0x03,DTYPE_UNSIGNED32,32,ATYPE_R,&acName1018_03[0]," + form.RevisionNumber.value + "},  //Revision Number
+// 	  {0x04,DTYPE_UNSIGNED32,32,ATYPE_R,&acName1018_04[0]," + form.SerialNumber.value + "}   //Serial Number
+// };
+// 	"
 	// return objlist;
 	return objectlist;
 }
