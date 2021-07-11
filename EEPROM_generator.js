@@ -2,10 +2,11 @@ configdata = ""
 
 function updatevalues(form)
 {
-	form.objlist.value = objectlist_generator(form);
+	form.objectlist.value = objectlist_generator(form);
+	form.ecat_options.value = ecat_options_generator(form);
+	form.utypes.value = utypes_generator(form);
 	form.HEX.value = hex_generator(form); //HEX generator needs to be run first, data from hex is used in esi
 	form.ESI.value = esi_generator(form);
-	form.ecat_options.value = ecat_options_generator(form);
 	return true;
 }
 
@@ -534,6 +535,13 @@ function ecat_options_generator(form)
 	return ecat_options;
 }
 
+function utypes_generator(form) {
+	utypes = '#ifndef __UTYPES_H__\n#define __UTYPES_H__\n\n#include "cc.h"\n\n/* Object dictionary storage */\n\ntypedef struct\n{\n   /* Identity */\n'
+	utypes += '\n   uint32_t serial;\n\n';
+	utypes += '\n} _Objects;\n\nextern _Objects Obj;\n\n#endif /* __UTYPES_H__ */\n\n';
+
+	return utypes;
+}
 
 function FindCRC(data,datalen)         // computes crc value
 {
