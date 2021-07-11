@@ -271,11 +271,11 @@ function esi_generator(form)
 //Add in between
   esi += `        <GroupType>${form.TextGroupType.value}</GroupType>\n`;
 //Add profile
-  esi += `        <Profile>\n          <ProfileNo>5001</ProfileNo>\n          <AddInfo>0</AddInfo>\n          <Dictionary>\n            <DataTypes>\n`;
-// TODO implement data types
+  esi += `        <Profile>\n          <ProfileNo>5001</ProfileNo>\n          <AddInfo>0</AddInfo>\n          <Dictionary>\n            <DataTypes>`;
+/* TODO implement data types */
 
   esi += `\n            </DataTypes>\n            <Objects>`;
-// TODO implement object
+/* TODO implement object */
 
   esi += `\n            </Objects>\n          </Dictionary>\n        </Profile>\n        <Fmmu>Outputs</Fmmu>\n        <Fmmu>Inputs</Fmmu>\n        <Fmmu>MBoxState</Fmmu>\n`;
 //Add Rxmailbox sizes
