@@ -5,7 +5,7 @@ function updatevalues(form)
 	form.objlist.value = objlist_generator(form);
 	form.HEX.value = hex_generator(form); //HEX generator needs to be run first, data from hex is used in esi
 	form.ESI.value = esi_generator(form);
-	form.esc_h.value = esc_h_generator(form);
+	form.ecat_options.value = ecat_options_generator(form);
 	return true;
 }
 
@@ -378,19 +378,19 @@ function generate_hex_address(number)
 	return output.slice(-4);
 }
 
-function esc_h_generator(form)
+function ecat_options_generator(form)
 {
 	//Mailbox size
-	esc_h  = '#define MBXSIZE                 		0x' + parseInt(form.MailboxSize.value).toString(16) + '\n#define MBXBUFFERS              		3\n';
+	ecat_options  = '#define MBXSIZE                 		0x' + parseInt(form.MailboxSize.value).toString(16) + '\n#define MBXBUFFERS              		3\n';
 	//Mailbox 0 Config
-	esc_h += '\n#define MBX0_sma                		0x' + parseInt(form.RxMailboxOffset.value).toString(16) +'\n#define MBX0_sml                		MBXSIZE\n#define MBX0_sme                		MBX0_sma+MBX0_sml-1\n#define MBX0_smc                		0x26\n';
+	ecat_options += '\n#define MBX0_sma                		0x' + parseInt(form.RxMailboxOffset.value).toString(16) +'\n#define MBX0_sml                		MBXSIZE\n#define MBX0_sme                		MBX0_sma+MBX0_sml-1\n#define MBX0_smc                		0x26\n';
 	//Mailbox 1 Config
-	esc_h += '#define MBX1_sma                		0x' + parseInt(form.TxMailboxOffset.value).toString(16) +'\n#define MBX1_sml                		MBXSIZE\n#define MBX1_sme                		MBX1_sma+MBX1_sml-1\n#define MBX1_smc                		0x22\n';
+	ecat_options += '#define MBX1_sma                		0x' + parseInt(form.TxMailboxOffset.value).toString(16) +'\n#define MBX1_sml                		MBXSIZE\n#define MBX1_sme                		MBX1_sma+MBX1_sml-1\n#define MBX1_smc                		0x22\n';
 	//SyncManager2 Config
-	esc_h += '\n#define SM2_sma                 		0x' + parseInt(form.SM2Offset.value).toString(16) +'\n#define SM2_smc                 		0x24\n#define SM2_act					0x01\n';
+	ecat_options += '\n#define SM2_sma                 		0x' + parseInt(form.SM2Offset.value).toString(16) +'\n#define SM2_smc                 		0x24\n#define SM2_act					0x01\n';
 	//SyncManager3 Config
-	esc_h += '#define SM3_sma                 		0x' + parseInt(form.SM3Offset.value).toString(16) +'\n#define SM3_smc                 		0x20\n#define SM3_act					0x01\n';
-	return esc_h;
+	ecat_options += '#define SM3_sma                 		0x' + parseInt(form.SM3Offset.value).toString(16) +'\n#define SM3_smc                 		0x20\n#define SM3_act					0x01\n';
+	return ecat_options;
 }
 
 

@@ -5,7 +5,7 @@ Objectlist is the place where all CoE objects are defined. To get a good underst
 CANOpen uses 'indexes' (16-bit) and subindexes (8-bit) to identify CANOpen objects. The notation of indexes and subindexes is hexadecimal, with a semicolon separating the index and subindex. For example, the Vendor ID is stored in object 1018:01 (As described in 5.6.7.4.6 of ETG1000.6). This is object 0x1018 with subindex 1, and holds an Unsigned 32-bit number.  Objects can hold a single variable, but also an 'ARRAY' (where each subindex of the main index holds a variable) or a 'RECORD', where each subindex holds a reference to another object (index and subindex).
 For EtherCAT, CoE communication (CANOpen over EtherCAT) is a very important way of communicating. It is used in a mailbox protocol (where master and slave know from each other whether sent messages have been received) to exchange settings, and to create a very versatile mapping of data. This is not the place to explain all possibilities of this protocol, so I won't do that.... What is important to know is that in the already mentioned paragraph 5.6.7 of ETG1000.6 the objects used in `objectlist.h` are described in more detail.
 
-#Short description of configuration as in the repository
+# Short description of configuration as in the repository
 The current configuration of objects uses the default mapping as suggested in ETG100.6 and ETG5001. The gloabl variable 'Rb' is mapped to TxPDO's , where a configurator can choose which part of Rb should be read by the master. The global variable Wb is mapped to an RxPDO, fixed, no configuration possible. 
 
 * SDO6000: inputs of slave
