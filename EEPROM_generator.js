@@ -4,7 +4,7 @@ configdata = ""
 const OTYPE = {
 	VAR : 'VAR',
 	ARRAY : 'ARRAY',
-	// RECORD: 'RECORD',
+	RECORD: 'RECORD',
 };
 const DTYPE = {
 	BOOLEAN : 'BOOLEAN',
@@ -44,18 +44,30 @@ const dtype_bitsize = {
 	'REAL64' : 64,
 	// 'PDO_MAPPING' : 8, /* TODO */
 };
+const requided_SDOs = [ 
+	'1000',
+	'1008',
+	'1009',
+	'100A',
+	'1018',
+	'1C00'
+];
 const OD = {
-	'1000': { otype: OTYPE.VAR, dtype: DTYPE.UNSIGNED32, name: 'Device Type', value: 0x1389, pdoMappings: [], required: true },
-	'1008': { otype: OTYPE.VAR, dtype: DTYPE.VISIBLE_STRING, name: 'Device Name', data: '', pdoMappings: [], required: true },
-	'1009': { otype: OTYPE.VAR, dtype: DTYPE.VISIBLE_STRING, name: 'Hardware Version', data: '', pdoMappings: [], required: true },
-	'100A': { otype: OTYPE.VAR, dtype: DTYPE.VISIBLE_STRING, name: 'Software Version', data: '', pdoMappings: [], required: true },
-	'1C00': { otype: OTYPE.ARRAY, dtype: DTYPE.UNSIGNED8, name: 'Sync Manager Communication Type', required: true, items: [
-		{ name: 'Max SubIndex', data: '', pdoMappings: [] },
-		{ name: 'Communications Type SM0', value: 1, pdoMappings: [] },
-		{ name: 'Communications Type SM1', value: 2, pdoMappings: [] },
-		{ name: 'Communications Type SM2', value: 3, pdoMappings: [] },
-		{ name: 'Communications Type SM3', value: 4, pdoMappings: [] },
-	] },
+	'1000': { otype: OTYPE.VAR, dtype: DTYPE.UNSIGNED32, name: 'Device Type', value: 0x1389 },
+	'1008': { otype: OTYPE.VAR, dtype: DTYPE.VISIBLE_STRING, name: 'Device Name', data: '' },
+	'1009': { otype: OTYPE.VAR, dtype: DTYPE.VISIBLE_STRING, name: 'Hardware Version', data: '' },
+	'100A': { otype: OTYPE.VAR, dtype: DTYPE.VISIBLE_STRING, name: 'Software Version', data: '' },
+	// '1018': { otype: OTYPE.RECORD, name: 'Record', records: [
+	// 	{ name: 'Max SubIndex' },
+	// 	{ name: '', dtype: DTYPE.UNSIGNED8,  }
+	// ]},
+	'1C00': { otype: OTYPE.ARRAY, dtype: DTYPE.UNSIGNED8, name: 'Sync Manager Communication Type', items: [
+		{ name: 'Max SubIndex' },
+		{ name: 'Communications Type SM0', value: 1 },
+		{ name: 'Communications Type SM1', value: 2 },
+		{ name: 'Communications Type SM2', value: 3 },
+		{ name: 'Communications Type SM3', value: 4 },
+	]},
 };
 let usedIndexes = [];
 
@@ -113,6 +125,7 @@ function objectlist_generator(form)
 					objectlist += `\nstatic const char acName${index}_${subindex_padded(subindex)}[] = "${item.name}";`;
 				}
 				break;
+			case OTYPE.RECORD: break;
 			default:
 				alert("Unexpected object type in object dictionary: ", element)
 				break;
@@ -157,6 +170,7 @@ function objectlist_generator(form)
 
 				objectlist += arrDeclaration;
 				break;
+			case OTYPE.RECORD: break;
 			default:
 				alert("Unexpected object type om object dictionary");
 				break;
@@ -177,6 +191,7 @@ function objectlist_generator(form)
 				}
 				objectlist += `\n  {0x${index}, OTYPE_${element.otype}, ${maxsubindex}, ${element.pad1 || 0}, acName${index}, SDO${index}},`;
 				break;
+				case OTYPE.RECORD: break;
 			default:
 				alert("Unexpected object type om object dictionary")
 				break;
