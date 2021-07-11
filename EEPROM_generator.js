@@ -380,16 +380,33 @@ function generate_hex_address(number)
 
 function ecat_options_generator(form)
 {
+	ecat_options = '#ifndef __ECAT_OPTIONS_H__\n#define __ECAT_OPTIONS_H__\n\n#define USE_FOE          0\n#define USE_EOE          0\n\n';
+
 	//Mailbox size
-	ecat_options  = '#define MBXSIZE                 		0x' + parseInt(form.MailboxSize.value).toString(16) + '\n#define MBXBUFFERS              		3\n';
+	ecat_options += '#define MBXSIZE          0x' + parseInt(form.MailboxSize.value).toString(16)
+				+ '\n#define MBXSIZEBOOT      0x' + parseInt(form.MailboxSize.value).toString(16)
+				+ '\n#define MBXBUFFERS       3\n\n';
 	//Mailbox 0 Config
-	ecat_options += '\n#define MBX0_sma                		0x' + parseInt(form.RxMailboxOffset.value).toString(16) +'\n#define MBX0_sml                		MBXSIZE\n#define MBX0_sme                		MBX0_sma+MBX0_sml-1\n#define MBX0_smc                		0x26\n';
+	ecat_options += '#define MBX0_sma         0x' + parseInt(form.RxMailboxOffset.value).toString(16) 
+				+ '\n#define MBX0_sml         MBXSIZE' 
+				+ '\n#define MBX0_sme         MBX0_sma+MBX0_sml-1' 
+				+ '\n#define MBX0_smc         0x26\n';
 	//Mailbox 1 Config
-	ecat_options += '#define MBX1_sma                		0x' + parseInt(form.TxMailboxOffset.value).toString(16) +'\n#define MBX1_sml                		MBXSIZE\n#define MBX1_sme                		MBX1_sma+MBX1_sml-1\n#define MBX1_smc                		0x22\n';
+	ecat_options += '#define MBX1_sma         0x' + parseInt(form.TxMailboxOffset.value).toString(16)
+				+ '\n#define MBX1_sml         MBXSIZE' 
+				+ '\n#define MBX1_sme         MBX1_sma+MBX1_sml-1'
+				+ '\n#define MBX1_smc         0x22\n\n';
 	//SyncManager2 Config
-	ecat_options += '\n#define SM2_sma                 		0x' + parseInt(form.SM2Offset.value).toString(16) +'\n#define SM2_smc                 		0x24\n#define SM2_act					0x01\n';
+	ecat_options += '#define SM2_sma          0x' + parseInt(form.SM2Offset.value).toString(16)
+				+ '\n#define SM2_smc          0x24' 
+				+ '\n#define SM2_act          0x01\n';
 	//SyncManager3 Config
-	ecat_options += '#define SM3_sma                 		0x' + parseInt(form.SM3Offset.value).toString(16) +'\n#define SM3_smc                 		0x20\n#define SM3_act					0x01\n';
+	ecat_options += '#define SM3_sma          0x' + parseInt(form.SM3Offset.value).toString(16) 
+				+ '\n#define SM3_smc          0x20'
+				+ '\n#define SM3_act          0x01\n';
+	
+	ecat_options += '\n#endif /* __ECAT_OPTIONS_H__ */\n';
+
 	return ecat_options;
 }
 
