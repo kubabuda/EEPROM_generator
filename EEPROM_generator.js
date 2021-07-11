@@ -76,10 +76,12 @@ const OD = {
 		{ name: 'Communications Type SM3', value: 4 },
 	]},
 };
-let usedIndexes = [];
+const usedIndexes = [];
 
 function updatevalues(form)
 {
+	populate_od(form);
+
 	form.objectlist.value = objectlist_generator(form);
 	form.ecat_options.value = ecat_options_generator(form);
 	form.utypes.value = utypes_generator(form);
@@ -88,7 +90,7 @@ function updatevalues(form)
 	return true;
 }
 
-function populate_od_values(form) {
+function populate_od(form) {
 	OD['1008'].data = form.TextDeviceName.value;
 	OD['1009'].data = form.HWversion.value;
 	OD['100A'].data = form.SWversion.value;
@@ -96,11 +98,16 @@ function populate_od_values(form) {
 	OD['1018'].items[2].value = parseInt(form.ProductCode.value);
 	OD['1018'].items[3].value = parseInt(form.RevisionNumber.value);
 	OD['1018'].items[4].value = parseInt(form.SerialNumber.value);
-	
+
+	scan_indexes();
+}
+
+function scan_indexes() {
 	const index_min = 0x1000;
 	const index_max = 0xFFFF;
-
+	// clear
 	while (usedIndexes.length > 0) { usedIndexes.pop(); }
+	// scan index address space for ones used  
 	for (let i = index_min; i <= index_max; i++) {
 		const index = i.toString(16).toUpperCase();
 		const element = OD[index];
@@ -118,26 +125,40 @@ function subindex_padded(subindex) {
 	return `0${subindex}`;
 }
 
-function get_objdFlags(variable) {
+function get_objdFlags(element) {
 	var flags = "ATYPE_RO";
 	/* TODO these can be set by PDO mappings */
-	if (variable.pdo_mappings) {
-		variable.pdo_mappings.forEach(mapping => {
+	if (element.pdo_mappings) {
+		element.pdo_mappings.forEach(mapping => {
 			flags = `${flags} | ATYPE_${mapping}`;
 		});
 	}
 	return flags;
 }
 
-function get_objdData(variable) {
+function get_objdData(element) {
 	el_data = 'NULL';
 
+	if (element.data) {
+		el_data = element.data;
+		if (element.dtype == 'VISIBLE_STRING') {
+			el_data = `"${element.data}"`;
+		}
+	}
+	/* TODO el_data is assigned also for PDO mapped variables */
+	return el_data;
+}
 
+function get_objdBitsize(element) {
+	bitsize = dtype_bitsize[element.dtype];
+	if (element.dtype == 'VISIBLE_STRING') {
+		bitsize = bitsize * element.data.length;
+	}
+	return bitsize;
 }
 
 function objectlist_generator(form)
 {
-	populate_od_values(form);
 	var objectlist  = '#include "esc_coe.h"\n#include "utypes.h"\n#include <stddef.h>\n\n';
 
 	//Variable names
@@ -164,40 +185,32 @@ function objectlist_generator(form)
 	usedIndexes.forEach(index => {
 		const element = OD[index];
 		objectlist += `\nconst _objd SDO${index}[] =\n{`;
-		el_bitlength = dtype_bitsize[element.dtype];
 		
 		switch (element.otype) {
 			case OTYPE.VAR:
 				el_value = '0';
-				el_data = 'NULL';
-				if (element.dtype == 'VISIBLE_STRING') {
-					el_bitlength = el_bitlength * element.data.length;
-					el_data = `"${element.data}"`;
-				}
-				if (element.data) {
-					/* TODO el_data is assigned also for PDO mapped variables */
-				}
 				if (element.value && element.value != 0) {
 					el_value = `0x${element.value.toString(16)}`;
 				}
-				const var_objd = `\n  {0x0, DTYPE_${element.dtype}, ${el_bitlength}, ${get_objdFlags(element)}, acName${index}, ${el_value}, ${el_data}},`;
+				const var_objd = `\n  {0x0, DTYPE_${element.dtype}, ${get_objdBitsize(element)}, ${get_objdFlags(element)}, acName${index}, ${el_value}, ${get_objdData(element)}},`;
 
 				objectlist += var_objd;
 				break;
-			case OTYPE.ARRAY: 
+			case OTYPE.ARRAY:
 				arr_objd = `\n  {0x00, DTYPE_${DTYPE.UNSIGNED8}, ${8}, ATYPE_RO, acName${index}_00, ${element.items.length - 1}, NULL},`; // max subindex
+				bitsize = dtype_bitsize[element.dtype]; /* TODO what if it is array of strings? */
 				subindex = 0;
 				element.items.forEach(item => {
 					if (subindex > 0) { 	// skip max subindex, already done
 						var subi = subindex_padded(subindex);
-						arr_objd += `\n  {0x${subi}, DTYPE_${element.dtype}, ${el_bitlength}, ${get_objdFlags(item)}, acName${index}_${subi}, ${item.value || 0}, ${item.data || 'NULL'}},`;
+						arr_objd += `\n  {0x${subi}, DTYPE_${element.dtype}, ${bitsize}, ${get_objdFlags(item)}, acName${index}_${subi}, ${item.value || 0}, ${item.data || 'NULL'}},`;
 					}
 					subindex ++;
 				});
 
 				objectlist += arr_objd;
 				break;
-			case OTYPE.RECORD: 
+			case OTYPE.RECORD:
 				rec_objd = `\n  {0x00, DTYPE_${DTYPE.UNSIGNED8}, ${8}, ATYPE_RO, acName${index}_00, ${element.items.length - 1}, NULL},`; // max subindex
 				subindex = 0;
 				element.items.forEach(item => {
@@ -634,8 +647,8 @@ function ecat_options_generator(form)
 				+ '\n#define SM3_smc          0x20'
 				+ '\n#define SM3_act          1\n\n';
 	// Mappings config
-	ecat_options += '#define MAX_MAPPINGS_SM2 ' + 2  /* TODO */
-				+ '\n#define MAX_MAPPINGS_SM3 ' + 10 /* TODO */ + '\n\n';
+	ecat_options += '#define MAX_MAPPINGS_SM2 ' + 2  /* TODO iterate over indexes, count pdo_mappings to RXPDO */
+				+ '\n#define MAX_MAPPINGS_SM3 ' + 10 /* TODO iterate over indexes, count pdo_mappings to TXPDO */ + '\n\n';
 	// PDO buffer config
 	ecat_options += '#define MAX_RXPDO_SIZE   512'
 				+ '\n#define MAX_TXPDO_SIZE   512\n\n'
@@ -647,7 +660,8 @@ function ecat_options_generator(form)
 function utypes_generator(form) {
 	utypes = '#ifndef __UTYPES_H__\n#define __UTYPES_H__\n\n#include "cc.h"\n\n/* Object dictionary storage */\n\ntypedef struct\n{\n   /* Identity */\n'
 	utypes += '\n   uint32_t serial;\n\n';
-	utypes += '\n} _Objects;\n\nextern _Objects Obj;\n\n#endif /* __UTYPES_H__ */\n\n';
+	/* TODO implement OD type declaration */
+	utypes += '\n} _Objects;\n\nextern _Objects Obj;\n\n#endif /* __UTYPES_H__ */\n';
 
 	return utypes;
 }
@@ -673,6 +687,7 @@ function FindCRC(data,datalen)         // computes crc value
 }
 
 window.onload = (event) => {
+	// for convinience during tool development, trigger codegen on page refresh
 	const form = document.getElementById('SlaveForm');
 	updatevalues(form);
 }
