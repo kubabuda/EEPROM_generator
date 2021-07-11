@@ -44,7 +44,7 @@ const dtype_bitsize = {
 	'REAL64' : 64,
 	// 'PDO_MAPPING' : 8, /* TODO */
 };
-const requided_SDOs = [ 
+const requided_SDOs = [  // you cannot delete these
 	'1000',
 	'1008',
 	'1009',
@@ -57,10 +57,13 @@ const OD = {
 	'1008': { otype: OTYPE.VAR, dtype: DTYPE.VISIBLE_STRING, name: 'Device Name', data: '' },
 	'1009': { otype: OTYPE.VAR, dtype: DTYPE.VISIBLE_STRING, name: 'Hardware Version', data: '' },
 	'100A': { otype: OTYPE.VAR, dtype: DTYPE.VISIBLE_STRING, name: 'Software Version', data: '' },
-	// '1018': { otype: OTYPE.RECORD, name: 'Record', records: [
-	// 	{ name: 'Max SubIndex' },
-	// 	{ name: '', dtype: DTYPE.UNSIGNED8,  }
-	// ]},
+	'1018': { otype: OTYPE.RECORD, name: 'Identity Object', items: [
+		{ name: 'Max SubIndex' },
+		{ name: 'Vendor ID', dtype: DTYPE.DTYPE_UNSIGNED32 },
+		{ name: 'Product Code', dtype: DTYPE.DTYPE_UNSIGNED32 },
+		{ name: 'Revision Number', dtype: DTYPE.DTYPE_UNSIGNED32 },
+		{ name: 'Serial Number', dtype: DTYPE.DTYPE_UNSIGNED32, data: '&Obj.serial' },
+	]},
 	'1C00': { otype: OTYPE.ARRAY, dtype: DTYPE.UNSIGNED8, name: 'Sync Manager Communication Type', items: [
 		{ name: 'Max SubIndex' },
 		{ name: 'Communications Type SM0', value: 1 },
@@ -114,18 +117,17 @@ function objectlist_generator(form)
 	//Variable names
 	usedIndexes.forEach(index => {
 		const element = OD[index];
+		objectlist += `\nstatic const char acName${index}[] = "${element.name}";`;
 		switch (element.otype) {
 			case OTYPE.VAR:
-				objectlist += `\nstatic const char acName${index}[] = "${element.name}";`;
 				break;
 			case OTYPE.ARRAY:
-				objectlist += `\nstatic const char acName${index}[] = "${element.name}";`;
+			case OTYPE.RECORD: 
 				for (let subindex = 0; subindex < element.items.length; subindex++) {
 					const item = element.items[subindex];
 					objectlist += `\nstatic const char acName${index}_${subindex_padded(subindex)}[] = "${item.name}";`;
 				}
 				break;
-			case OTYPE.RECORD: break;
 			default:
 				alert("Unexpected object type in object dictionary: ", element)
 				break;
