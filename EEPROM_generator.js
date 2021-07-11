@@ -259,9 +259,9 @@ function objectlist_generator(form)
 function esi_generator(form)
 {
 //VendorID
-	var esi =`<?xml version="1.0"?>\n<EtherCATInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="EtherCATInfo.xsd" Version="1.2">\n	<Vendor>\n		<Id>${parseInt(form.VendorID.value).toString()}</Id>\n`;
+	var esi =`<?xml version="1.0" encoding="UTF-8"?>\n<EtherCATInfo>\n	<Vendor>\n		<Id>${parseInt(form.VendorID.value).toString()}</Id>\n`;
 //VendorName
-	esi += `		<Name>${form.VendorName.value}</Name>\n	</Vendor>\n`;
+	esi += `		<Name>${form.VendorName.value}</Name>\n	</Vendor>\n	<Descriptions>\n`;
 //Groups
 	esi += `		<Groups>\n			<Group>\n				<Type>${form.TextGroupType.value}</Type>\n				<Name>${form.TextGroupName5.value}</Name>\n			</Group>\n		</Groups>\n		<Devices>\n`;
 //Physics	
