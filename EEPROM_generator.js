@@ -1,17 +1,29 @@
 configdata = ""
 
-// OTYPE: VAR, ARRAY, RECORD
+// Object Type
 const OTYPE = {
-	VAR: 'VAR',
-	ARRAY: 'ARRAY',
+	VAR : 'VAR',
+	ARRAY : 'ARRAY',
 	// RECORD: 'RECORD',
 };
-const OD = {
-	'1000': { otype: OTYPE.VAR, dtype: 'UNSIGNED32', name: 'Device Type', value: 0x1389, pdoMappings: [] },
-	'1008': { otype: OTYPE.VAR, dtype: 'VISIBLE_STRING', name: 'Device Name', data: '', pdoMappings: [] },
-	'1009': { otype: OTYPE.VAR, dtype: 'VISIBLE_STRING', name: 'Hardware Version', data: '', pdoMappings: [] },
-	'100A': { otype: OTYPE.VAR, dtype: 'VISIBLE_STRING', name: 'Software Version', data: '', pdoMappings: [] },
-	// getElement
+const DTYPE = {
+	BOOLEAN : 'BOOLEAN',
+	INTEGER8 : 'INTEGER8',
+	INTEGER16 : 'INTEGER16',
+	INTEGER32 : 'INTEGER32',
+	UNSIGNED8 : 'UNSIGNED8',
+	UNSIGNED16 : 'UNSIGNED16',
+	UNSIGNED32 : 'UNSIGNED32',
+	REAL32 : 'REAL32',
+	VISIBLE_STRING : 'VISIBLE_STRING',
+	OCTET_STRING : 'OCTET_STRING',
+	UNICODE_STRING : 'UNICODE_STRING',
+	INTEGER24 : 'INTEGER24',
+	UNSIGNED24 : 'UNSIGNED24',
+	INTEGER64 : 'INTEGER64',
+	UNSIGNED64 : 'UNSIGNED64',
+	REAL64 : 'REAL64',
+	PDO_MAPPING : 'PDO_MAPPING',
 };
 const dtype_bitsize = {
 	'BOOLEAN' : 8,
@@ -31,6 +43,12 @@ const dtype_bitsize = {
 	'UNSIGNED64' : 64,
 	'REAL64' : 64,
 	// 'PDO_MAPPING' : 8, /* TODO */
+};
+const OD = {
+	'1000': { otype: OTYPE.VAR, dtype: DTYPE.UNSIGNED32, name: 'Device Type', value: 0x1389, pdoMappings: [], required: true },
+	'1008': { otype: OTYPE.VAR, dtype: DTYPE.VISIBLE_STRING, name: 'Device Name', data: '', pdoMappings: [], required: true },
+	'1009': { otype: OTYPE.VAR, dtype: DTYPE.VISIBLE_STRING, name: 'Hardware Version', data: '', pdoMappings: [], required: true },
+	'100A': { otype: OTYPE.VAR, dtype: DTYPE.VISIBLE_STRING, name: 'Software Version', data: '', pdoMappings: [], required: true },
 };
 let usedIndexes = [];
 
