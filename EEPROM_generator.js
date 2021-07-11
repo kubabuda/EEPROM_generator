@@ -13,16 +13,21 @@ function updatevalues(form)
 // OTYPE: VAR, ARRAY, RECORD
 const OD = {
 	'0x1000': { otype: 'VAR', dtype: 'UNSIGNED32', name: 'Device Type', value: 0x1389, pdoMappings: [] },
-
+	'0x1008': { otype: 'VAR', dtype: 'VISIBLE_STRING', name: 'Device Name', data: '', pdoMappings: [] },
+	'0x1009': { otype: 'VAR', dtype: 'VISIBLE_STRING', name: 'Hardware Version', data: '', pdoMappings: [] },
+	'0x100A': { otype: 'VAR', dtype: 'VISIBLE_STRING', name: 'Software Version', data: '', pdoMappings: [] },
 	// getElement
 }
 
 function indexHexadecimal(i) {
-	return '0x' + i.toString(16);
+	return '0x' + i.toString(16).toUpperCase();
 }
 
 function objectlist_generator(form)
 {
+	OD['0x1008'].data = form.TextDeviceName.value;
+	OD['0x1009'].data = form.HWversion.value;
+	OD['0x100A'].data = form.SWversion.value;
 	var objectlist  = '#include "esc_coe.h"\n#include "utypes.h"\n#include <stddef.h>\n\n';
 	var usedIndexes = [];
 	var dtype_bits = {
@@ -34,27 +39,28 @@ function objectlist_generator(form)
 		'UNSIGNED16' : 16,
 		'UNSIGNED32' : 32,
 		'REAL32' : 32,
-		'VISIBLE_STRING' : 8,  /* TODO */
-		'OCTET_STRING' : 8, /* TODO */
-		'UNICODE_STRING' : 8, /* TODO */
+		'VISIBLE_STRING' : 8,
+		// 'OCTET_STRING' : 8, /* TODO */
+		// 'UNICODE_STRING' : 8, /* TODO */
 		'INTEGER24' : 24,
 		'UNSIGNED24' : 24,
 		'INTEGER64' : 64,
 		'UNSIGNED64' : 64,
 		'REAL64' : 64,
-		'PDO_MAPPING' : 8, /* TODO */
+		// 'PDO_MAPPING' : 8, /* TODO */
 	}
 	const minIndex = 0x1000;
 
 	//Variable names
-	for (let i = minIndex; i <= minIndex; i++) {
-		const element = OD[indexHexadecimal(i)];
+	for (let i = minIndex; i <= 0xFFFF; i++) {
+		ii = indexHexadecimal(i);
+		const element = OD[ii];
 		
 		if (element) {
 			usedIndexes.push(i);
 			switch (element.otype.toLowerCase()) {
 				case "var":
-					objectlist += `\nstatic const char acName${i.toString(16)}[] = "${element.name}";`;
+					objectlist += `\nstatic const char acName${i.toString(16).toUpperCase()}[] = "${element.name}";`;
 					break;
 				default:
 					alert("Unexpected object type om object dictionary")
@@ -66,18 +72,50 @@ function objectlist_generator(form)
 	//SDO objects declaration
 	usedIndexes.forEach(i => {
 		const element = OD[indexHexadecimal(i)];
-		objectlist += `\nconst _objd SDO${i.toString(16)}[] = \n{\n  `;
+		objectlist += `\nconst _objd SDO${i.toString(16).toUpperCase()}[] =\n{`;
 		switch (element.otype.toLowerCase()) {
 			case "var":
-				objectlist += `{0x0, DTYPE_${element.dtype}, ${dtype_bits[element.dtype]}, ATYPE_RO${''}, acName${i.toString(16)}, 0x${element.value.toString(16)}, ${element.pdoMappings != false ? 'TODO': 'NULL'}},`;
+				let el_bitlength = dtype_bits[element.dtype];
+				let el_value = '0';
+				let el_data = 'NULL';
+				let flags = 'ATYPE_RO'; /* TODO these can be set by PDO mappings */
+				if (element.dtype == 'VISIBLE_STRING') {
+					el_bitlength = el_bitlength * element.data.length;
+					el_data = `"${element.data}"`;
+					// console.log(element.data, element.data.length, el_bitlength);
+				}
+				if (element.data) {
+					/* TODO indexData is assigned also for PDO mapped variables */
+				} else if (element.value && element.value != 0) {
+					el_value = `0x${element.value.toString(16)}`;
+				}
+				const varDeclaration = `\n  {0x0, DTYPE_${element.dtype}, ${el_bitlength}, ${flags}, acName${i.toString(16).toUpperCase()}, ${el_value}, ${el_data}},`;
+				objectlist += varDeclaration;
 				break;
 			case 'array':
 			default:
 				alert("Unexpected object type om object dictionary")
 				break;
 		};
-		objectlist += '\n};\n';
+		objectlist += '\n};';
 	})
+
+	objectlist += '\n\nconst _objectlist SDOobjects[] =\n{';
+	//SDO object dictop declaration
+	usedIndexes.forEach(i => {
+		const index = indexHexadecimal(i);
+		const element = OD[index];
+		switch (element.otype.toLowerCase()) {
+			case "var":
+				objectlist += `\n  {${index}, OTYPE_${element.otype}, ${element.maxsubindex || 0}, ${element.pad1 || 0}, acName${i.toString(16).toUpperCase()}, SDO${i.toString(16).toUpperCase()}},`;
+				break;
+			case 'array':
+			default:
+				alert("Unexpected object type om object dictionary")
+				break;
+		};
+	})
+	objectlist += '\n  {0xffff, 0xff, 0xff, 0xff, NULL, NULL}\n};\n';
 	
 	//Device Name
 	var objlist='/** Definiton of Device Name */\nchar ac1008_00[]="' + form.TextDeviceName.value +'";\n';
