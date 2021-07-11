@@ -259,34 +259,42 @@ function objectlist_generator(form)
 function esi_generator(form)
 {
 //VendorID
-	var esi =`<?xml version="1.0" encoding="UTF-8"?>\n<EtherCATInfo>\n	<Vendor>\n		<Id>${parseInt(form.VendorID.value).toString()}</Id>\n`;
+	var esi =`<?xml version="1.0" encoding="UTF-8"?>\n<EtherCATInfo>\n  <Vendor>\n    <Id>${parseInt(form.VendorID.value).toString()}</Id>\n`;
 //VendorName
-	esi += `		<Name>${form.VendorName.value}</Name>\n	</Vendor>\n	<Descriptions>\n`;
+  esi += `    <Name>${form.VendorName.value}</Name>\n  </Vendor>\n  <Descriptions>\n`;
 //Groups
-	esi += `		<Groups>\n			<Group>\n				<Type>${form.TextGroupType.value}</Type>\n				<Name>${form.TextGroupName5.value}</Name>\n			</Group>\n		</Groups>\n		<Devices>\n`;
-//Physics	
-	esi += `			<Device Physics="${form.Port0Physical.value + form.Port1Physical.value + form.Port2Physical.value + form.Port3Physical.value}">\n				<Type ProductCode="#x${parseInt(form.ProductCode.value).toString(16)}" RevisionNo="#x${parseInt(form.RevisionNumber.value).toString(16)}">${form.TextDeviceType.value}</Type>\n`;
+  esi += `    <Groups>\n      <Group>\n        <Type>${form.TextGroupType.value}</Type>\n        <Name>${form.TextGroupName5.value}</Name>\n      </Group>\n    </Groups>\n    <Devices>\n`;
+//Physics  
+  esi += `      <Device Physics="${form.Port0Physical.value + form.Port1Physical.value + form.Port2Physical.value || + form.Port3Physical.value}">\n        <Type ProductCode="#x${parseInt(form.ProductCode.value).toString(16)}" RevisionNo="#x${parseInt(form.RevisionNumber.value).toString(16)}">${form.TextDeviceType.value}</Type>\n`;
 //Add  Name info
-	esi += `				<Name><![CDATA[${form.TextDeviceName.value}]]></Name>\n`;
+  esi += `        <Name><![CDATA[${form.TextDeviceName.value}]]></Name>\n`;
 //Add in between
-	esi += `				<GroupType>${form.TextGroupType.value}</GroupType>\n				<Fmmu>Outputs</Fmmu>\n				<Fmmu>Inputs</Fmmu>\n`;
+  esi += `        <GroupType>${form.TextGroupType.value}</GroupType>\n`;
+//Add profile
+  esi += `        <Profile>\n          <ProfileNo>5001</ProfileNo>\n          <AddInfo>0</AddInfo>\n          <Dictionary>\n            <DataTypes>\n`;
+// TODO implement data types
+
+  esi += `\n            </DataTypes>\n            <Objects>`;
+// TODO implement object
+
+  esi += `\n            </Objects>\n          </Dictionary>\n        </Profile>\n        <Fmmu>Outputs</Fmmu>\n        <Fmmu>Inputs</Fmmu>\n        <Fmmu>MBoxState</Fmmu>\n`;
 //Add Rxmailbox sizes
-	esi += `				<Sm DefaultSize="${parseInt(form.MailboxSize.value).toString(10)}" StartAddress="#x${parseInt(form.RxMailboxOffset.value).toString(16)}" ControlByte="#x26" Enable="1">MBoxOut</Sm>\n`;
+  esi += `        <Sm DefaultSize="${parseInt(form.MailboxSize.value).toString(10)}" StartAddress="#x${parseInt(form.RxMailboxOffset.value).toString(16)}" ControlByte="#x26" Enable="1">MBoxOut</Sm>\n`;
 //Add Txmailbox sizes
-	esi += `				<Sm DefaultSize="${parseInt(form.MailboxSize.value).toString(10)}" StartAddress="#x${parseInt(form.TxMailboxOffset.value).toString(16)}" ControlByte="#x22" Enable="1">MBoxIn</Sm>\n`;
+  esi += `        <Sm DefaultSize="${parseInt(form.MailboxSize.value).toString(10)}" StartAddress="#x${parseInt(form.TxMailboxOffset.value).toString(16)}" ControlByte="#x22" Enable="1">MBoxIn</Sm>\n`;
 //Add SM2
-	esi += `				<Sm StartAddress="#x${parseInt(form.SM2Offset.value).toString(16)}" ControlByte="#x24" Enable="1">Outputs</Sm>\n`;
+  esi += `        <Sm StartAddress="#x${parseInt(form.SM2Offset.value).toString(16)}" ControlByte="#x24" Enable="1">Outputs</Sm>\n`;
 //Add SM3
-	esi += `				<Sm StartAddress="#x${parseInt(form.SM3Offset.value).toString(16)}" ControlByte="#x20" Enable="1">Inputs</Sm>\n`;
+  esi += `        <Sm StartAddress="#x${parseInt(form.SM3Offset.value).toString(16)}" ControlByte="#x20" Enable="1">Inputs</Sm>\n`;
 //Add Mailbox DLL
-	esi += `				<Mailbox DataLinkLayer="true">\n					<CoE ${getCoEString(form)}/>\n				</Mailbox>\n`;
+  esi += `        <Mailbox DataLinkLayer="true">\n          <CoE ${getCoEString(form)}/>\n        </Mailbox>\n`;
 //Add DC
-	esi += `				<Dc>\n					<OpMode>\n						<Name>DcOff</Name>\n						<Desc>DC unused</Desc>\n					<AssignActivate>#x0000</AssignActivate>\n					</OpMode>\n				</Dc>\n`;
+  esi += `        <Dc>\n          <OpMode>\n            <Name>DcOff</Name>\n            <Desc>DC unused</Desc>\n          <AssignActivate>#x0000</AssignActivate>\n          </OpMode>\n        </Dc>\n`;
 //Add EEPROM
-	esi +=`				<Eeprom>\n					<ByteSize>${parseInt(form.EEPROMsize.value)}</ByteSize>\n					<ConfigData>${configdata}</ConfigData>\n				</Eeprom>\n`;
+  esi +=`        <Eeprom>\n          <ByteSize>${parseInt(form.EEPROMsize.value)}</ByteSize>\n          <ConfigData>${configdata}</ConfigData>\n        </Eeprom>\n`;
 //Close all items
-	esi +=`			</Device>\n		</Devices>\n	</Descriptions>\n</EtherCATInfo>`;
-	return esi;	
+  esi +=`      </Device>\n    </Devices>\n  </Descriptions>\n</EtherCATInfo>`;
+  return esi;	
 }
 
 //See Table 40 ETG2000
