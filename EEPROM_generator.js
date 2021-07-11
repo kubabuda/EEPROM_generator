@@ -44,6 +44,9 @@ const dtype_bitsize = {
 	'REAL64' : 64,
 	// 'PDO_MAPPING' : 8, /* TODO */
 };
+const ESItype = {
+	// DTYPE to type symbol in ESI .xml
+};
 const ATYPE = {
 	TXPDO : 'TXPDO',
 	RXPDO : 'RXPDO',
@@ -89,9 +92,9 @@ function updatevalues(form)
 
 	form.objectlist.value = objectlist_generator(form, od);
 	form.ecat_options.value = ecat_options_generator(form, od);
-	form.utypes.value = utypes_generator(form);
+	form.utypes.value = utypes_generator(form, od);
 	form.HEX.value = hex_generator(form); //HEX generator needs to be run first, data from hex is used in esi
-	form.ESI.value = esi_generator(form);
+	form.ESI.value = esi_generator(form, od);
 	return true;
 }
 
@@ -152,7 +155,7 @@ function get_objdData(element) {
 
 	if (element.data) {
 		el_data = element.data;
-		if (element.dtype == 'VISIBLE_STRING') {
+		if (element.dtype == DTYPE.VISIBLE_STRING) {
 			el_data = `"${element.data}"`;
 		}
 	}
@@ -162,7 +165,7 @@ function get_objdData(element) {
 
 function get_objdBitsize(element) {
 	bitsize = dtype_bitsize[element.dtype];
-	if (element.dtype == 'VISIBLE_STRING') {
+	if (element.dtype == DTYPE.VISIBLE_STRING) {
 		bitsize = bitsize * element.data.length;
 	}
 	return bitsize;
@@ -270,44 +273,62 @@ function objectlist_generator(form, od)
 //See ETG2000 for ESI format
 function esi_generator(form, od)
 {
-const indexes = get_used_indexes();
-//VendorID
+	//VendorID
 	var esi =`<?xml version="1.0" encoding="UTF-8"?>\n<EtherCATInfo>\n  <Vendor>\n    <Id>${parseInt(form.VendorID.value).toString()}</Id>\n`;
-//VendorName
-  esi += `    <Name>${form.VendorName.value}</Name>\n  </Vendor>\n  <Descriptions>\n`;
-//Groups
-  esi += `    <Groups>\n      <Group>\n        <Type>${form.TextGroupType.value}</Type>\n        <Name>${form.TextGroupName5.value}</Name>\n      </Group>\n    </Groups>\n    <Devices>\n`;
-//Physics  
-  esi += `      <Device Physics="${form.Port0Physical.value + form.Port1Physical.value + form.Port2Physical.value || + form.Port3Physical.value}">\n        <Type ProductCode="#x${parseInt(form.ProductCode.value).toString(16)}" RevisionNo="#x${parseInt(form.RevisionNumber.value).toString(16)}">${form.TextDeviceType.value}</Type>\n`;
-//Add  Name info
-  esi += `        <Name><![CDATA[${form.TextDeviceName.value}]]></Name>\n`;
-//Add in between
-  esi += `        <GroupType>${form.TextGroupType.value}</GroupType>\n`;
-//Add profile
-  esi += `        <Profile>\n          <ProfileNo>5001</ProfileNo>\n          <AddInfo>0</AddInfo>\n          <Dictionary>\n            <DataTypes>`;
+	//VendorName
+	esi += `    <Name>${form.VendorName.value}</Name>\n  </Vendor>\n  <Descriptions>\n`;
+	//Groups
+	esi += `    <Groups>\n      <Group>\n        <Type>${form.TextGroupType.value}</Type>\n        <Name>${form.TextGroupName5.value}</Name>\n      </Group>\n    </Groups>\n    <Devices>\n`;
+	//Physics  
+	esi += `      <Device Physics="${form.Port0Physical.value + form.Port1Physical.value + form.Port2Physical.value || + form.Port3Physical.value}">\n        <Type ProductCode="#x${parseInt(form.ProductCode.value).toString(16)}" RevisionNo="#x${parseInt(form.RevisionNumber.value).toString(16)}">${form.TextDeviceType.value}</Type>\n`;
+	//Add  Name info
+	esi += `        <Name><![CDATA[${form.TextDeviceName.value}]]></Name>\n`;
+	//Add in between
+	esi += `        <GroupType>${form.TextGroupType.value}</GroupType>\n`;
+	//Add profile
+	esi += `        <Profile>\n          <ProfileNo>5001</ProfileNo>\n          <AddInfo>0</AddInfo>\n          <Dictionary>\n            <DataTypes>`;
 /* TODO implement data types */
-
-  esi += `\n            </DataTypes>\n            <Objects>`;
+	const indexes = get_used_indexes();
+	indexes.forEach(index => {
+		const element = od[index];
+		if (element.otype == OTYPE.RECORD || element.otype == OTYPE.ARRAY) {
+			esi += `\n              <DataType>`;
+			
+			el_name = `DT${index}`;
+			bitsize = 42;
+			esi += `\n                <Name>${el_name}</Name>\n                <BitSize>${bitsize}</BitSize>`;
+			subindex = 0;
+			element.items.forEach(subitem => {
+				esi += `\n                  <SubItem>SubItem ${subindex}</SubItem>`;
+				subindex++;
+			});
+			esi += `\n              </DataType>`;
+		}
+	});
+	esi += `\n            </DataTypes>\n            <Objects>`;
 /* TODO implement object */
+	indexes.forEach(index => {
+		const element = od[index];
+	});
+	esi += `\n            </Objects>\n          </Dictionary>\n        </Profile>\n        <Fmmu>Outputs</Fmmu>\n        <Fmmu>Inputs</Fmmu>\n        <Fmmu>MBoxState</Fmmu>\n`;
+	//Add Rxmailbox sizes
+	esi += `        <Sm DefaultSize="${parseInt(form.MailboxSize.value).toString(10)}" StartAddress="#x${parseInt(form.RxMailboxOffset.value).toString(16)}" ControlByte="#x26" Enable="1">MBoxOut</Sm>\n`;
+	//Add Txmailbox sizes
+	esi += `        <Sm DefaultSize="${parseInt(form.MailboxSize.value).toString(10)}" StartAddress="#x${parseInt(form.TxMailboxOffset.value).toString(16)}" ControlByte="#x22" Enable="1">MBoxIn</Sm>\n`;
+	//Add SM2
+	esi += `        <Sm StartAddress="#x${parseInt(form.SM2Offset.value).toString(16)}" ControlByte="#x24" Enable="1">Outputs</Sm>\n`;
+	//Add SM3
+	esi += `        <Sm StartAddress="#x${parseInt(form.SM3Offset.value).toString(16)}" ControlByte="#x20" Enable="1">Inputs</Sm>\n`;
+	//Add Mailbox DLL
+	esi += `        <Mailbox DataLinkLayer="true">\n          <CoE ${getCoEString(form)}/>\n        </Mailbox>\n`;
+	//Add DC
+	esi += `        <Dc>\n          <OpMode>\n            <Name>DcOff</Name>\n            <Desc>DC unused</Desc>\n          <AssignActivate>#x0000</AssignActivate>\n          </OpMode>\n        </Dc>\n`;
+	//Add EEPROM
+	esi +=`        <Eeprom>\n          <ByteSize>${parseInt(form.EEPROMsize.value)}</ByteSize>\n          <ConfigData>${configdata}</ConfigData>\n        </Eeprom>\n`;
+	//Close all items
+	esi +=`      </Device>\n    </Devices>\n  </Descriptions>\n</EtherCATInfo>`;
 
-  esi += `\n            </Objects>\n          </Dictionary>\n        </Profile>\n        <Fmmu>Outputs</Fmmu>\n        <Fmmu>Inputs</Fmmu>\n        <Fmmu>MBoxState</Fmmu>\n`;
-//Add Rxmailbox sizes
-  esi += `        <Sm DefaultSize="${parseInt(form.MailboxSize.value).toString(10)}" StartAddress="#x${parseInt(form.RxMailboxOffset.value).toString(16)}" ControlByte="#x26" Enable="1">MBoxOut</Sm>\n`;
-//Add Txmailbox sizes
-  esi += `        <Sm DefaultSize="${parseInt(form.MailboxSize.value).toString(10)}" StartAddress="#x${parseInt(form.TxMailboxOffset.value).toString(16)}" ControlByte="#x22" Enable="1">MBoxIn</Sm>\n`;
-//Add SM2
-  esi += `        <Sm StartAddress="#x${parseInt(form.SM2Offset.value).toString(16)}" ControlByte="#x24" Enable="1">Outputs</Sm>\n`;
-//Add SM3
-  esi += `        <Sm StartAddress="#x${parseInt(form.SM3Offset.value).toString(16)}" ControlByte="#x20" Enable="1">Inputs</Sm>\n`;
-//Add Mailbox DLL
-  esi += `        <Mailbox DataLinkLayer="true">\n          <CoE ${getCoEString(form)}/>\n        </Mailbox>\n`;
-//Add DC
-  esi += `        <Dc>\n          <OpMode>\n            <Name>DcOff</Name>\n            <Desc>DC unused</Desc>\n          <AssignActivate>#x0000</AssignActivate>\n          </OpMode>\n        </Dc>\n`;
-//Add EEPROM
-  esi +=`        <Eeprom>\n          <ByteSize>${parseInt(form.EEPROMsize.value)}</ByteSize>\n          <ConfigData>${configdata}</ConfigData>\n        </Eeprom>\n`;
-//Close all items
-  esi +=`      </Device>\n    </Devices>\n  </Descriptions>\n</EtherCATInfo>`;
-  return esi;	
+	return esi;	
 }
 
 //See Table 40 ETG2000
@@ -632,7 +653,7 @@ function generate_hex_address(number)
 	return output.slice(-4);
 }
 
-function ecat_options_generator(form)
+function ecat_options_generator(form, od)
 {
 	ecat_options = '#ifndef __ECAT_OPTIONS_H__\n#define __ECAT_OPTIONS_H__\n\n#define USE_FOE          0\n#define USE_EOE          0\n\n';
 
@@ -668,6 +689,11 @@ function ecat_options_generator(form)
 				+ '\n#define SM3_smc          0x20'
 				+ '\n#define SM3_act          1\n\n';
 	// Mappings config
+	const indexes = get_used_indexes();
+	indexes.forEach(index => {
+		const element = od[index];
+		if(element.pdo_mappings) {};
+	});
 	ecat_options += '#define MAX_MAPPINGS_SM2 ' + 2  /* TODO iterate over indexes, count pdo_mappings to RXPDO */
 				+ '\n#define MAX_MAPPINGS_SM3 ' + 10 /* TODO iterate over indexes, count pdo_mappings to TXPDO */ + '\n\n';
 	// PDO buffer config
@@ -678,7 +704,7 @@ function ecat_options_generator(form)
 	return ecat_options;
 }
 
-function utypes_generator(form) {
+function utypes_generator(form, od) {
 	utypes = '#ifndef __UTYPES_H__\n#define __UTYPES_H__\n\n#include "cc.h"\n\n/* Object dictionary storage */\n\ntypedef struct\n{\n   /* Identity */\n'
 	utypes += '\n   uint32_t serial;\n\n';
 	/* TODO implement OD type declaration */
