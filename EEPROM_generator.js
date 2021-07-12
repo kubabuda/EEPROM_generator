@@ -271,7 +271,7 @@ function objectlist_generator(form, od)
 	return objectlist;
 }
 
-function esiPrimitiveDtName(element) {
+function esiVariableTypeName(element) {
 	el_name = ESI_DT[element.dtype].name;
 	if (element.dtype == DTYPE.VISIBLE_STRING) {
 		return `${el_name}(${element.data.length})`;
@@ -282,7 +282,7 @@ function esiPrimitiveDtName(element) {
 function esiDtName(element, index) {
 	switch (element.otype) {
 		case OTYPE.VAR:
-			return esiPrimitiveDtName(element);
+			return esiVariableTypeName(element);
 		case OTYPE.ARRAY:
 		case OTYPE.RECORD:
 			return `DT${index}`;
@@ -338,35 +338,37 @@ function esi_generator(form, od)
 	esi += `        <Profile>\n          <ProfileNo>5001</ProfileNo>\n          <AddInfo>0</AddInfo>\n          <Dictionary>\n            <DataTypes>`;
 	const indexes = get_used_indexes();
 	const customTypes = {};
-	const primitiveTypes = {};
-
-	function addPrimitiveType(element) {
+	const variableTypes = {};
+	
+	function addVariableType(element) {
 		if (element && element.otype && (element.otype != OTYPE.VAR && element.otype != OTYPE.ARRAY)) { 
-			alert(`${element.name} is not OTYPE VAR, cannot treat is as primitive type`); return; 
+			alert(`${element.name} is not OTYPE VAR, cannot treat is as variable type`); return; 
 		}
 		if (!element || !element.dtype) {
-			alert(`${element.name} has no DTYPE, cannot treat is as primitive type`); return; 
+			alert(`${element.name} has no DTYPE, cannot treat is as variable type`); return; 
 		}		
-		el_name = esiPrimitiveDtName(element);
-		if (!primitiveTypes[el_name]) {
-			const bitsize = esiBitsize(element);
-			primitiveTypes[el_name] = bitsize;
+		el_name = esiVariableTypeName(element);
+		if(el_name == 'USINT') {debugger;}
+		if (!variableTypes[el_name]) {
+			const bitsize = (element.dtype == DTYPE.VISIBLE_STRING) ? esiBitsize(element) : ESI_DT[element.dtype].bitsize;
+			variableTypes[el_name] = bitsize;
 		}
 	}
-
+	// Add objects dictionary data types
 	indexes.forEach(index => {
 		const element = od[index];
 		const el_name = esiDtName(element, index);
 		
 		if (element.otype == OTYPE.VAR) {
-			addPrimitiveType(element);
+			addVariableType(element); // variable types will have to be be done later anyway, add to that queue
 		} else if (!customTypes[el_name]) {
+			// generate data types code for complex objects
 			const bitsize = esiBitsize(element);
 			customTypes[el_name] = true;
 			esi += `\n              <DataType>`;
 			
 			if (element.otype == OTYPE.ARRAY) {
-				addPrimitiveType(element);
+				addVariableType(element); // cannot add variable type now that array code is being generated, add to queue
 				esi_type = ESI_DT[element.dtype];
 				arr_bitsize = (element.items.length - 1) * esi_type.bitsize
 				esi += `\n                <Name>${el_name}ARR</Name>\n                <BaseType>${esi_type.name}</BaseType>\n                <BitSize>${arr_bitsize}</BitSize>`;
@@ -384,7 +386,7 @@ function esi_generator(form, od)
 				bits_offset = 16;
 				element.items.forEach(subitem => {
 					if (subindex > 0) { // skipped Max Subindex
-						addPrimitiveType(subitem);
+						addVariableType(subitem); // cannot add variable type now that record code is being generated
 						subitem_dtype = ESI_DT[subitem.dtype];
 						subitem_bitsize = subitem_dtype.bitsize
 						esi += `\n                <SubItem>\n                  <SubIdx>${subindex}</SubIdx>\n                  <Name>${subitem.name}</Name>\n                  <Type>${subitem_dtype.name}</Type>\n                  <BitSize>${subitem_bitsize}</BitSize>\n                  <BitOffs>${bits_offset}</BitOffs>\n                  <Flags>\n                    <Access>ro</Access>\n                  </Flags>\n                </SubItem>`;
@@ -396,12 +398,15 @@ function esi_generator(form, od)
 			esi += `\n              </DataType>`;
 		}
 	});
-	Object.entries(primitiveTypes).forEach(primitive => {
+	// Add variable type
+	Object.entries(variableTypes).forEach(variableType => {
+		
 		esi += `\n              <DataType>`;
-		esi += `\n                <Name>${primitive[0]}</Name>\n                <BitSize>${primitive[1]}</BitSize>`;			
+		esi += `\n                <Name>${variableType[0]}</Name>\n                <BitSize>${variableType[1]}</BitSize>`;			
 		esi += `\n              </DataType>`;
 	});
 	esi += `\n            </DataTypes>\n            <Objects>`;
+	// Add objects dictionary
 	indexes.forEach(index => {
 		const element = od[index];
 		const el_dtype = esiDtName(element, index);
@@ -415,6 +420,15 @@ function esi_generator(form, od)
 			esi += `\n                  <DefaultValue>${element.value ? "#x"+parseInt(element.value).toString(16) : 0}</DefaultValue>`;
 		}
 		/* TODO implement object subitems for complex types */
+		if (element.items) {
+			element.items.forEach(subitem => {
+				if (subindex > 0) { // skipped Max Subindex
+					// esi += `\n                <SubItem>\n                  <SubIdx>${subindex}</SubIdx>\n                  <Name>${subitem.name}</Name>\n                  <Type>${subitem_dtype.name}</Type>\n                  <BitSize>${subitem_bitsize}</BitSize>\n                  <BitOffs>${bits_offset}</BitOffs>\n                  <Flags>\n                    <Access>ro</Access>\n                  </Flags>\n                </SubItem>`;
+					// bits_offset += subitem_bitsize;
+				}
+				subindex++;
+			});
+		}
 		esi += `\n                </Info>\n                <Flags>\n                  <Access>ro</Access>\n${requided_SDOs[index] ? '                  <Category>m</Category>' : ''}\n                </Flags>\n              </Object>`;
 	});
 	esi += `\n            </Objects>\n          </Dictionary>\n        </Profile>\n        <Fmmu>Outputs</Fmmu>\n        <Fmmu>Inputs</Fmmu>\n        <Fmmu>MBoxState</Fmmu>\n`;
