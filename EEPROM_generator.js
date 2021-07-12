@@ -348,7 +348,6 @@ function esi_generator(form, od)
 			alert(`${element.name} has no DTYPE, cannot treat is as variable type`); return; 
 		}		
 		el_name = esiVariableTypeName(element);
-		if(el_name == 'USINT') {debugger;}
 		if (!variableTypes[el_name]) {
 			const bitsize = (element.dtype == DTYPE.VISIBLE_STRING) ? esiBitsize(element) : ESI_DT[element.dtype].bitsize;
 			variableTypes[el_name] = bitsize;
@@ -419,17 +418,18 @@ function esi_generator(form, od)
 		} else if (element.value) {
 			esi += `\n                  <DefaultValue>${element.value ? "#x"+parseInt(element.value).toString(16) : 0}</DefaultValue>`;
 		}
-		/* TODO implement object subitems for complex types */
+		//Add object subitems for complex types
 		if (element.items) {
+			const max_subindex_value = element.items.length - 1;
+			subindex = 0;
 			element.items.forEach(subitem => {
-				if (subindex > 0) { // skipped Max Subindex
-					// esi += `\n                <SubItem>\n                  <SubIdx>${subindex}</SubIdx>\n                  <Name>${subitem.name}</Name>\n                  <Type>${subitem_dtype.name}</Type>\n                  <BitSize>${subitem_bitsize}</BitSize>\n                  <BitOffs>${bits_offset}</BitOffs>\n                  <Flags>\n                    <Access>ro</Access>\n                  </Flags>\n                </SubItem>`;
-					// bits_offset += subitem_bitsize;
-				}
+				const defaultValue = (subindex > 0) ? subitem.value : max_subindex_value;
+				esi += `\n                  <SubItem>\n                    <Name>${subitem.name}</Name>\n                    <Info>\n                      <DefaultValue>${defaultValue}</DefaultValue>\n                    </Info>\n                  </SubItem>`;
 				subindex++;
 			});
 		}
-		esi += `\n                </Info>\n                <Flags>\n                  <Access>ro</Access>\n${requided_SDOs[index] ? '                  <Category>m</Category>' : ''}\n                </Flags>\n              </Object>`;
+		const isMandatory = requided_SDOs[index]; /* TODO review which objects are mandatory */
+		esi += `\n                </Info>\n                <Flags>\n                  <Access>ro</Access>${ isMandatory ? '\n                  <Category>m</Category>' : '\n'}\n                </Flags>\n              </Object>`;
 	});
 	esi += `\n            </Objects>\n          </Dictionary>\n        </Profile>\n        <Fmmu>Outputs</Fmmu>\n        <Fmmu>Inputs</Fmmu>\n        <Fmmu>MBoxState</Fmmu>\n`;
 	//Add Rxmailbox sizes
