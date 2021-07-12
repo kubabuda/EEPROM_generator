@@ -1,4 +1,4 @@
-configdata = ""
+var configdata = ""
 
 // Object Type
 const OTYPE = {
@@ -141,7 +141,7 @@ function subindex_padded(subindex) {
 }
 
 function get_objdFlags(element) {
-	var flags = "ATYPE_RO";
+	let flags = "ATYPE_RO";
 	/* TODO these can be set by PDO mappings */
 	if (element.pdo_mappings) {
 		element.pdo_mappings.forEach(mapping => {
@@ -152,7 +152,7 @@ function get_objdFlags(element) {
 }
 
 function get_objdData(element) {
-	el_data = 'NULL';
+	let el_data = 'NULL';
 
 	if (element.data) {
 		el_data = element.data;
@@ -165,7 +165,7 @@ function get_objdData(element) {
 }
 
 function get_objdBitsize(element) {
-	bitsize = dtype_bitsize[element.dtype];
+	let bitsize = dtype_bitsize[element.dtype];
 	if (element.dtype == DTYPE.VISIBLE_STRING) {
 		bitsize = bitsize * element.data.length;
 	}
@@ -203,8 +203,8 @@ function objectlist_generator(form, od)
 		objectlist += `\nconst _objd SDO${index}[] =\n{`;
 		
 		switch (element.otype) {
-			case OTYPE.VAR:
-				el_value = '0';
+			case OTYPE.VAR: {
+				let el_value = '0';
 				if (element.value && element.value != 0) {
 					el_value = `0x${element.value.toString(16)}`;
 				}
@@ -212,10 +212,11 @@ function objectlist_generator(form, od)
 
 				objectlist += var_objd;
 				break;
-			case OTYPE.ARRAY:
-				arr_objd = `\n  {0x00, DTYPE_${DTYPE.UNSIGNED8}, ${8}, ATYPE_RO, acName${index}_00, ${element.items.length - 1}, NULL},`; // max subindex
-				bitsize = dtype_bitsize[element.dtype]; /* TODO what if it is array of strings? */
-				subindex = 0;
+			}
+			case OTYPE.ARRAY: {
+				let arr_objd = `\n  {0x00, DTYPE_${DTYPE.UNSIGNED8}, ${8}, ATYPE_RO, acName${index}_00, ${element.items.length - 1}, NULL},`; // max subindex
+				let bitsize = dtype_bitsize[element.dtype]; /* TODO what if it is array of strings? */
+				let subindex = 0;
 				element.items.forEach(item => {
 					if (subindex > 0) { 	// skip max subindex, already done
 						var subi = subindex_padded(subindex);
@@ -226,9 +227,10 @@ function objectlist_generator(form, od)
 
 				objectlist += arr_objd;
 				break;
-			case OTYPE.RECORD:
-				rec_objd = `\n  {0x00, DTYPE_${DTYPE.UNSIGNED8}, ${8}, ATYPE_RO, acName${index}_00, ${element.items.length - 1}, NULL},`; // max subindex
-				subindex = 0;
+			}
+			case OTYPE.RECORD: {
+				let rec_objd = `\n  {0x00, DTYPE_${DTYPE.UNSIGNED8}, ${8}, ATYPE_RO, acName${index}_00, ${element.items.length - 1}, NULL},`; // max subindex
+				let subindex = 0;
 				element.items.forEach(item => {
 					if (subindex > 0) { 	// skip max subindex, already done
 						var subi = subindex_padded(subindex);
@@ -240,6 +242,7 @@ function objectlist_generator(form, od)
 
 				objectlist += rec_objd;
 				break;
+			}
 			default:
 				alert("Unexpected object type om object dictionary");
 				break;
@@ -272,7 +275,7 @@ function objectlist_generator(form, od)
 }
 
 function esiVariableTypeName(element) {
-	el_name = ESI_DT[element.dtype].name;
+	let el_name = ESI_DT[element.dtype].name;
 	if (element.dtype == DTYPE.VISIBLE_STRING) {
 		return `${el_name}(${element.data.length})`;
 	}
@@ -294,25 +297,28 @@ function esiDtName(element, index) {
 
 function esiBitsize(element) {
 	switch (element.otype) {
-		case OTYPE.VAR:
-			bitsize = ESI_DT[element.dtype].bitsize;
+		case OTYPE.VAR: {
+			let bitsize = ESI_DT[element.dtype].bitsize;
 			if (element.dtype == DTYPE.VISIBLE_STRING) {
 				return bitsize * element.data.length;
 			}
 			return bitsize;
-		case OTYPE.ARRAY:
-			maxsubindex_bitsize = ESI_DT[DTYPE.UNSIGNED8].bitsize;
-			bitsize = ESI_DT[element.dtype].bitsize;
-			elements = element.items.length - 1; // skip max subindex
+		}
+		case OTYPE.ARRAY: {
+			const maxsubindex_bitsize = ESI_DT[DTYPE.UNSIGNED8].bitsize;
+			let bitsize = ESI_DT[element.dtype].bitsize;
+			let elements = element.items.length - 1; // skip max subindex
 			return maxsubindex_bitsize * 2 + elements * bitsize;
-		case OTYPE.RECORD:
-			maxsubindex_bitsize = ESI_DT[DTYPE.UNSIGNED8].bitsize;
-			bitsize = maxsubindex_bitsize * 2;
+		}
+		case OTYPE.RECORD: {
+			const maxsubindex_bitsize = ESI_DT[DTYPE.UNSIGNED8].bitsize;
+			let bitsize = maxsubindex_bitsize * 2;
 			for (let subindex = 1; subindex < element.items.length; subindex++) {
 				const subitem = element.items[subindex];
 				bitsize += ESI_DT[subitem.dtype].bitsize;
 			}
 			return bitsize;
+		}
 		default:
 			alert(`Element ${element} has unexpected OTYPE ${element.otype}`);
 			break;
@@ -347,7 +353,7 @@ function esi_generator(form, od)
 		if (!element || !element.dtype) {
 			alert(`${element.name} has no DTYPE, cannot treat is as variable type`); return; 
 		}		
-		el_name = esiVariableTypeName(element);
+		let el_name = esiVariableTypeName(element);
 		if (!variableTypes[el_name]) {
 			const bitsize = (element.dtype == DTYPE.VISIBLE_STRING) ? esiBitsize(element) : ESI_DT[element.dtype].bitsize;
 			variableTypes[el_name] = bitsize;
@@ -368,8 +374,8 @@ function esi_generator(form, od)
 			
 			if (element.otype == OTYPE.ARRAY) {
 				addVariableType(element); // cannot add variable type now that array code is being generated, add to queue
-				esi_type = ESI_DT[element.dtype];
-				arr_bitsize = (element.items.length - 1) * esi_type.bitsize
+				let esi_type = ESI_DT[element.dtype];
+				let arr_bitsize = (element.items.length - 1) * esi_type.bitsize
 				esi += `\n                <Name>${el_name}ARR</Name>\n                <BaseType>${esi_type.name}</BaseType>\n                <BitSize>${arr_bitsize}</BitSize>`;
 				esi += `\n                <ArrayInfo>\n                  <LBound>1</LBound>\n                  <Elements>${element.items.length - 1}</Elements>\n                </ArrayInfo>`;
 				esi += `\n              </DataType>`;
@@ -378,16 +384,16 @@ function esi_generator(form, od)
 			esi += `\n                <Name>${el_name}</Name>\n                <BitSize>${bitsize}</BitSize>`;
 			esi += `\n                <SubItem>\n                  <SubIdx>0</SubIdx>\n                  <Name>Max SubIndex</Name>\n                  <Type>USINT</Type>\n                  <BitSize>8</BitSize>\n                  <BitOffs>0</BitOffs>\n                  <Flags>\n                    <Access>ro</Access>\n                  </Flags>\n                </SubItem>`;
 			if (element.otype == OTYPE.ARRAY) {
-	 			arr_bitsize = (element.items.length - 1) * ESI_DT[element.dtype].bitsize
+	 			let arr_bitsize = (element.items.length - 1) * ESI_DT[element.dtype].bitsize
 				esi += `\n                <SubItem>\n                  <Name>Elements</Name>\n                  <Type>${el_name}ARR</Type>\n                  <BitSize>${arr_bitsize}</BitSize>\n                  <BitOffs>16</BitOffs>\n                  <Flags>\n                    <Access>ro</Access>\n                  </Flags>\n                </SubItem>`;
 			} else if (element.otype == OTYPE.RECORD) {
-				subindex = 0;
-				bits_offset = 16;
+				let subindex = 0;
+				let bits_offset = 16;
 				element.items.forEach(subitem => {
 					if (subindex > 0) { // skipped Max Subindex
 						addVariableType(subitem); // cannot add variable type now that record code is being generated
-						subitem_dtype = ESI_DT[subitem.dtype];
-						subitem_bitsize = subitem_dtype.bitsize
+						let subitem_dtype = ESI_DT[subitem.dtype];
+						let subitem_bitsize = subitem_dtype.bitsize
 						esi += `\n                <SubItem>\n                  <SubIdx>${subindex}</SubIdx>\n                  <Name>${subitem.name}</Name>\n                  <Type>${subitem_dtype.name}</Type>\n                  <BitSize>${subitem_bitsize}</BitSize>\n                  <BitOffs>${bits_offset}</BitOffs>\n                  <Flags>\n                    <Access>ro</Access>\n                  </Flags>\n                </SubItem>`;
 						bits_offset += subitem_bitsize;
 					}
@@ -399,7 +405,6 @@ function esi_generator(form, od)
 	});
 	// Add variable type
 	Object.entries(variableTypes).forEach(variableType => {
-		
 		esi += `\n              <DataType>`;
 		esi += `\n                <Name>${variableType[0]}</Name>\n                <BitSize>${variableType[1]}</BitSize>`;			
 		esi += `\n              </DataType>`;
@@ -421,7 +426,7 @@ function esi_generator(form, od)
 		//Add object subitems for complex types
 		if (element.items) {
 			const max_subindex_value = element.items.length - 1;
-			subindex = 0;
+			let subindex = 0;
 			element.items.forEach(subitem => {
 				const defaultValue = (subindex > 0) ? subitem.value : max_subindex_value;
 				esi += `\n                  <SubItem>\n                    <Name>${subitem.name}</Name>\n                    <Info>\n                      <DefaultValue>${defaultValue}</DefaultValue>\n                    </Info>\n                  </SubItem>`;
