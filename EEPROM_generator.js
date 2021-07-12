@@ -16,14 +16,15 @@ const DTYPE = {
 	UNSIGNED32 : 'UNSIGNED32',
 	REAL32 : 'REAL32',
 	VISIBLE_STRING : 'VISIBLE_STRING',
-	OCTET_STRING : 'OCTET_STRING',
-	UNICODE_STRING : 'UNICODE_STRING',
-	INTEGER24 : 'INTEGER24',
-	UNSIGNED24 : 'UNSIGNED24',
-	INTEGER64 : 'INTEGER64',
-	UNSIGNED64 : 'UNSIGNED64',
-	REAL64 : 'REAL64',
-	PDO_MAPPING : 'PDO_MAPPING',
+	/* TODO implement missing less common types */
+	// OCTET_STRING : 'OCTET_STRING',
+	// UNICODE_STRING : 'UNICODE_STRING',
+	// INTEGER24 : 'INTEGER24',
+	// UNSIGNED24 : 'UNSIGNED24',
+	// INTEGER64 : 'INTEGER64',
+	// UNSIGNED64 : 'UNSIGNED64',
+	// REAL64 : 'REAL64',
+	// PDO_MAPPING : 'PDO_MAPPING',
 };
 const dtype_bitsize = {
 	'BOOLEAN' : 8,
@@ -35,17 +36,17 @@ const dtype_bitsize = {
 	'UNSIGNED32' : 32,
 	'REAL32' : 32,
 	'VISIBLE_STRING' : 8,
-	// 'OCTET_STRING' : 8, /* TODO */
-	// 'UNICODE_STRING' : 8, /* TODO */
-	'INTEGER24' : 24,
-	'UNSIGNED24' : 24,
-	'INTEGER64' : 64,
-	'UNSIGNED64' : 64,
-	'REAL64' : 64,
-	// 'PDO_MAPPING' : 8, /* TODO */
 };
-const ESItype = {
-	// DTYPE to type symbol in ESI .xml
+const ESI_DT = {
+	'BOOLEAN': { name: 'BOOL', bitsize: 1 },
+	'INTEGER8': { name: 'SINT', bitsize: 8 },
+	'INTEGER16': { name: 'INT', bitsize: 16 },
+	'INTEGER32': { name: 'DINT', bitsize: 32 },
+	'UNSIGNED8': { name: 'USINT', bitsize: 8 },
+	'UNSIGNED16': { name: 'UINT', bitsize: 16 },
+	'UNSIGNED32': { name: 'UDINT', bitsize: 32 },
+	'REAL32': { name: 'REAL', bitsize: 32 },
+	'VISIBLE_STRING': { name: 'STRING', bitsize: 8 },
 };
 const ATYPE = {
 	TXPDO : 'TXPDO',
@@ -270,6 +271,54 @@ function objectlist_generator(form, od)
 	return objectlist;
 }
 
+function esiPrimitiveDtName(element) {
+	el_name = ESI_DT[element.dtype].name;
+	if (element.dtype == DTYPE.VISIBLE_STRING) {
+		return `${el_name}(${element.data.length})`;
+	}
+	return el_name;
+}
+
+function esiDtName(element, index) {
+	switch (element.otype) {
+		case OTYPE.VAR:
+			return esiPrimitiveDtName(element);
+		case OTYPE.ARRAY:
+		case OTYPE.RECORD:
+			return `DT${index}`;
+		default:
+			alert(`Element 0x${index} has unexpected OTYPE ${element.otype}`);
+			break;
+	}
+}
+
+function esiBitsize(element) {
+	switch (element.otype) {
+		case OTYPE.VAR:
+			bitsize = ESI_DT[element.dtype].bitsize;
+			if (element.dtype == DTYPE.VISIBLE_STRING) {
+				return bitsize * element.data.length;
+			}
+			return bitsize;
+		case OTYPE.ARRAY:
+			maxsubindex_bitsize = ESI_DT[DTYPE.UNSIGNED8].bitsize;
+			bitsize = ESI_DT[element.dtype].bitsize;
+			elements = element.items.length - 1; // skip max subindex
+			return maxsubindex_bitsize * 2 + elements * bitsize;
+		case OTYPE.RECORD:
+			maxsubindex_bitsize = ESI_DT[DTYPE.UNSIGNED8].bitsize;
+			bitsize = maxsubindex_bitsize * 2;
+			for (let subindex = 1; subindex < element.items.length; subindex++) {
+				const subitem = element.items[subindex];
+				bitsize += ESI_DT[subitem.dtype].bitsize;
+			}
+			return bitsize;
+		default:
+			alert(`Element ${element} has unexpected OTYPE ${element.otype}`);
+			break;
+	}
+}
+
 //See ETG2000 for ESI format
 function esi_generator(form, od)
 {
@@ -289,21 +338,61 @@ function esi_generator(form, od)
 	esi += `        <Profile>\n          <ProfileNo>5001</ProfileNo>\n          <AddInfo>0</AddInfo>\n          <Dictionary>\n            <DataTypes>`;
 /* TODO implement data types */
 	const indexes = get_used_indexes();
+	const customTypes = {};
+	const primitiveTypes = {};
+
+	function addPrimitiveType(element) {
+		if (element && element.otype && (element.otype != OTYPE.VAR && element.otype != OTYPE.ARRAY)) { 
+			alert(`${element.name} is not OTYPE VAR, cannot treat is as primitive type`); return; 
+		}
+		if (!element || !element.dtype) {
+			alert(`${element.name} has no DTYPE, cannot treat is as primitive type`); return; 
+		}		
+		el_name = esiPrimitiveDtName(element);
+		if (!primitiveTypes[el_name]) {
+			const bitsize = esiBitsize(element);
+			primitiveTypes[el_name] = bitsize;
+		}
+	}
+
 	indexes.forEach(index => {
 		const element = od[index];
-		if (element.otype == OTYPE.RECORD || element.otype == OTYPE.ARRAY) {
+		const el_name = esiDtName(element, index);
+		
+		if (element.otype == OTYPE.VAR) {
+			addPrimitiveType(element);
+		} else if (!customTypes[el_name]) {
+			const bitsize = esiBitsize(element);
+			customTypes[el_name] = true;
 			esi += `\n              <DataType>`;
 			
-			el_name = `DT${index}`;
-			bitsize = 42;
+			if (element.otype == OTYPE.ARRAY) {
+				addPrimitiveType(element);
+				esi_type = ESI_DT[element.dtype]; 
+				esi += `\n                <Name>${el_name}ARR</Name>\n                <BaseType>${esi_type.name}</BaseType>\n                <BitSize>${esi_type.bitsize}</BitSize>`;
+				esi += `\n                <ArrayInfo>\n                  <LBound>1</LBound>\n                  <Elements>${element.items.length - 1}</Elements>\n                </ArrayInfo>`;
+				esi += `\n              </DataType>`;
+				esi += `\n              <DataType>`;
+			}
 			esi += `\n                <Name>${el_name}</Name>\n                <BitSize>${bitsize}</BitSize>`;
 			subindex = 0;
 			element.items.forEach(subitem => {
+				 // TODO queue primitive types found in records  to add after complex object types are done
 				esi += `\n                  <SubItem>SubItem ${subindex}</SubItem>`;
+				if (subindex > 0) { // skipped Max Subindex
+					if(element.otype == OTYPE.RECORD) {
+						addPrimitiveType(subitem);
+					}
+				}
 				subindex++;
 			});
 			esi += `\n              </DataType>`;
 		}
+	});
+	Object.entries(primitiveTypes).forEach(primitive => {
+		esi += `\n              <DataType>`;
+		esi += `\n                <Name>${primitive[0]}</Name>\n                <BitSize>${primitive[1]}</BitSize>`;			
+		esi += `\n              </DataType>`;
 	});
 	esi += `\n            </DataTypes>\n            <Objects>`;
 /* TODO implement object */
