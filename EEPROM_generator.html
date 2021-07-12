@@ -97,6 +97,13 @@ tr td:nth-child(6) {
       <td>Port 3 Physical interface:</td><td><select name="Port3Physical" title="Select which physical connection is used on each physical port of your Beckhoff ASIC (ET1100, ET1200)"><option value="Y">MII</option><option value="H">MII-Fast Hot Connect</option><option value="K">EBUS</option><option value=" " selected>Not Used</option></select></td><td>x</td><td>x</td><td>&nbsp;</td><td>&nbsp;</td>
    </tr>
    <tr><td colspan="6"><hr></td</tr>
+   <tr>
+      <td>ESC (EtherCAT Slave Chip):</td><td><select name="ESC" title="Select which ESC (EtherCAT Slave Chip) is used"><option value="ET1100">ET1100</option><option value="AX58100">AX58100</option><option value="LAN9252">LAN9252</option></select></td><td>x</td><td>x</td><td>&nbsp;</td><td>&nbsp;</td>
+   </tr>
+   <tr>      
+      <td>SPI mode:</td><td><select name="SPImode" title="Select which SPI mode is used"><option value="3">3</option><option value="2">2</option><option value="1">1</option><option value="0">0</option></select></td><td>x</td><td>x</td><td>&nbsp;</td><td>&nbsp;</td>
+   </tr>   
+   <tr><td colspan="6"><hr></td</tr>
    <tr><td><input type="checkbox" name="CoeDetails" value="EnableSDO" checked>Enable SDO<br>
       <input type="checkbox" name="CoeDetails" value="EnableSDOInfo" checked>Enable SDO Info<br>
       <input type="checkbox" name="CoeDetails" value="EnablePDOAssign">Enable PDO Assign<br>
