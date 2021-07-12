@@ -52,14 +52,14 @@ const ATYPE = {
 	TXPDO : 'TXPDO',
 	RXPDO : 'RXPDO',
 };
-const requided_SDOs = [  // these are required by minimal CiA 301 device
-	'1000',
-	'1008',
-	'1009',
-	'100A',
-	'1018',
-	'1C00'
-];
+const requided_SDOs = {  // these are required by minimal CiA 301 device /* TODO check if all */
+	'1000': true,
+	'1008': true,
+	'1009': true,
+	'100A': true,
+	'1018': true,
+	'1C00': true,
+};
 
 function get_default_od() {
 
@@ -336,7 +336,6 @@ function esi_generator(form, od)
 	esi += `        <GroupType>${form.TextGroupType.value}</GroupType>\n`;
 	//Add profile
 	esi += `        <Profile>\n          <ProfileNo>5001</ProfileNo>\n          <AddInfo>0</AddInfo>\n          <Dictionary>\n            <DataTypes>`;
-/* TODO implement data types */
 	const indexes = get_used_indexes();
 	const customTypes = {};
 	const primitiveTypes = {};
@@ -403,9 +402,20 @@ function esi_generator(form, od)
 		esi += `\n              </DataType>`;
 	});
 	esi += `\n            </DataTypes>\n            <Objects>`;
-/* TODO implement object */
 	indexes.forEach(index => {
 		const element = od[index];
+		const el_dtype = esiDtName(element, index);
+		const bitsize = esiBitsize(element);
+		esi += `\n              <Object>\n                <Index>#x${index}</Index>\n                <Name>${element.name}</Name>\n                <Type>${el_dtype}</Type>\n                <BitSize>${bitsize}</BitSize>\n                <Info>`;
+		if (element.data) {
+			if (element.dtype == DTYPE.VISIBLE_STRING) {
+				esi += `\n                  <DefaultString>${element.data}</DefaultString>`;	
+			}
+		} else if (element.value) {
+			esi += `\n                  <DefaultValue>${element.value ? "#x"+parseInt(element.value).toString(16) : 0}</DefaultValue>`;
+		}
+		/* TODO implement object subitems for complex types */
+		esi += `\n                </Info>\n                <Flags>\n                  <Access>ro</Access>\n${requided_SDOs[index] ? '                  <Category>m</Category>' : ''}\n                </Flags>\n              </Object>`;
 	});
 	esi += `\n            </Objects>\n          </Dictionary>\n        </Profile>\n        <Fmmu>Outputs</Fmmu>\n        <Fmmu>Inputs</Fmmu>\n        <Fmmu>MBoxState</Fmmu>\n`;
 	//Add Rxmailbox sizes
