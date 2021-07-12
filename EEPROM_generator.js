@@ -382,12 +382,14 @@ function esi_generator(form, od)
 				esi += `\n                <SubItem>\n                  <Name>Elements</Name>\n                  <Type>${el_name}ARR</Type>\n                  <BitSize>${arr_bitsize}</BitSize>\n                  <BitOffs>16</BitOffs>\n                  <Flags>\n                    <Access>ro</Access>\n                  </Flags>\n                </SubItem>`;
 			} else if (element.otype == OTYPE.RECORD) {
 				subindex = 0;
+				bits_offset = 16;
 				element.items.forEach(subitem => {
 					if (subindex > 0) { // skipped Max Subindex
-						esi += `\n                  <SubItem>SubItem ${subindex}</SubItem>`;
-						if(element.otype == OTYPE.RECORD) {
-							addPrimitiveType(subitem);
-						}
+						addPrimitiveType(subitem);
+						subitem_dtype = ESI_DT[subitem.dtype];
+						subitem_bitsize = subitem_dtype.bitsize
+						esi += `\n                <SubItem>\n                  <SubIdx>${subindex}</SubIdx>\n                  <Name>${subitem.name}</Name>\n                  <Type>${subitem_dtype.name}</Type>\n                  <BitSize>${subitem_bitsize}</BitSize>\n                  <BitOffs>${bits_offset}</BitOffs>\n                  <Flags>\n                    <Access>ro</Access>\n                  </Flags>\n                </SubItem>`;
+						bits_offset += subitem_bitsize;
 					}
 					subindex++;
 				});
