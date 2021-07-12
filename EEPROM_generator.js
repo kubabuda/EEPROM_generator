@@ -376,16 +376,15 @@ function esi_generator(form, od)
 				esi += `\n              <DataType>`;
 			}
 			esi += `\n                <Name>${el_name}</Name>\n                <BitSize>${bitsize}</BitSize>`;
+			esi += `\n                <SubItem>\n                  <SubIdx>0</SubIdx>\n                  <Name>Max SubIndex</Name>\n                  <Type>USINT</Type>\n                  <BitSize>8</BitSize>\n                  <BitOffs>0</BitOffs>\n                  <Flags>\n                    <Access>ro</Access>\n                  </Flags>\n                </SubItem>`;
 			if (element.otype == OTYPE.ARRAY) {
-				esi += `\n                <SubItem>\n                  <SubIdx>0</SubIdx>\n                  <Name>Max SubIndex</Name>\n                  <Type>USINT</Type>\n                  <BitSize>8</BitSize>\n                  <BitOffs>0</BitOffs>\n                  <Flags>\n                    <Access>ro</Access>\n                  </Flags>\n                </SubItem>`;
 	 			arr_bitsize = (element.items.length - 1) * ESI_DT[element.dtype].bitsize
 				esi += `\n                <SubItem>\n                  <Name>Elements</Name>\n                  <Type>${el_name}ARR</Type>\n                  <BitSize>${arr_bitsize}</BitSize>\n                  <BitOffs>16</BitOffs>\n                  <Flags>\n                    <Access>ro</Access>\n                  </Flags>\n                </SubItem>`;
 			} else if (element.otype == OTYPE.RECORD) {
 				subindex = 0;
 				element.items.forEach(subitem => {
-					// TODO queue primitive types found in records  to add after complex object types are done
-					esi += `\n                  <SubItem>SubItem ${subindex}</SubItem>`;
 					if (subindex > 0) { // skipped Max Subindex
+						esi += `\n                  <SubItem>SubItem ${subindex}</SubItem>`;
 						if(element.otype == OTYPE.RECORD) {
 							addPrimitiveType(subitem);
 						}
