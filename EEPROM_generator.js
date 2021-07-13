@@ -493,23 +493,30 @@ function hex_generator(form)
 	configdata = "";
 	var record = [0,0];
 	record.length = parseInt(form.EEPROMsize.value);
-	var bytes_per_rule = 32;
+	const bytes_per_rule = 32;
 	for(var count = 0 ; count < record.length ; count++) //initialize array
 		record[count] = 0xFF;
-	//Start of EEPROM contents; A lot of information can be found in 5.4 of ETG1000.6
+		//Start of EEPROM contents; A lot of information can be found in 5.4 of ETG1000.6
+	const pdiControl = (form.ESC.value == 'LAN9252') ? 0x80 : 0x05;
+	const spiMode = 2; // parseInt(form.SPImode.value);
+	const reserved_0x05 = (form.ESC.value == 'AX58100') ? 0x1A : 0x00; // enable IO for SPI driver on AX58100:
+	// Write 0x1A value (INT edge pulse length, 8 mA Control + IO 9:0 Drive Select) to 0x0A (Host Interface Extend Setting and Drive Strength
+	const configdata_bytecount = (form.ESC.value == 'AX58100') ? 14 : 7; // configdata needs to reach 0x0A
+        
 	//WORD ADDRESS 0-7
-	writeEEPROMbyte_byteaddress(0x05,0,record); //PDI control: SPI slave (mapped to register 0x0140)
+	writeEEPROMbyte_byteaddress(pdiControl,0,record); //PDI control: SPI slave (mapped to register 0x0140)
 	writeEEPROMbyte_byteaddress(0x06,1,record); //ESC configuration: Distributed clocks Sync Out and Latch In enabled (mapped register 0x0141)
-	writeEEPROMbyte_byteaddress(0x03,2,record); //SPI mode 3 (mapped to register 0x0150)
+	writeEEPROMbyte_byteaddress(0x03,spiMode,record); //SPI mode (mapped to register 0x0150)
 	writeEEPROMbyte_byteaddress(0x44,3,record); //SYNC /LATCH configuration (mapped to 0x0151). Make both Syncs output
 	writeEEPROMword_wordaddress(0x0064,2,record);//Syncsignal Pulselenght in 10ns units(mapped to 0x0982:0x0983)
 	writeEEPROMword_wordaddress(0x00,3,record); //Extended PDI configuration (none for SPI slave)(0x0152:0x0153)
 	writeEEPROMword_wordaddress(0x00,4,record); //Configured Station Alias (0x0012:0x0013))
-	writeEEPROMword_wordaddress(0x00,5,record); //Reserved, 0
+	writeEEPROMword_wordaddress(reserved_0x05,5,record); //Reserved, 0 if not AX58100
 	writeEEPROMword_wordaddress(0x00,6,record); //Reserved, 0
 	writeEEPROMword_wordaddress(FindCRC(record,14),7,record); //CRC
-	for (var bytecount = 0 ; bytecount < 7 ; bytecount++)
+	for (var bytecount = 0 ; bytecount < configdata_bytecount ; bytecount++) {
 		configdata += (record[bytecount]+0x100).toString(16).slice(-2).toUpperCase();//store EEPROM data for future use in ESI file
+	}
 	//WORD ADDRESS 8-15
 	writeEEPROMDword_wordaddress(parseInt(form.VendorID.value),8,record);		//CoE 0x1018:01
 	writeEEPROMDword_wordaddress(parseInt(form.ProductCode.value),10,record);	//CoE 0x1018:02
