@@ -95,6 +95,18 @@ function downloadFile(data, fileName = 'esi.json', contentType = 'text/json') {
     a.click();
 }
 
+function serializeForm(form) {
+	const formSettings = {};
+	Object.entries(form).forEach(formEntry => {
+		const formControl = formEntry[1]; // entry[0] is index
+		// debugger;
+		if(formControl.value) {
+			formSettings[formControl.name] = formControl.value;
+		};
+	});
+	return formSettings;
+}
+
 function updatevalues(form)
 {
 	const od = get_default_od();
