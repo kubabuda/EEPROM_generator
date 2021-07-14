@@ -86,13 +86,17 @@ function get_default_od() {
 	return OD;
 }
 
-function downloadFile(data, fileName = 'esi.json', contentType = 'text/json') {
-	var content = JSON.stringify(data, null, 2); // pretty print
+function downloadFile(content, fileName, contentType) {
     var a = document.createElement("a");
     var file = new Blob([content], {type: contentType});
     a.href = URL.createObjectURL(file);
     a.download = fileName;
     a.click();
+}
+
+function downloadBackupFile(data) {
+	var content = JSON.stringify(data, null, 2); // pretty print
+	downloadFile(content, fileName = 'esi.json', contentType = 'text/json');
 }
 
 function serializeForm(form) {
@@ -132,20 +136,24 @@ function onSubmit(form)
 	return true;
 }
 
-function saveSelections(form) {
-	var backup = serializeForm(form);
-	downloadFile(backup);
+function getForm() {
+	return document.getElementById("SlaveForm");
 }
 
-function loadSelections() {
+function onSaveClick() {
+	var form = getForm();
+	var backup = serializeForm(form);
+	downloadBackupFile(backup);
+}
+
+function onRestoreClick() {
 	// trigger file input dialog window
 	document.getElementById('restoreFileInput').click();
 }
 
 function restoreBackup(fileContent) {
 	var backup = JSON.parse(fileContent);
-	var form = document.getElementById("SlaveForm")
-	loadFormValues(form, backup);
+	loadFormValues(getForm(), backup);
 }
 
 function readFile(e) {
@@ -927,6 +935,6 @@ function FindCRC(data,datalen)         // computes crc value
 
 window.onload = (event) => {
 	// for convinience during tool development, trigger codegen on page refresh
-	const form = document.getElementById('SlaveForm');
- onSubmit(form);
+	var form = getForm();
+ 	onSubmit(form);
 }
