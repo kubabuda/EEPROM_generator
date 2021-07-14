@@ -121,16 +121,17 @@ tr td:nth-child(6) {
    </tr>
 </table>
 <br><br>
-ESI file:<br>
+ESI file:<input type="button" name="DownloadESI" value="&nbsp;Download&nbsp;" onClick="downloadFile(getForm().ESI.value, fileName = 'esi.xml', contentType = 'text/html');"><br>
 <textarea cols = "150" rows = "12" name="ESI">ESI File</textarea><br><br>
-Hex file:<br>
-<textarea cols = "150" rows = "12" name="HEX">Hex File</textarea><br>
-To flash generated binary, install SOEM and run <br><i>sudo ./eepromtool 1 eth0 -wi eeprom.hex</i><br><br>
-ecat_options.h:<br>
+Hex file: <input type="button" name="Download_HEX" value="&nbsp;Download&nbsp;" onClick="downloadFile(getForm().HEX.value, fileName = 'eeprom.hex', contentType = 'application/octet-stream');"><br>
+<!-- TODO this probably is wrong MIME type, check another one: https://www.sitepoint.com/mime-types-complete-list/ -->
+To flash generated binary, install SOEM and run <br><br><i>sudo ./eepromtool 1 eth0 -wi eeprom.hex</i><br><br>
+<textarea cols = "150" rows = "12" name="HEX">Hex File</textarea><br><br>
+ecat_options.h: <input type="button" name="Download_ecat_options" value="&nbsp;Download&nbsp;" onClick="downloadFile(getForm().ecat_options.value, fileName = 'ecat_options.h', contentType = 'text/plain');"><br>
 <textarea cols = "150" rows = "12" name="ecat_options">ecat_options.h</textarea><br><br>
-objectlist.c:<br>
+objectlist.c: <input type="button" name="Download_objectlist" value="&nbsp;Download&nbsp;" onClick="downloadFile(getForm().objectlist.value, fileName = 'objectlist.c', contentType = 'text/plain');"><br>
 <textarea cols = "150" rows = "12" name="objectlist">objectlist.c</textarea><br><br>
-utypes.h:<br>
+utypes.h: <input type="button" name="Download_utypes" value="&nbsp;Download&nbsp;" onClick="downloadFile(getForm().utypes.value, fileName = 'utypes.h', contentType = 'text/plain');"><br>
 <textarea cols = "150" rows = "12" name="utypes">utypes.h</textarea><br><br>
 </form>
 <input id="restoreFileInput" type='file' style="visibility:hidden;" onchange="readFile(event)" />

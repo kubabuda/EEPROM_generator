@@ -10,3 +10,7 @@ VBinDiff ref/et1100.bin  ref/lan9252.bin
 <ConfigData>0502030000000000</ConfigData> start
 <ConfigData>050403440a00000000001a000000</ConfigData> AX
 <ConfigData>050603446400000000001A000000</ConfigData>
+
+# MIME types
+
+https://www.sitepoint.com/mime-types-complete-list/
