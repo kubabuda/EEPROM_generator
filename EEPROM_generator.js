@@ -142,8 +142,10 @@ function loadSelections() {
 	document.getElementById('restoreFileInput').click();
 }
 
-function restoreBackup(e) {
-
+function restoreBackup(fileContent) {
+	var backup = JSON.parse(fileContent);
+	var form = document.getElementById("SlaveForm")
+	loadFormValues(form, backup);
 }
 
 function readFile(e) {
@@ -151,12 +153,9 @@ function readFile(e) {
 	if (!file) return;
 	var reader = new FileReader();
 	reader.onload = function(e) {
-		debugger;
-		var backup = JSON.parse(e.target.result);
-		var form = document.getElementById("SlaveForm")
-		loadFormValues(form, backup);
-  }
-  reader.readAsText(file)
+		restoreBackup(e.target.result);
+  	}
+	reader.readAsText(file);
 }
 
 function populate_od(form, od) {
