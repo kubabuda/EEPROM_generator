@@ -164,6 +164,18 @@ function onSubmit(form)
 	return true;
 }
 
+function onGenerateDownloadClick()
+{
+	var form = getForm();
+	onSubmit(form);
+	downloadFile(form.ESI.value, fileName = 'esi.xml', contentType = 'text/html');
+	// TODO this probably is wrong MIME type, check another one: https://www.sitepoint.com/mime-types-complete-list/
+	downloadFile(form.HEX.value, fileName = 'eeprom.hex', contentType = 'application/octet-stream');
+	downloadFile(form.ecat_options.value, fileName = 'ecat_options.h', contentType = 'text/plain');
+	downloadFile(form.objectlist.value, fileName = 'objectlist.c', contentType = 'text/plain');
+	downloadFile(form.utypes.value, fileName = 'utypes.h', contentType = 'text/plain');
+}
+
 function onSaveClick() {
 	var form = getForm();
 	var backup = serializeForm(form);
