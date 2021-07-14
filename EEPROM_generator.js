@@ -86,6 +86,15 @@ function get_default_od() {
 	return OD;
 }
 
+function downloadFile(data, fileName = 'esi.json', contentType = 'text/json') {
+	var content = JSON.stringify(data, null, 2); // pretty print
+    var a = document.createElement("a");
+    var file = new Blob([content], {type: contentType});
+    a.href = URL.createObjectURL(file);
+    a.download = fileName;
+    a.click();
+}
+
 function updatevalues(form)
 {
 	const od = get_default_od();
@@ -96,6 +105,9 @@ function updatevalues(form)
 	form.utypes.value = utypes_generator(form, od);
 	form.HEX.value = hex_generator(form); //HEX generator needs to be run first, data from hex is used in esi
 	form.ESI.value = esi_generator(form, od);
+
+	// downloadFile(od);
+	
 	return true;
 }
 
