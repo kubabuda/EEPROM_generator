@@ -96,15 +96,26 @@ function downloadFile(data, fileName = 'esi.json', contentType = 'text/json') {
 }
 
 function serializeForm(form) {
-	const formSettings = {};
+	const formValues = {};
 	Object.entries(form).forEach(formEntry => {
 		const formControl = formEntry[1]; // entry[0] is index
 		// debugger;
 		if(formControl.value) {
-			formSettings[formControl.name] = formControl.value;
+			formValues[formControl.name] = formControl.value;
 		};
 	});
-	return formSettings;
+	return formValues;
+}
+
+function loadFormValues(form, formValues) {
+	Object.entries(form).forEach(formEntry => {
+		const formControl = formEntry[1]; // entry[0] is index
+		// debugger;
+		const formControlValue = formValues[formControl.name];
+		if(formControlValue) {
+			formControl.value = formControlValue;
+		};
+	});
 }
 
 function updatevalues(form)
@@ -118,9 +129,17 @@ function updatevalues(form)
 	form.HEX.value = hex_generator(form); //HEX generator needs to be run first, data from hex is used in esi
 	form.ESI.value = esi_generator(form, od);
 
-	// downloadFile(od);
-	
 	return true;
+}
+
+function saveSelections(form) {
+	var backup = serializeForm(form);
+	downloadFile(backup);
+}
+
+function loadSelections(form) {
+	var backup = {"VendorName": "XKCD"};
+	loadFormValues(form, backup);
 }
 
 function populate_od(form, od) {
