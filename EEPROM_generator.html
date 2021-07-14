@@ -23,7 +23,7 @@ tr td:nth-child(6) {
 <font face="Arial, Helvetica, Helverica">This page serves as a tool to generate consistent data across your code, ESI file and EEPROM data. Hover over the fields to get additional info about the items you can change. <br><br>
 <p>For more detail on how these values translate to the corresponding files, and where you can find more info in the ETG documentation, look into the <a href="EEPROM_generator.js">source of the javascript that generates these files</a>.</p>
 </font>
-<form  name="SlaveForm" id="SlaveForm" action="" onsubmit="updatevalues(this); return false;">
+<form  name="SlaveForm" id="SlaveForm" action="" onsubmit="onSubmit(this); return false;">
 <table border="0">
    <tr>
       <td><strong>Item:</strong></td><td><strong>Value</strong></td><td width="12%"><strong>ESI</strong></td><td width="12%"><strong>EEPROM</strong></td><td width="12%"><strong>objectlist.c</strong></td><td width="12%"><strong>ecat_options.h</strong></td>
@@ -116,7 +116,7 @@ tr td:nth-child(6) {
       <td colspan="6" align="center">
          <input type="submit" value="&nbsp;Submit&nbsp;">
          <input type="button" value="Save" onClick='saveSelections(document.getElementById("SlaveForm"));'>
-         <!-- <input type="button" value="Restore" onClick='loadSelections(document.getElementById("SlaveForm"));'>  -->
+         <input type="button" value="Restore" onClick='loadSelections();'> 
       </td>
    </tr>
 </table>
@@ -133,4 +133,5 @@ objectlist.c:<br>
 utypes.h:<br>
 <textarea cols = "150" rows = "12" name="utypes">utypes.h</textarea><br><br>
 </form>
+<input id="restoreFileInput" type='file' style="visibility:hidden;" onchange="readFile(event)" />
 </body>

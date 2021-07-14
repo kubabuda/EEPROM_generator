@@ -118,7 +118,7 @@ function loadFormValues(form, formValues) {
 	});
 }
 
-function updatevalues(form)
+function onSubmit(form)
 {
 	const od = get_default_od();
 	populate_od(form, od);
@@ -137,9 +137,26 @@ function saveSelections(form) {
 	downloadFile(backup);
 }
 
-function loadSelections(form) {
-	var backup = {"VendorName": "XKCD"};
-	loadFormValues(form, backup);
+function loadSelections() {
+	// trigger file input dialog window
+	document.getElementById('restoreFileInput').click();
+}
+
+function restoreBackup(e) {
+
+}
+
+function readFile(e) {
+	var file = e.target.files[0];
+	if (!file) return;
+	var reader = new FileReader();
+	reader.onload = function(e) {
+		debugger;
+		var backup = JSON.parse(e.target.result);
+		var form = document.getElementById("SlaveForm")
+		loadFormValues(form, backup);
+  }
+  reader.readAsText(file)
 }
 
 function populate_od(form, od) {
@@ -912,5 +929,5 @@ function FindCRC(data,datalen)         // computes crc value
 window.onload = (event) => {
 	// for convinience during tool development, trigger codegen on page refresh
 	const form = document.getElementById('SlaveForm');
-	updatevalues(form);
+ onSubmit(form);
 }
