@@ -1,5 +1,7 @@
 var configdata = ""
 
+// ####################### Constants, lookup tables ####################### //
+
 // Object Type
 const OTYPE = {
 	VAR : 'VAR',
@@ -86,6 +88,9 @@ function get_default_od() {
 	return OD;
 }
 
+
+// ####################### File accessing ####################### //
+
 function downloadFile(content, fileName, contentType) {
     var a = document.createElement("a");
     var file = new Blob([content], {type: contentType});
@@ -98,6 +103,27 @@ function downloadBackupFile(data) {
 	var content = JSON.stringify(data, null, 2); // pretty print
 	downloadFile(content, fileName = 'esi.json', contentType = 'text/json');
 }
+
+function getForm() {
+	return document.getElementById("SlaveForm");
+}
+
+function restoreBackup(fileContent) {
+	var backup = JSON.parse(fileContent);
+	loadFormValues(getForm(), backup);
+}
+
+function readFile(e) {
+	var file = e.target.files[0];
+	if (!file) return;
+	var reader = new FileReader();
+	reader.onload = function(e) {
+		restoreBackup(e.target.result);
+  	}
+	reader.readAsText(file);
+}
+
+// ####################### Backup serialization + deserialization ####################### //
 
 function serializeForm(form) {
 	const formValues = {};
@@ -122,6 +148,8 @@ function loadFormValues(form, formValues) {
 	});
 }
 
+// ####################### Button handlers ####################### //
+
 function onSubmit(form)
 {
 	const od = get_default_od();
@@ -136,10 +164,6 @@ function onSubmit(form)
 	return true;
 }
 
-function getForm() {
-	return document.getElementById("SlaveForm");
-}
-
 function onSaveClick() {
 	var form = getForm();
 	var backup = serializeForm(form);
@@ -151,20 +175,7 @@ function onRestoreClick() {
 	document.getElementById('restoreFileInput').click();
 }
 
-function restoreBackup(fileContent) {
-	var backup = JSON.parse(fileContent);
-	loadFormValues(getForm(), backup);
-}
-
-function readFile(e) {
-	var file = e.target.files[0];
-	if (!file) return;
-	var reader = new FileReader();
-	reader.onload = function(e) {
-		restoreBackup(e.target.result);
-  	}
-	reader.readAsText(file);
-}
+// ####################### Building Object Dictionary model ####################### //
 
 function populate_od(form, od) {
 	od['1008'].data = form.TextDeviceName.value;
@@ -198,6 +209,8 @@ function scan_indexes(od) {
 function get_used_indexes() {
 	return _usedIndexes;
 }
+
+// ####################### Objectlist.c generating ####################### //
 
 function subindex_padded(subindex) {
 	// pad with 0 if single digit
@@ -340,6 +353,8 @@ function objectlist_generator(form, od)
 
 	return objectlist;
 }
+
+// ####################### ESI.xml generating ####################### //
 
 function esiVariableTypeName(element) {
 	let el_name = ESI_DT[element.dtype].name;
@@ -853,6 +868,28 @@ function generate_hex_address(number)
 	return output.slice(-4);
 }
 
+function FindCRC(data,datalen)         // computes crc value
+{
+  var i,j;
+  var c;
+  var CRC=0xFF;
+  var genPoly = 0x07;
+  for (j=0; j<datalen; j++)
+  {
+    c = data[j];
+    CRC ^= c;
+    for(i = 0; i<8; i++)
+        if(CRC & 0x80 )
+          CRC = (CRC << 1) ^ genPoly;
+        else
+          CRC <<= 1;
+    CRC &= 0xff;
+  }
+  return CRC;
+}
+
+// ####################### ecat_options.h generation ####################### //
+
 function ecat_options_generator(form, od)
 {
 	ecat_options = '#ifndef __ECAT_OPTIONS_H__\n#define __ECAT_OPTIONS_H__\n\n#define USE_FOE          0\n#define USE_EOE          0\n\n';
@@ -904,6 +941,8 @@ function ecat_options_generator(form, od)
 	return ecat_options;
 }
 
+// ####################### utypes.h generation ####################### //
+
 function utypes_generator(form, od) {
 	utypes = '#ifndef __UTYPES_H__\n#define __UTYPES_H__\n\n#include "cc.h"\n\n/* Object dictionary storage */\n\ntypedef struct\n{\n   /* Identity */\n'
 	utypes += '\n   uint32_t serial;\n\n';
@@ -913,25 +952,6 @@ function utypes_generator(form, od) {
 	return utypes;
 }
 
-function FindCRC(data,datalen)         // computes crc value
-{
-  var i,j;
-  var c;
-  var CRC=0xFF;
-  var genPoly = 0x07;
-  for (j=0; j<datalen; j++)
-  {
-    c = data[j];
-    CRC ^= c;
-    for(i = 0; i<8; i++)
-        if(CRC & 0x80 )
-          CRC = (CRC << 1) ^ genPoly;
-        else
-          CRC <<= 1;
-    CRC &= 0xff;
-  }
-  return CRC;
-}
 
 window.onload = (event) => {
 	// for convinience during tool development, trigger codegen on page refresh
