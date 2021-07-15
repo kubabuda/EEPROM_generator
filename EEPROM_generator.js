@@ -88,6 +88,27 @@ function get_default_od() {
 	return OD;
 }
 
+// ####################### Object Dictionary building ####################### //
+
+var sdo = {};
+var txpdo = {}; // addding PDO requires matching SDO in Sync Manager, and PDO mapping
+var rxpdo = {}; // this will be done when stitching
+
+function checkIsDuplicate(od, index) {
+	if (od[index]) {
+		alert(`Object 0x${index} ${od[index].name} exists`);
+		return true;
+	}
+	return false;
+}
+
+function addVar(od, data) { 
+	const newVar = { otype: OTYPE.VAR, dtype: data.dtype, name: data.name };
+	if (data.value) { newVar.value = data.value; }
+	if (data.data) { newVar.data = data.data; }
+	checkIsDuplicate(od, data.index);
+	od[data.index] = newVar;
+}
 
 // ####################### File accessing ####################### //
 
@@ -964,8 +985,41 @@ function utypes_generator(form, od) {
 	return utypes;
 }
 
+// ####################### Modal handling ####################### //
+
+var modal = {};
+var btn = {};
+var span = {};
+
+function modalSetup() {
+	// Get the modal
+	modal = document.getElementById("myModal");
+	// Get the button that opens the modal
+	btn = document.getElementById("myBtn");
+	// Get the <span> element that closes the modal
+	span = document.getElementsByClassName("close")[0];
+
+	// When the user clicks the button, open the modal 
+	btn.onclick = function() {
+		console.log("btnClick");
+		modal.style.display = "block";
+	}
+
+	// When the user clicks on <span> (x), close the modal
+	span.onclick = function() {
+	modal.style.display = "none";
+	}
+}
+
+// When the user clicks anywhere outside of the modal, close it
+window.onclick = function(event) {
+  if (event.target == modal) {
+    modal.style.display = "none";
+  }
+}
 
 window.onload = (event) => {
+	modalSetup();
 	// for convinience during tool development, trigger codegen on page refresh
 	var form = getForm();
  	onSubmit(form);
