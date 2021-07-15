@@ -171,7 +171,7 @@ function loadFormValues(form, formValues) {
 
 // ####################### Button handlers ####################### //
 
-function onSubmit(form)
+function onGenerateSubmit(form)
 {
 	const od = get_default_od();
 	populate_od(form, od);
@@ -188,7 +188,7 @@ function onSubmit(form)
 function onGenerateDownloadClick()
 {
 	var form = getForm();
-	onSubmit(form);
+	onGenerateSubmit(form);
 	downloadFile(form.ESI.value, fileName = 'esi.xml', contentType = 'text/html');
 	// TODO this probably is wrong MIME type, check another one: https://www.sitepoint.com/mime-types-complete-list/
 	downloadFile(form.HEX.value, fileName = 'eeprom.hex', contentType = 'application/octet-stream');
@@ -1003,6 +1003,10 @@ function modalClose() {
 	modal.style.display = "none";
 }
 
+function onAddObjectSubmit(form) {
+	console.log(form);
+}
+
 // When the user clicks anywhere outside of the modal, close it
 window.onclick = function(event) {
   if (event.target == modal) {
@@ -1014,5 +1018,5 @@ window.onload = (event) => {
 	modalSetup();
 	// for convinience during tool development, trigger codegen on page refresh
 	var form = getForm();
- 	onSubmit(form);
+ 	onGenerateSubmit(form);
 }

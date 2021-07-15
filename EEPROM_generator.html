@@ -74,14 +74,30 @@
       <div class="modal-content">
          <span class="close" onClick="modalClose()">&times;</span>
          <p>Some text in the Modal..</p>
+         <form  name="AddObjectForm" id="AddObjectForm" action="" onsubmit="onAddObjectSubmit(this); return false;">
+            <table border="0">
+               <tr>
+                  <td>Index:</td><td><input type = "text" name="Index" value="0x6000" title="Enter OD index for the new object"></td>
+               </tr>
+               <tr>
+                  <td>Name of Object:</td><td><input type = "text" name="ObjectName" value="New Object" title="Enter name for the new object"></td>
+               </tr>
+               <tr>
+                  <td colspan="6" align="center">
+                     <input type="submit" name="AddObject" value="&nbsp;Add object&nbsp;">
+                     <input type="button" name="Cancel" value="&nbsp;Cancel&nbsp;" onClick='modalClose();'>
+                  </td>
+               </tr>
+            </table>
+         </form>
       </div>
    </div>
 
-<h2>EtherCAT EEPROM generator</h2>
+<h2>EtherCAT EEPROM & SOES OD code generator</h2>
 This page serves as a tool to generate consistent data across your code, ESI file and EEPROM data. Hover over the fields to get additional info about the items you can change. <br><br>
 <p>For more detail on how these values translate to the corresponding files, and where you can find more info in the ETG documentation, look into the <a href="EEPROM_generator.js">source of the javascript that generates these files</a>.</p>
 
-<form  name="SlaveForm" id="SlaveForm" action="" onsubmit="onSubmit(this); return false;">
+<form  name="SlaveForm" id="SlaveForm" action="" onsubmit="onGenerateSubmit(this); return false;">
 <table border="0">
    <tr>
       <td><strong>Item:</strong></td><td><strong>Value</strong></td><td width="12%"><strong>ESI</strong></td><td width="12%"><strong>EEPROM</strong></td><td width="12%"><strong>objectlist.c</strong></td><td width="12%"><strong>ecat_options.h</strong></td>
