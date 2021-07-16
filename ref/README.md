@@ -52,4 +52,4 @@ https://www.sitepoint.com/mime-types-complete-list/
 - test on real HW
 - make GUI look better
 - save OD + form state in localstorage
-- 
+- reuse repeated string constants, test if does any good

@@ -213,8 +213,10 @@ function getForm() {
 
 function restoreBackup(fileContent) {
 	var backup = JSON.parse(fileContent);
-	loadFormValues(backup);
-	reloadOD_Sections();
+	if (isValidBackup(backup)) {
+		loadBackup(backup);
+		reloadOD_Sections();
+	}
 }
 
 function readFile(e) {
@@ -229,10 +231,21 @@ function readFile(e) {
 
 // ####################### Backup serialization + deserialization ####################### //
 
-function serializeForm(form) {
+function isValidBackup(backup) {
+	debugger;
+	if (!backup || !backup.form || !backup.od ) {
+		if (!confirm('Backup is incomplete or invalid, proceed anyway?')) {
+			return false;
+		}
+	}
+	return true;
+}
+
+function prepareBackup() {
+	const form = getForm();
 	const formValues = {};
 	Object.entries(form).forEach(formEntry => {
-		const formControl = formEntry[1]; // entry[0] is index
+		const formControl = formEntry[1]; // entry[0] is form control order number
 		if(formControl.value) {
 			formValues[formControl.name] = formControl.value;
 		};
@@ -246,13 +259,14 @@ function serializeForm(form) {
 	return backup;
 }
 
-function loadFormValues(backup) {	
-	_odSections.sdo = backup.od.sdo;
-	_odSections.txpdo = backup.od.txpdo;
-	_odSections.rxpdo = backup.od.rxpdo;
-	
+function loadBackup(backup) {
+	if (backup.od) {
+		_odSections.sdo = backup.od.sdo;
+		_odSections.txpdo = backup.od.txpdo;
+		_odSections.rxpdo = backup.od.rxpdo;
+	}
+		
 	var form = getForm();
-
 	Object.entries(form).forEach(formEntry => {
 		const formControl = formEntry[1]; // entry[0] is index
 		const formControlValue = backup.form[formControl.name];
@@ -291,8 +305,7 @@ function onGenerateDownloadClick()
 }
 
 function onSaveClick() {
-	var form = getForm();
-	var backup = serializeForm(form);
+	var backup = prepareBackup();
 	downloadBackupFile(backup);
 }
 
