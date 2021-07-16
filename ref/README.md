@@ -39,3 +39,16 @@ https://www.sitepoint.com/mime-types-complete-list/
     ]},
 }   
 ```
+
+
+# TODO
+
+- add subitem edition on ARR, RECORD objects
+- merging OD sections
+- adding PDO with mappings, types et al
+- check .bin output
+- test compilation
+- test on real HW
+- make GUI look better
+- save OD + form state in localstorage
+- 

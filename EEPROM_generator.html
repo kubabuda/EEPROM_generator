@@ -7,15 +7,7 @@
 </head>
 
 <body>
-   <!-- Trigger/Open The Modal -->
-   <button onClick="editVariableDialog(sdo)">Add variable</button>
-   <button onClick="editArrayDialog(txpdo)">Add Array</button>
-   <button onClick="editRecordDialog(rxpdo)">Add Record</button>
-
-   <button onClick="editVariableDialog(sdo, 0x2000)">Edit variable</button>
-
-
-   <!-- The Modal -->
+   <!-- Modal dialog to edit OD objects  -->
    <div id="editObjectModal" class="modal">
    <!-- Modal content -->
       <div class="modal-content">
@@ -162,14 +154,48 @@ This page serves as a tool to generate consistent data across your code, ESI fil
       </td><td>&nbsp;</td><td>x</td><td>x</td><td>&nbsp;</td><td>&nbsp;</td>
    </tr>
    <tr><td colspan="6"><hr></td</tr>
-   <tr>
-      <td colspan="6" align="center">
-         <input type="submit" name="Generate" value="&nbsp;Generate&nbsp;">
-         <input type="button" name="Generate" value="&nbsp;Generate + download&nbsp;" onClick='onGenerateDownloadClick();'>
-         <input type="button" name="Save" value="&nbsp;Save&nbsp;" onClick='onSaveClick();'>
-         <input type="button" name="Restore" value="&nbsp;Restore&nbsp;" onClick='onRestoreClick();'> 
-      </td>
-   </tr>
+   <tr><td colspan="6">
+      <h3>
+         SDO
+         <button onClick="editVAR_Dialog(sdo)">Add variable</button>
+         <button onClick="editARRAY_Dialog(sdo)">Add Array</button>
+         <button onClick="editRECORD_Dialog(sdo)">Add Record</button>
+      </h3>
+      <ul id="tr_sdo"> </ul>
+      <button onClick="editVAR_Dialog(sdo, 0x2000)">Edit variable</button>
+   </td></tr>
+   
+   <tr><td colspan="6"><hr></td</tr>
+   <tr><td colspan="6">
+      <h3>
+         TXPDO  (slv to master)
+         <button onClick="editVAR_Dialog(txpdo)">Add variable</button>
+         <button onClick="editARRAY_Dialog(txpdo)">Add Array</button>
+         <button onClick="editRECORD_Dialog(txpdo)">Add Record</button>
+      </h3>
+      <ul id="tr_txpdo"> </ul>
+      <button onClick="editVAR_Dialog(txpdo, 0x6000)">Edit variable</button>
+   </td></tr>
+   
+   <tr><td colspan="6"><hr></td</tr>
+   <tr><td colspan="6">
+      <h3>
+         RXPDO  (master to slv)
+         <button onClick="editVAR_Dialog(rxpdo)">Add variable</button>
+         <button onClick="editARRAY_Dialog(rxpdo)">Add Array</button>
+         <button onClick="editRECORD_Dialog(rxpdo)">Add Record</button>
+      </h3>
+      <ul id="tr_rxpdo"> </ul>
+      <button onClick="editVAR_Dialog(rxpdo, 0x7000)">Edit variable</button>
+   </td></tr>
+
+   <tr><td colspan="6"><hr></td</tr>
+   <tr><td colspan="6" align="center">
+      <input type="submit" name="Generate" value="&nbsp;Generate&nbsp;">
+      <input type="button" name="Generate" value="&nbsp;Generate + download&nbsp;" onClick='onGenerateDownloadClick();'>
+      <input type="button" name="Save" value="&nbsp;Save project&nbsp;" onClick='onSaveClick();'>
+      <input type="button" name="Restore" value="&nbsp;Restore project&nbsp;" onClick='onRestoreClick();'> 
+   </td></tr>
 </table>
 <br><br>
 ESI file:<input type="button" name="DownloadESI" value="&nbsp;Download&nbsp;" onClick="downloadFile(getForm().ESI.value, fileName = 'esi.xml', contentType = 'text/html');"><br>

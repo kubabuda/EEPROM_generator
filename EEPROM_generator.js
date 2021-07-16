@@ -184,6 +184,7 @@ function scan_indexes(od) {
 			_usedIndexes.push(index);
 		}
 	}
+	return _usedIndexes;
 }
 
 function get_used_indexes() {
@@ -1030,7 +1031,7 @@ function utypes_generator(form, od) {
 	return utypes;
 }
 
-// ####################### Modal behavior handling ####################### //
+// ####################### Handle modal dialog ####################### //
 
 var modal = {};
 
@@ -1098,7 +1099,7 @@ function addNewObject(odSectionName, otype) {
 	modalUpdate(index, objd);
 }
 
-function editVariableDialog(odSectionName, indexValue = null) {
+function editVAR_Dialog(odSectionName, indexValue = null) {
 	const otype = OTYPE.VAR;
 	const index = indexToString(indexValue);
 	var actionName = "Edit";
@@ -1117,7 +1118,7 @@ function editVariableDialog(odSectionName, indexValue = null) {
 	modalOpen();
 }
 
-function editArrayDialog(odSectionName, indexValue = null) {
+function editARRAY_Dialog(odSectionName, indexValue = null) {
 	const otype = OTYPE.ARRAY;
 	const index = indexToString(indexValue);
 	var actionName = "Edit";
@@ -1136,7 +1137,7 @@ function editArrayDialog(odSectionName, indexValue = null) {
 	modalOpen();
 }
 
-function editRecordDialog(odSectionName, indexValue = null) {
+function editRECORD_Dialog(odSectionName, indexValue = null) {
 	const otype = OTYPE.RECORD;
 	const index = indexToString(indexValue);
 	var actionName = "Edit";
@@ -1172,7 +1173,7 @@ function onEditObjectSubmit(modalform) {
 			}
 			break;
 		case OTYPE.ARRAY:
-			objd.dtype = modalform.Dtype.name;
+			objd.dtype = modalform.DTYPE.value;
 			
 			break;
 		case OTYPE.RECORD:
@@ -1187,4 +1188,20 @@ function onEditObjectSubmit(modalform) {
 	removeObject(odSection, modal.index_initial_value); // detach from OD, to avoid duplicate if index changed
 	addObject(odSection, objd, index);	// attach updated object
 	modalClose();
+	showSection(modal.odSectionName);
+	delete modal.odSectionName;
+	delete modal.objd;
+}
+
+// ####################### Display Object Dictionary in building ####################### //
+
+function showSection(odSectionName) {
+	const odSection = getObjDictSection(odSectionName);
+	var indexes = scan_indexes(odSection);
+	var sectionItemsList = '';
+	indexes.forEach(index => {
+		const objd = odSection[index];
+		sectionItemsList += `<li>0x${index} ${objd.name} ${objd.otype} ${objd.dtype ?? ''} <button onClick='edit${objd.otype}_Dialog(${odSectionName}, 0x${index})'>Edit object</button></li>`;
+	});
+	document.getElementById(`tr_${odSectionName}`).innerHTML = sectionItemsList;
 }
