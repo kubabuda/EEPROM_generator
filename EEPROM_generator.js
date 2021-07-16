@@ -90,30 +90,103 @@ function get_default_od() {
 
 // ####################### Object Dictionary building ####################### //
 
-const odSections = {
+const _odSections = {
 	sdo : {},
 	txpdo : {}, // addding PDO requires matching SDO in Sync Manager, and PDO mapping
-	rxpdo : {}, // this will be done when stitching
+	rxpdo : {}, // this will be done when stitching sections during code generation - TODO
 };
 
 var sdo = 'sdo';
 var txpdo = 'txpdo';
 var rxpdo = 'rxpdo';
 
-function checkIsDuplicate(od, index) {
-	if (od[index]) {
-		alert(`Object 0x${index} ${od[index].name} exists`);
-		return true;
-	}
-	return false;
+function getObjDictSection(odSectionName) {
+	return _odSections[odSectionName];
 }
 
-function addVar(od, data) { 
-	const newVar = { otype: OTYPE.VAR, dtype: data.dtype, name: data.name };
-	if (data.value) { newVar.value = data.value; }
-	if (data.data) { newVar.data = data.data; }
-	checkIsDuplicate(od, data.index);
-	od[data.index] = newVar;
+function objectExists(odSectionName, index) {
+	var odSection = getObjDictSection(odSectionName);
+	return index && odSection[index];
+}
+
+function checkObjectType(expected, objd) {
+	if (objd.otype != expected) {
+		var msg = `Object ${objd.name} was expected to be OTYPE ${expected} but is ${objd.otype}`;
+		alert(msg);
+		throw new Exception(msg);
+	}
+}
+
+function addObject(od, objd, index) {
+	if (od[index]) {
+		alert(`Object ${objd.name} duplicates 0x${index}: ${od[index].name} !`);
+	}
+	od[index] = objd;
+}
+
+function removeObject(odSectionName, index) {
+	if (objectExists(odSectionName, index)) {
+		var odSection = getObjDictSection(odSectionName);
+		// TODO
+		delete odSection[index];
+	} else {
+		alert(`Cannot remove object 0x${index} from ${odSectionName.toUpperCase()}: it does not exist`);
+	}
+}
+
+// ####################### Building Object Dictionary model ####################### //
+
+function populate_od(form, od) {
+	od['1008'].data = form.TextDeviceName.value;
+	od['1009'].data = form.HWversion.value;
+	od['100A'].data = form.SWversion.value;
+	od['1018'].items[1].value = parseInt(form.VendorID.value);
+	od['1018'].items[2].value = parseInt(form.ProductCode.value);
+	od['1018'].items[3].value = parseInt(form.RevisionNumber.value);
+	od['1018'].items[4].value = parseInt(form.SerialNumber.value);
+
+	scan_indexes(od);
+}
+
+function getFirstFreeIndexValue(odSectionName) {
+	var addressRangeStart = {
+		"sdo": 0x2000,
+		"txpdo": 0x6000,
+		"rxpdo": 0x7000,
+	}
+	var result = addressRangeStart[odSectionName];
+	var odSection = getObjDictSection(odSectionName);
+	while (odSection[result.toString(16)]) {
+		result++;
+	}
+	return result;
+}
+
+function indexToString(index) {
+	var indexValue = parseInt(index);
+	
+	return indexValue.toString(16).toUpperCase();
+}
+
+_usedIndexes = [];
+
+function scan_indexes(od) {
+	const index_min = 0x1000;
+	const index_max = 0xFFFF;
+	// clear
+	_usedIndexes = [];
+	// scan index address space for ones used  
+	for (let i = index_min; i <= index_max; i++) {
+		const index = indexToString(i);
+		const element = od[index];
+		if (element) {
+			_usedIndexes.push(index);
+		}
+	}
+}
+
+function get_used_indexes() {
+	return _usedIndexes;
 }
 
 // ####################### File accessing ####################### //
@@ -212,61 +285,6 @@ function onSaveClick() {
 function onRestoreClick() {
 	// trigger file input dialog window
 	document.getElementById('restoreFileInput').click();
-}
-
-// ####################### Building Object Dictionary model ####################### //
-
-function populate_od(form, od) {
-	od['1008'].data = form.TextDeviceName.value;
-	od['1009'].data = form.HWversion.value;
-	od['100A'].data = form.SWversion.value;
-	od['1018'].items[1].value = parseInt(form.VendorID.value);
-	od['1018'].items[2].value = parseInt(form.ProductCode.value);
-	od['1018'].items[3].value = parseInt(form.RevisionNumber.value);
-	od['1018'].items[4].value = parseInt(form.SerialNumber.value);
-
-	scan_indexes(od);
-}
-
-function getFirstFreeIndexValue(odSectionName) {
-	var addressRangeStart = {
-		"sdo": 0x2000,
-		"txpdo": 0x6000,
-		"rxpdo": 0x7000,
-	}
-	var result = addressRangeStart[odSectionName];
-	var odSection = odSections[odSectionName];
-	while (odSection[result.toString(16)]) {
-		result++;
-	}
-	return result;
-}
-
-function indexToString(index) {
-	var indexValue = parseInt(index);
-	
-	return indexValue.toString(16).toUpperCase();
-}
-
-_usedIndexes = [];
-
-function scan_indexes(od) {
-	const index_min = 0x1000;
-	const index_max = 0xFFFF;
-	// clear
-	_usedIndexes = [];
-	// scan index address space for ones used  
-	for (let i = index_min; i <= index_max; i++) {
-		const index = indexToString(i);
-		const element = od[index];
-		if (element) {
-			_usedIndexes.push(index);
-		}
-	}
-}
-
-function get_used_indexes() {
-	return _usedIndexes;
 }
 
 // ####################### Objectlist.c generating ####################### //
@@ -1051,31 +1069,38 @@ function getDialogForm() {
 
 // ####################### Modal dialogs for OD edition ####################### //
 
+// sets control index.value in expected format
 function modalformSetIndex(index) {
-	modal.form.Index.value = `0x${indexToString(index)}`;
+	modal.form.Index.value = `0x${index}`;
 }
 
-function editExistingObject(od, index) {
-	var objd = od[index]; // existing object edition
+function editExistingObject(odSectionName, indexValue, otype) {
+	od = getObjDictSection(odSectionName);
+	const index = indexToString(indexValue);
+	var objd = od[index]; 
+	removeObject(odSectionName, index); // detach from OD, to avoid duplicate if index changes
+	checkObjectType(otype, objd);
 	modalformSetIndex(index);
 	modal.form.Name.value = objd.name;
 	modal.form.Access.value = objd.access || 'RO';
 	modal.objd = objd;
 }
 
-function addNewObject(otype, odSectionName) {
+function addNewObject(odSectionName, otype) {
 	modal.objd = { otype: otype };
 	var index = getFirstFreeIndexValue(odSectionName);
-	modalformSetIndex(index);
+	modalformSetIndex(indexToString(index));
 }
 
 function editVariableDialog(odSectionName, index = null) {
-	modal.od = odSections[odSectionName];
-	if (index && od[index]) {
-		editExistingObject(od, index);
+	const otype = OTYPE.VAR;
+	modal.odSectionName = odSectionName;
+
+	if (objectExists(odSectionName, index)) {
+		editExistingObject(odSectionName, index, otype);
 		modal.form.DTYPE.value = objd.dtype;
 	} else {
-		addNewObject(OTYPE.VAR, odSectionName);
+		addNewObject(odSectionName, otype);
 	}
 	document.getElementById('editObjectTitle').innerHTML = "Edit variable";
 	document.getElementById('dialogRowDtype').style.display = "";
@@ -1084,41 +1109,56 @@ function editVariableDialog(odSectionName, index = null) {
 }
 
 function editArrayDialog(odSectionName, index = null) {
-	modal.od = odSections[odSectionName];
-	if (index && od[index]) {
-		editExistingObject(od, index);
+	const otype = OTYPE.ARRAY;
+	modal.odSectionName = odSectionName;
+
+	if (objectExists(odSectionName, index)) {
+		editExistingObject(odSectionName, index, otype);
 		modal.form.DTYPE.value = objd.dtype;
 	} else {
-		addNewObject(OTYPE.ARRAY, odSectionName);
+		addNewObject(odSectionName, otype);
 	}
 	document.getElementById('editObjectTitle').innerHTML = "Edit array";
 	document.getElementById('dialogRowDtype').style.display = "";
-	document.getElementById('dialogRowValue').style.display = "none";
+	document.getElementById('dialogRowValue').style.display = "none";  // hide unused controls
 	modalOpen();
 }
 
 function editRecordDialog(odSectionName, index = null) {
-	modal.od = odSections[odSectionName];
-	if (index && od[index]) {
-		editExistingObject(od, index);
+	const otype = OTYPE.RECORD;
+	modal.odSectionName = odSectionName;
+
+	if (objectExists(odSectionName, index)) {
+		editExistingObject(odSectionName, index, otype);
 	} else {
-		addNewObject(OTYPE.RECORD, odSectionName);
+		addNewObject(odSectionName, otype);
 	}
 	document.getElementById('editObjectTitle').innerHTML = "Edit record";
-	document.getElementById('dialogRowDtype').style.display = "none";
+	document.getElementById('dialogRowDtype').style.display = "none"; // hide unused controls
 	document.getElementById('dialogRowValue').style.display = "none";
 	modalOpen();
 }
 
 function onEditObjectSubmit(modalform) {
-	const objectType = modal.objd.otype;
+	const objd = modal.objd;
+	const objectType = objd.otype;
 	const index = indexToString(modalform.Index.value);
-	console.log("index: 0x", index);
+
+	objd.name = modalform.ObjectName.value;
+
 	switch (objectType) {
 		case OTYPE.VAR:
+			objd.dtype = modalform.DTYPE.name;
 			
+			if (objd.dtype == DTYPE.VISIBLE_STRING) {
+				objd.data = '' 
+			} else {
+				objd.value = modalform.InitalValue.value;
+			}
+			// '1000': { otype: OTYPE.VAR, dtype: DTYPE.UNSIGNED32, name: 'Device Type', value: 0x1389 },
 			break;
 		case OTYPE.ARRAY:
+			objd.dtype = modalform.Dtype.name;
 			
 			break;
 		case OTYPE.RECORD:
@@ -1128,5 +1168,8 @@ function onEditObjectSubmit(modalform) {
 			alert(`Unexpected type ${objectType} on object ${modalform.ObjectName} being edited!`);
 			break;
 	}
+	debugger;
+	const odSection = getObjDictSection(modal.odSectionName);
+	addObject(odSection, objd, index);
 	modalClose();
 }
