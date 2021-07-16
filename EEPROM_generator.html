@@ -2,66 +2,8 @@
    <title>ESI / EEPROM Generator for SOES</title>
    <meta charset="UTF-8">
    <script src="EEPROM_generator.js"></script>
+   <link rel="stylesheet" href="EEPROM_generator.css">
    <!--<script src="saveRestore.js"></script>-->
-   <style>
-   tr td:nth-child(3) { 
-      text-align: center;
-   }
-   tr td:nth-child(4) { 
-      text-align: center;
-   }
-   tr td:nth-child(5) { 
-      text-align: center;
-   }
-   tr td:nth-child(6) { 
-      text-align: center;
-   }
-   /* The Modal (background) */
-   .modal {
-      display: none; /* Hidden by default */
-      position: fixed; /* Stay in place */
-      z-index: 1; /* Sit on top */
-      padding-top: 100px; /* Location of the box */
-      left: 0;
-      top: 0;
-      width: 100%; /* Full width */
-      height: 100%; /* Full height */
-      overflow: auto; /* Enable scroll if needed */
-      background-color: rgb(0,0,0); /* Fallback color */
-      background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
-   }
-
-   /* Modal Content */
-   .modal-content {
-      background-color: #fefefe;
-      margin: auto;
-      padding: 20px;
-      border: 1px solid #888;
-      width: 80%;
-   }
-
-   /* The Close Button */
-   .close {
-      color: #aaaaaa;
-      float: right;
-      font-size: 28px;
-      font-weight: bold;
-   }
-
-   .close:hover,
-   .close:focus {
-      color: #000;
-      text-decoration: none;
-      cursor: pointer;
-   }
-
-   body {
-      font-family: Arial, Helvetica, sans-serif;
-      margin: auto;
-      width: 60%;
-      min-width: 1280px;
-   }
-   </style>
 </head>
 
 <body>
@@ -73,14 +15,50 @@
    <!-- Modal content -->
       <div class="modal-content">
          <span class="close" onClick="modalClose()">&times;</span>
-         <p>Some text in the Modal..</p>
-         <form  name="AddObjectForm" id="AddObjectForm" action="" onsubmit="onAddObjectSubmit(this); return false;">
+         <p>Add new object</p>
+         <form name="AddObjectForm" id="AddObjectForm" action="" onsubmit="onAddObjectSubmit(this); return false;">
             <table border="0">
                <tr>
-                  <td>Index:</td><td><input type = "text" name="Index" value="0x6000" title="Enter OD index for the new object"></td>
+                  <td>Index:</td>
+                  <td><input type = "text" name="Index" value="0x6000" title="Enter OD index for the new object"></td>
+               </tr>
+               <!-- <tr>
+                  <td>Object type:</td>
+                  <td><select type = "text" name="OTYPE" title="Enter access mode of new object">
+                     <option value="VAR">VAR</option>
+                     <option value="ARRAY">ARRAY</option>
+                     <option value="RECORD">RECORD</option>
+                  </select></td>
+               </tr> -->
+               <tr>
+                  <td>Name of Object:</td>
+                  <td><input type = "text" name="ObjectName" value="New Object" title="Enter name for the new object"></td>
+               </tr>
+               <tr id="dialogRowDtype">
+                  <td>Data Type</td>
+                  <td><select type = "text" name="DTYPE" title="Enter data type of new object">
+                     <option value="BOOLEAN">BOOLEAN</option>
+                     <option value="INTEGER8">INTEGER8</option>
+                     <option value="INTEGER16">INTEGER16</option>
+                     <option value="INTEGER32">INTEGER32</option>
+                     <option value="UNSIGNED8">UNSIGNED8</option>
+                     <option value="UNSIGNED16">UNSIGNED16</option>
+                     <option value="UNSIGNED32">UNSIGNED32</option>
+                     <option value="REAL32">REAL32</option>
+                     <option value="VISIBLE_STRING">VISIBLE STRING</option>
+                  </select></td>
+               </tr>
+               <tr id="dialogRowValue">
+                  <td>Value:</td>
+                  <td><input type = "text" name="InitalValue" value="0" title="Enter initial value for the new object"></td>
                </tr>
                <tr>
-                  <td>Name of Object:</td><td><input type = "text" name="ObjectName" value="New Object" title="Enter name for the new object"></td>
+                  <td>Access:</td>
+                  <td><select type = "text" name="Access" title="Enter access mode of new object">
+                     <option value="RO">RO</option>
+                     <option value="RW">RW</option>
+                     <option value="WO">WO</option>
+                  </select></td>
                </tr>
                <tr>
                   <td colspan="6" align="center">
@@ -186,6 +164,7 @@ This page serves as a tool to generate consistent data across your code, ESI fil
       <input type="checkbox" name="CoeDetails" value="EnableSDOCompleteAccess">Enable SDO complete access <br>
       </td><td>&nbsp;</td><td>x</td><td>x</td><td>&nbsp;</td><td>&nbsp;</td>
    </tr>
+   <tr><td colspan="6"><hr></td</tr>
    <tr>
       <td colspan="6" align="center">
          <input type="submit" name="Generate" value="&nbsp;Generate&nbsp;">
