@@ -148,7 +148,7 @@ function populate_od(form, od) {
 	scan_indexes(od);
 }
 
-function getFirstFreeIndexValue(odSectionName) {
+function getFirstFreeIndex(odSectionName) {
 	var addressRangeStart = {
 		"sdo": 0x2000,
 		"txpdo": 0x6000,
@@ -159,7 +159,8 @@ function getFirstFreeIndexValue(odSectionName) {
 	while (odSection[result.toString(16)]) {
 		result++;
 	}
-	return result;
+
+	return indexToString(result);
 }
 
 function indexToString(index) {
@@ -1067,73 +1068,86 @@ function getDialogForm() {
 	return document.getElementById('EditObjectForm');
 }
 
-// ####################### Modal dialogs for OD edition ####################### //
-
-// sets control index.value in expected format
-function modalformSetIndex(index) {
+// update control values
+function modalUpdate(index, objd) {
 	modal.form.Index.value = `0x${index}`;
-}
-
-function editExistingObject(odSectionName, indexValue, otype) {
-	od = getObjDictSection(odSectionName);
-	const index = indexToString(indexValue);
-	var objd = od[index]; 
-	removeObject(odSectionName, index); // detach from OD, to avoid duplicate if index changes
-	checkObjectType(otype, objd);
-	modalformSetIndex(index);
-	modal.form.Name.value = objd.name;
+	modal.form.ObjectName.value = objd.name;
+	modal.form.DTYPE.value = objd.dtype || DTYPE.UNSIGNED8;
 	modal.form.Access.value = objd.access || 'RO';
 	modal.objd = objd;
 }
 
-function addNewObject(odSectionName, otype) {
-	modal.objd = { otype: otype };
-	var index = getFirstFreeIndexValue(odSectionName);
-	modalformSetIndex(indexToString(index));
+// ####################### Modal dialogs for OD edition ####################### //
+
+function editExistingObject(odSectionName, index, otype) {
+	od = getObjDictSection(odSectionName);
+	var objd = od[index]; 
+	removeObject(odSectionName, index); // detach from OD, to avoid duplicate if index changes
+	checkObjectType(otype, objd);
+	modalUpdate(index, objd);
 }
 
-function editVariableDialog(odSectionName, index = null) {
+function addNewObject(odSectionName, otype) {
+	objd = { 
+		otype: otype,
+		name: "New Object",
+		access: 'RO',
+	};
+	var index = getFirstFreeIndex(odSectionName);
+	modalUpdate(index, objd);
+}
+
+function editVariableDialog(odSectionName, indexValue = null) {
 	const otype = OTYPE.VAR;
+	const index = indexToString(indexValue);
+	var actionName = "Edit";
 	modal.odSectionName = odSectionName;
 
 	if (objectExists(odSectionName, index)) {
 		editExistingObject(odSectionName, index, otype);
-		modal.form.DTYPE.value = objd.dtype;
+		modal.form.DTYPE.value = modal.objd.dtype;
 	} else {
 		addNewObject(odSectionName, otype);
+		actionName = "Add"
 	}
-	document.getElementById('editObjectTitle').innerHTML = "Edit variable";
+	document.getElementById('editObjectTitle').innerHTML = `${actionName} ${odSectionName.toUpperCase()} variable`;
 	document.getElementById('dialogRowDtype').style.display = "";
 	document.getElementById('dialogRowValue').style.display = "";
 	modalOpen();
 }
 
-function editArrayDialog(odSectionName, index = null) {
+function editArrayDialog(odSectionName, indexValue = null) {
 	const otype = OTYPE.ARRAY;
+	const index = indexToString(indexValue);
+	var actionName = "Edit";
 	modal.odSectionName = odSectionName;
 
 	if (objectExists(odSectionName, index)) {
 		editExistingObject(odSectionName, index, otype);
-		modal.form.DTYPE.value = objd.dtype;
+		modal.form.DTYPE.value = modal.objd.dtype;
 	} else {
 		addNewObject(odSectionName, otype);
+		actionName = "Add"
 	}
-	document.getElementById('editObjectTitle').innerHTML = "Edit array";
+	document.getElementById('editObjectTitle').innerHTML = `${actionName} ${odSectionName.toUpperCase()} array`;
 	document.getElementById('dialogRowDtype').style.display = "";
 	document.getElementById('dialogRowValue').style.display = "none";  // hide unused controls
 	modalOpen();
 }
 
-function editRecordDialog(odSectionName, index = null) {
+function editRecordDialog(odSectionName, indexValue = null) {
 	const otype = OTYPE.RECORD;
+	const index = indexToString(indexValue);
+	var actionName = "Edit";
 	modal.odSectionName = odSectionName;
 
 	if (objectExists(odSectionName, index)) {
 		editExistingObject(odSectionName, index, otype);
 	} else {
 		addNewObject(odSectionName, otype);
+		actionName = "Add"
 	}
-	document.getElementById('editObjectTitle').innerHTML = "Edit record";
+	document.getElementById('editObjectTitle').innerHTML = `${actionName} ${odSectionName.toUpperCase()} record`;
 	document.getElementById('dialogRowDtype').style.display = "none"; // hide unused controls
 	document.getElementById('dialogRowValue').style.display = "none";
 	modalOpen();
@@ -1148,14 +1162,13 @@ function onEditObjectSubmit(modalform) {
 
 	switch (objectType) {
 		case OTYPE.VAR:
-			objd.dtype = modalform.DTYPE.name;
+			objd.dtype = modalform.DTYPE.value;
 			
 			if (objd.dtype == DTYPE.VISIBLE_STRING) {
 				objd.data = '' 
 			} else {
 				objd.value = modalform.InitalValue.value;
 			}
-			// '1000': { otype: OTYPE.VAR, dtype: DTYPE.UNSIGNED32, name: 'Device Type', value: 0x1389 },
 			break;
 		case OTYPE.ARRAY:
 			objd.dtype = modalform.Dtype.name;
@@ -1168,7 +1181,6 @@ function onEditObjectSubmit(modalform) {
 			alert(`Unexpected type ${objectType} on object ${modalform.ObjectName} being edited!`);
 			break;
 	}
-	debugger;
 	const odSection = getObjDictSection(modal.odSectionName);
 	addObject(odSection, objd, index);
 	modalClose();

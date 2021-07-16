@@ -12,6 +12,9 @@
    <button onClick="editArrayDialog(txpdo)">Add Array</button>
    <button onClick="editRecordDialog(rxpdo)">Add Record</button>
 
+   <button onClick="editVariableDialog(sdo, 0x2000)">Edit variable</button>
+
+
    <!-- The Modal -->
    <div id="editObjectModal" class="modal">
    <!-- Modal content -->
@@ -56,8 +59,8 @@
                </tr>
                <tr>
                   <td colspan="6" align="center">
-                     <input type="submit" name="AddObject" value="&nbsp;Add object&nbsp;">
                      <input type="button" name="Cancel" value="&nbsp;Cancel&nbsp;" onClick='modalClose();'>
+                     <input type="submit" name="SaveChanges" value="&nbsp;Save changes&nbsp;">
                   </td>
                </tr>
             </table>
