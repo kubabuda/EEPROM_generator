@@ -193,6 +193,7 @@ function get_used_indexes() {
 
 // ####################### File accessing ####################### //
 
+// saves file in local filesystem - downloads from browser
 function downloadFile(content, fileName, contentType) {
     var a = document.createElement("a");
     var file = new Blob([content], {type: contentType});
@@ -212,7 +213,8 @@ function getForm() {
 
 function restoreBackup(fileContent) {
 	var backup = JSON.parse(fileContent);
-	loadFormValues(getForm(), backup);
+	loadFormValues(backup);
+	reloadOD_Sections();
 }
 
 function readFile(e) {
@@ -231,19 +233,29 @@ function serializeForm(form) {
 	const formValues = {};
 	Object.entries(form).forEach(formEntry => {
 		const formControl = formEntry[1]; // entry[0] is index
-		// debugger;
 		if(formControl.value) {
 			formValues[formControl.name] = formControl.value;
 		};
 	});
-	return formValues;
+
+	const backup = {
+		form: formValues,
+		od: _odSections,
+	};
+
+	return backup;
 }
 
-function loadFormValues(form, formValues) {
+function loadFormValues(backup) {	
+	_odSections.sdo = backup.od.sdo;
+	_odSections.txpdo = backup.od.txpdo;
+	_odSections.rxpdo = backup.od.rxpdo;
+	
+	var form = getForm();
+
 	Object.entries(form).forEach(formEntry => {
 		const formControl = formEntry[1]; // entry[0] is index
-		// debugger;
-		const formControlValue = formValues[formControl.name];
+		const formControlValue = backup.form[formControl.name];
 		if(formControlValue) {
 			formControl.value = formControlValue;
 		};
@@ -1207,6 +1219,12 @@ function onRemoveClick(odSectionName, indexValue, subindex = null) {
 }
 
 // ####################### Display Object Dictionary in building ####################### //
+
+function reloadOD_Sections() {
+	showSection(sdo);
+	showSection(txpdo);
+	showSection(rxpdo);
+}
 
 function showSection(odSectionName) {
 	const odSection = getObjDictSection(odSectionName);
