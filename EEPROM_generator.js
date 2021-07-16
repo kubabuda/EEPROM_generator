@@ -296,6 +296,14 @@ function onSaveClick() {
 	downloadBackupFile(backup);
 }
 
+document.onkeydown = function(e) {
+	if (e.ctrlKey && e.keyCode === 83) {
+		event.preventDefault();
+		onSaveClick();
+        return false;
+    }
+};
+
 function onRestoreClick() {
 	// trigger file input dialog window
 	document.getElementById('restoreFileInput').click();
