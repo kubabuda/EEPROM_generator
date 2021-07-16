@@ -64,7 +64,7 @@ const requided_SDOs = {  // these are required by minimal CiA 301 device /* TODO
 };
 
 function get_default_od() {
-
+	// OD index is hexadecimal value without '0x' prefix
 	const OD = {
 		'1000': { otype: OTYPE.VAR, dtype: DTYPE.UNSIGNED32, name: 'Device Type', value: 0x1389 },
 		'1008': { otype: OTYPE.VAR, dtype: DTYPE.VISIBLE_STRING, name: 'Device Name', data: '' },
@@ -228,6 +228,26 @@ function populate_od(form, od) {
 	scan_indexes(od);
 }
 
+function getFirstFreeIndexValue(odSectionName) {
+	var addressRangeStart = {
+		"sdo": 0x2000,
+		"txpdo": 0x6000,
+		"rxpdo": 0x7000,
+	}
+	var result = addressRangeStart[odSectionName];
+	var odSection = odSections[odSectionName];
+	while (odSection[result.toString(16)]) {
+		result++;
+	}
+	return result;
+}
+
+function indexToString(index) {
+	var indexValue = parseInt(index);
+	
+	return indexValue.toString(16).toUpperCase();
+}
+
 _usedIndexes = [];
 
 function scan_indexes(od) {
@@ -237,7 +257,7 @@ function scan_indexes(od) {
 	_usedIndexes = [];
 	// scan index address space for ones used  
 	for (let i = index_min; i <= index_max; i++) {
-		const index = i.toString(16).toUpperCase();
+		const index = indexToString(i);
 		const element = od[index];
 		if (element) {
 			_usedIndexes.push(index);
@@ -1032,8 +1052,7 @@ function getDialogForm() {
 // ####################### Modal dialogs for OD edition ####################### //
 
 function modalformSetIndex(index) {
-	var indexValue = parseInt(index);
-	modal.form.Index.value = `0x${indexValue.toString(16)}`;
+	modal.form.Index.value = `0x${indexToString(index)}`;
 }
 
 function editExistingObject(od, index) {
@@ -1046,22 +1065,8 @@ function editExistingObject(od, index) {
 
 function addNewObject(otype, odSectionName) {
 	modal.objd = { otype: otype };
-	var index = getFirstFreeIndex(odSectionName);
+	var index = getFirstFreeIndexValue(odSectionName);
 	modalformSetIndex(index);
-}
-
-function getFirstFreeIndex(odSectionName) {
-	var addressRangeStart = {
-		"sdo": 0x2000,
-		"txpdo": 0x6000,
-		"rxpdo": 0x7000,
-	}
-	var result = addressRangeStart[odSectionName];
-	var odSection = odSections[odSectionName];
-	while (odSection[result.toString(16)]) {
-		result++;
-	}
-	return result;
 }
 
 function editVariableDialog(odSectionName, index = null) {
@@ -1107,8 +1112,8 @@ function editRecordDialog(odSectionName, index = null) {
 
 function onEditObjectSubmit(modalform) {
 	const objectType = modal.objd.otype;
-	const index = parseInt(modal.Index.value).toString(16);
-	console.log("index: 0x". index);
+	const index = indexToString(modalform.Index.value);
+	console.log("index: 0x", index);
 	switch (objectType) {
 		case OTYPE.VAR:
 			
