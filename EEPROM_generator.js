@@ -124,13 +124,13 @@ function addObject(od, objd, index) {
 	od[index] = objd;
 }
 
-function removeObject(odSectionName, index) {
-	if (objectExists(odSectionName, index)) {
-		var odSection = getObjDictSection(odSectionName);
-		// TODO
-		delete odSection[index];
-	} else {
-		alert(`Cannot remove object 0x${index} from ${odSectionName.toUpperCase()}: it does not exist`);
+function removeObject(od, index) {
+	if (index) {
+		if (od[index]) {
+			delete od[index];
+		} else {
+			alert(`Cannot remove object 0x${index}: it does not exist`);
+		}
 	}
 }
 
@@ -1082,7 +1082,7 @@ function modalUpdate(index, objd) {
 function editExistingObject(odSectionName, index, otype) {
 	od = getObjDictSection(odSectionName);
 	var objd = od[index]; 
-	removeObject(odSectionName, index); // detach from OD, to avoid duplicate if index changes
+	modal.index_initial_value = index;
 	checkObjectType(otype, objd);
 	modalUpdate(index, objd);
 }
@@ -1094,6 +1094,7 @@ function addNewObject(odSectionName, otype) {
 		access: 'RO',
 	};
 	var index = getFirstFreeIndex(odSectionName);
+	delete modal.index_initial_value;
 	modalUpdate(index, objd);
 }
 
@@ -1182,6 +1183,8 @@ function onEditObjectSubmit(modalform) {
 			break;
 	}
 	const odSection = getObjDictSection(modal.odSectionName);
-	addObject(odSection, objd, index);
+	// if (modal.index_initial_value) 
+	removeObject(odSection, modal.index_initial_value); // detach from OD, to avoid duplicate if index changed
+	addObject(odSection, objd, index);	// attach updated object
 	modalClose();
 }
