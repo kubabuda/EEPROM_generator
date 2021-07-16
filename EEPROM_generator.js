@@ -985,13 +985,13 @@ function utypes_generator(form, od) {
 	return utypes;
 }
 
-// ####################### Modal handling ####################### //
+// ####################### Modal behavior handling ####################### //
 
 var modal = {};
 
 function modalSetup() {
 	// Get the modal
-	modal = document.getElementById("myModal");
+	modal = document.getElementById("editObjectModal");
 }
 
 // When the user clicks the button, open the modal 
@@ -1003,20 +1003,62 @@ function modalClose() {
 	modal.style.display = "none";
 }
 
-function onAddObjectSubmit(form) {
-	console.log(form);
-}
 
 // When the user clicks anywhere outside of the modal, close it
 window.onclick = function(event) {
-  if (event.target == modal) {
-    modalClose();
-  }
+	if (event.target == modal) {
+		modalClose();
+	}
 }
-
+  
 window.onload = (event) => {
 	modalSetup();
 	// for convinience during tool development, trigger codegen on page refresh
 	var form = getForm();
- 	onGenerateSubmit(form);
+	onGenerateSubmit(form);
+}
+
+// ####################### Modal dialogs for OD edition ####################### //
+
+function editVariableDialog() {
+	modal.otype = OTYPE.VAR;
+	document.getElementById('editObjectTitle').innerHTML = "Edit variable";
+	document.getElementById('dialogRowDtype').style.display = "";
+	document.getElementById('dialogRowValue').style.display = "";
+	modalOpen();
+}
+
+function editArrayDialog() {
+	modal.otype = OTYPE.ARRAY;
+	document.getElementById('editObjectTitle').innerHTML = "Edit array";
+	document.getElementById('dialogRowDtype').style.display = "";
+	document.getElementById('dialogRowValue').style.display = "none";
+	modalOpen();
+}
+
+function editRecordDialog() {
+	modal.otype = OTYPE.RECORD;
+	document.getElementById('editObjectTitle').innerHTML = "Edit record";
+	document.getElementById('dialogRowDtype').style.display = "none";
+	document.getElementById('dialogRowValue').style.display = "none";
+	modalOpen();
+}
+
+function onEditObjectSubmit(form) {
+	const objectType = modal.otype;
+	switch (objectType) {
+		case OTYPE.VAR:
+			
+			break;
+		case OTYPE.ARRAY:
+			
+			break;
+		case OTYPE.RECORD:
+		
+			break;
+		default:
+			alert(`Unexpected type ${objectType} on object ${form.ObjectName} being edited!`);
+			break;
+	}
+	modalClose();
 }

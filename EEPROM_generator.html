@@ -8,28 +8,22 @@
 
 <body>
    <!-- Trigger/Open The Modal -->
-   <button id="myBtn" onClick="modalOpen()">Open Modal</button>
+   <button onClick="editVariableDialog()">Add variable</button>
+   <button onClick="editArrayDialog()">Add Array</button>
+   <button onClick="editRecordDialog()">Add Record</button>
 
    <!-- The Modal -->
-   <div id="myModal" class="modal">
+   <div id="editObjectModal" class="modal">
    <!-- Modal content -->
       <div class="modal-content">
          <span class="close" onClick="modalClose()">&times;</span>
-         <p>Add new object</p>
-         <form name="AddObjectForm" id="AddObjectForm" action="" onsubmit="onAddObjectSubmit(this); return false;">
+         <p><div id="editObjectTitle">Edit object</div></p>
+         <form name="EditObjectForm" id="EditObjectForm" action="" onsubmit="onEditObjectSubmit(this); return false;">
             <table border="0">
                <tr>
                   <td>Index:</td>
                   <td><input type = "text" name="Index" value="0x6000" title="Enter OD index for the new object"></td>
                </tr>
-               <!-- <tr>
-                  <td>Object type:</td>
-                  <td><select type = "text" name="OTYPE" title="Enter access mode of new object">
-                     <option value="VAR">VAR</option>
-                     <option value="ARRAY">ARRAY</option>
-                     <option value="RECORD">RECORD</option>
-                  </select></td>
-               </tr> -->
                <tr>
                   <td>Name of Object:</td>
                   <td><input type = "text" name="ObjectName" value="New Object" title="Enter name for the new object"></td>
