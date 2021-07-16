@@ -1193,15 +1193,34 @@ function onEditObjectSubmit(modalform) {
 	delete modal.objd;
 }
 
+function onRemoveClick(odSectionName, indexValue, subindex = null) {
+	const index = indexToString(indexValue);
+	if (confirm(`Are you sure you want to remove object 0x${index}?`)) {
+		
+		const odSection = getObjDictSection(odSectionName);
+		if (subindex) {
+
+		}
+		removeObject(odSection, index);
+		showSection(odSectionName);
+	}
+}
+
 // ####################### Display Object Dictionary in building ####################### //
 
 function showSection(odSectionName) {
 	const odSection = getObjDictSection(odSectionName);
 	var indexes = scan_indexes(odSection);
-	var sectionItemsList = '';
+	var section = '';
 	indexes.forEach(index => {
 		const objd = odSection[index];
-		sectionItemsList += `<li>0x${index} ${objd.name} ${objd.otype} ${objd.dtype ?? ''} <button onClick='edit${objd.otype}_Dialog(${odSectionName}, 0x${index})'>Edit object</button></li>`;
+		section += `<dt>0x${index} "${objd.name}" ${objd.otype} ${objd.dtype ?? ''}`
+		section += `<button onClick='onRemoveClick(${odSectionName}, 0x${index})'>Remove object</button>`
+		section += `<button onClick='edit${objd.otype}_Dialog(${odSectionName}, 0x${index})'>Edit object</button>`;
+		section += `</dt>`;
+		if (objd.items) {
+			section += `<dd>-items<dd>`;
+		}
 	});
-	document.getElementById(`tr_${odSectionName}`).innerHTML = sectionItemsList;
+	document.getElementById(`tr_${odSectionName}`).innerHTML = section;
 }
