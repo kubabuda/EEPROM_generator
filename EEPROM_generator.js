@@ -332,21 +332,8 @@ function downloadFile(content, fileName, contentType) {
     a.click();
 }
 
-function downloadBackupFile(data) {
-	var content = JSON.stringify(data, null, 2); // pretty print
-	downloadFile(content, fileName = 'esi.json', contentType = 'text/json');
-}
-
 function getForm() {
 	return document.getElementById("SlaveForm");
-}
-
-function restoreBackup(fileContent) {
-	var backup = JSON.parse(fileContent);
-	if (isValidBackup(backup)) {
-		loadBackup(backup);
-		reloadOD_Sections();
-	}
 }
 
 function readFile(e) {
@@ -370,7 +357,7 @@ function isValidBackup(backup) {
 	return true;
 }
 
-function prepareBackup() {
+function prepareBackupObject() {
 	const form = getForm();
 	const formValues = {};
 	Object.entries(form).forEach(formEntry => {
@@ -388,21 +375,54 @@ function prepareBackup() {
 	return backup;
 }
 
-function loadBackup(backup) {
-	if (backup.od) {
-		_odSections.sdo = backup.od.sdo;
-		_odSections.txpdo = backup.od.txpdo;
-		_odSections.rxpdo = backup.od.rxpdo;
+function loadBackup(backupObject) {
+	if (backupObject.od) {
+		_odSections.sdo = backupObject.od.sdo;
+		_odSections.txpdo = backupObject.od.txpdo;
+		_odSections.rxpdo = backupObject.od.rxpdo;
 	}
 		
 	var form = getForm();
 	Object.entries(form).forEach(formEntry => {
 		const formControl = formEntry[1]; // entry[0] is index
-		const formControlValue = backup.form[formControl.name];
+		const formControlValue = backupObject.form[formControl.name];
 		if(formControlValue) {
 			formControl.value = formControlValue;
 		};
 	});
+}
+
+function prepareBackupFileContent() {
+	var backupObject = prepareBackupObject();
+	var backupFileContent = JSON.stringify(backupObject, null, 2); // pretty print
+	return backupFileContent;
+}
+
+// ####################### Backup using JSON file from filesystem ####################### //
+
+function downloadBackupFile() {
+	const backupFileContent = prepareBackupFileContent(); // pretty print
+	downloadFile(backupFileContent, fileName = 'esi.json', contentType = 'text/json');
+}
+
+function restoreBackup(fileContent) {
+	var backup = JSON.parse(fileContent);
+	if (isValidBackup(backup)) {
+		loadBackup(backup);
+		reloadOD_Sections();
+	}
+}
+
+// ####################### Backup using browser localstorage ####################### //
+
+function saveLocalBackup() {
+	localStorage.etherCATeepromGeneratorBackup = prepareBackupFileContent();
+}
+
+function tryRestoreLocalBackup() {
+	if (localStorage.etherCATeepromGeneratorBackup) {
+		restoreBackup(localStorage.etherCATeepromGeneratorBackup);
+	}
 }
 
 // ####################### Button handlers ####################### //
@@ -417,6 +437,8 @@ function onGenerateSubmit(form)
 	form.utypes.value = utypes_generator(form, od, indexes);
 	form.HEX.value = hex_generator(form); //HEX generator needs to be run first, data from hex is used in esi
 	form.ESI.value = esi_generator(form, od, indexes);
+
+	saveLocalBackup();
 
 	return true;
 }
@@ -434,8 +456,8 @@ function onGenerateDownloadClick()
 }
 
 function onSaveClick() {
-	var backup = prepareBackup();
-	downloadBackupFile(backup);
+	downloadBackupFile();
+	saveLocalBackup();
 }
 
 document.onkeydown = function(e) {
@@ -1244,6 +1266,7 @@ window.onclick = function(event) {
   
 window.onload = (event) => {
 	modalSetup();
+	tryRestoreLocalBackup();
 	// for convinience during tool development, trigger codegen on page refresh
 	var form = getForm();
 	onGenerateSubmit(form);
@@ -1389,9 +1412,10 @@ function onRemoveClick(odSectionName, indexValue, subindex = null) {
 		
 		const odSection = getObjDictSection(odSectionName);
 		if (subindex) {
-
+			// TODO remove subindex
+		} else {
+			removeObject(odSection, index);
 		}
-		removeObject(odSection, index);
 		showSection(odSectionName);
 	}
 }
@@ -1419,4 +1443,5 @@ function showSection(odSectionName) {
 		}
 	});
 	document.getElementById(`tr_${odSectionName}`).innerHTML = section;
+	saveLocalBackup(); // persist OD changes over page reload
 }
