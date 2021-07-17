@@ -826,11 +826,26 @@ function esi_generator(form, od, indexes)
 	esi += `        <Sm StartAddress="#x${indexToString(form.SM3Offset.value)}" ControlByte="#x20" Enable="1">Inputs</Sm>\n`;
 	var hasTxPdo = isPdoWithVariables(od, indexes, txpdo);
 	if (hasTxPdo) {
-		esi += `        <TxPdo Fixed="true" Mandatory="true" Sm="3">`;
-		esi += `\n          <Index>#x1A00</Index>\n          <Name>New Variable</Name>\n          <Entry>\n            <Index>#x6000</Index>\n            <SubIndex>#x0</SubIndex>\n            <BitLen>8</BitLen>\n            <Name>New Variable</Name>\n            <DataType>SINT</DataType>\n          </Entry>`
-		esi += `\n        </TxPdo>\n`;
+		var memOffset = form.SM3Offset.value;
+		indexes.forEach(index => {
+			const objd = od[index];
+			if (isInArray(objd.pdo_mappings, txpdo)) {
+				esi += addEsiDevicePDO(objd, index, txpdo, memOffset);
+				++memOffset;
+			}
+		});
 	}
 	var hasRxPdo = isPdoWithVariables(od, indexes, rxpdo);
+	if (hasRxPdo) {
+		var memOffset = form.SM2Offset.value;
+		indexes.forEach(index => {
+			const objd = od[index];
+			if (isInArray(objd.pdo_mappings, rxpdo)) {
+				addEsiDevicePDO(objd, index, rxpdo, memOffset);
+				++memOffset;
+			}	
+		});
+	}
 
 	//Add Mailbox DLL
 	esi += `        <Mailbox DataLinkLayer="true">\n          <CoE ${getCoEString(form)}/>\n        </Mailbox>\n`;
@@ -842,6 +857,34 @@ function esi_generator(form, od, indexes)
 	esi +=`      </Device>\n    </Devices>\n  </Descriptions>\n</EtherCATInfo>`;
 
 	return esi;	
+
+	function addEsiDevicePDO(objd, index, pdo, memOffset) {
+		var esi = '';
+		const PdoName = pdo[0].toUpperCase();
+		const SmNo = (pdo == txpdo) ? 3 : 2;
+		const memoryOffset = indexToString(memOffset);
+		const esiType = 'SINT';
+		esi += `        <${PdoName}xPdo Fixed="true" Mandatory="true" Sm="${SmNo}">\n          <Index>#x${memoryOffset}</Index>\n          <Name>${objd.name}</Name>`;
+		switch (objd.otype) {
+		case OTYPE.VAR:
+			const subindex = 0;
+			const bitsize = 8;
+			esi += `\n          <Entry>\n            <Index>#x${index}</Index>\n            <SubIndex>#x${subindex.toString(16)}</SubIndex>\n            <BitLen>${bitsize}</BitLen>\n            <Name>${objd.name}</Name>\n            <DataType>${esiType}</DataType>\n          </Entry>`;
+			break;
+		case OTYPE.ARRAY:
+			alert("ARRAY not yet supported in ESI TXPDOs");
+			break;
+		case OTYPE.RECORD:
+			alert("RECORD not yet supported in ESI TXPDOs");
+			break;
+		default:
+			alert(`Unexpected OTYPE ${objd.otype} for ${index} ${objd.name} in ESI TXPDOs`);
+			break;
+		}
+		esi += `\n        </${PdoName}xPdo>\n`;
+		
+		return esi;
+	}
 }
 
 //See Table 40 ETG2000
@@ -881,9 +924,10 @@ function hex_generator(form)
 	var record = [0,0];
 	record.length = parseInt(form.EEPROMsize.value);
 	const bytes_per_rule = 32;
-	for(var count = 0 ; count < record.length ; count++) //initialize array
+	for(var count = 0 ; count < record.length ; count++) {//initialize array
 		record[count] = 0xFF;
-		//Start of EEPROM contents; A lot of information can be found in 5.4 of ETG1000.6
+	}
+	//Start of EEPROM contents; A lot of information can be found in 5.4 of ETG1000.6
 	const pdiControl = (form.ESC.value == 'LAN9252') ? 0x80 : 0x05;
 	const spiMode = parseInt(form.SPImode.value);
 	const reserved_0x05 = (form.ESC.value == 'AX58100') ? 0x001A : 0x00; // enable IO for SPI driver on AX58100:
@@ -924,8 +968,9 @@ function hex_generator(form)
 	writeEEPROMword_wordaddress(parseInt(form.TxMailboxOffset.value),26,record); //Standard Tx mailbox offset
 	writeEEPROMword_wordaddress(parseInt(form.MailboxSize.value),27,record); //Standard Tx mailbox size
 	writeEEPROMword_wordaddress(0x04,28,record); //CoE protocol, see Table18 in ETG1000.6
-	for(var count = 29; count <= 61; count++)		//fill reserved area with zeroes
+	for(var count = 29; count <= 61; count++) {		//fill reserved area with zeroes
 		writeEEPROMword_wordaddress(0,count,record);
+	}
 	writeEEPROMword_wordaddress((Math.floor(parseInt(form.EEPROMsize.value)/128))-1,62,record); //EEPROM size
 	writeEEPROMword_wordaddress(1,63,record); //Version
 	////////////////////////////////////
