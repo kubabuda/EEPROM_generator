@@ -179,9 +179,11 @@ function addTXPDOitems(od) {
 
 function addPdoObjectsSection(od, odSection, pdo){
 	var currentSMoffsetValue = pdo.smOffset;
-	
-	ensurePDOAssignmentExists(od, pdo.SMassignmentIndex);
 	const indexes = getUsedIndexes(odSection);
+
+	if (indexes.length) {
+		ensurePDOAssignmentExists(od, pdo.SMassignmentIndex);
+	}
 
 	indexes.forEach(index => {
 		const objd = odSection[index];
@@ -246,11 +248,16 @@ function addPdoObjectsSection(od, odSection, pdo){
 	}
 	
 	function getPdoMappingValue(index, subindex, dtype) {
-		var subindex_byte = subindex.toString(16).slice(0, 2);
+		function toByte(value) {
+			var result = value.toString(16).slice(0, 2);
+			while (result.length < 2) {
+				result = `0${result}`;
+			}
+			return result;
+		}
 		var bitsize = esiDTbitsize(dtype);
-		var bitsize_byte = bitsize.toString(16).slice(0, 2);
 		
-		return `0x${index}${subindex_byte}${bitsize_byte}`;
+		return `0x${index}${toByte(subindex)}${toByte(bitsize)}`;
 	}	
 }
 
@@ -1366,13 +1373,14 @@ function onEditObjectSubmit(modalform) {
 			break;
 	}
 	const odSection = getObjDictSection(modal.odSectionName);
-	// if (modal.index_initial_value) 
-	removeObject(odSection, modal.index_initial_value); // detach from OD, to avoid duplicate if index changed
+	if (modal.index_initial_value) {
+		removeObject(odSection, modal.index_initial_value); // detach from OD, to avoid duplicate if index changed
+	}
 	addObject(odSection, objd, index);	// attach updated object
 	modalClose();
 	showSection(modal.odSectionName);
 	delete modal.odSectionName;
-	// modal.objd = {};
+	modal.objd = {};
 }
 
 function onRemoveClick(odSectionName, indexValue, subindex = null) {
