@@ -205,10 +205,7 @@ function addPdoObjectsSection(od, odSection, pdo){
 			pdoAssignments.push({ name: "PDO Mapping", value: `0x${currentOffset}` });
 			// link to OD variable declared on OD struct
 			objd.data = `&Obj.${variableName(objd.name)}`;
-			if (!objd.pdo_mappings) {
-				objd.pdo_mappings = [];
-			} // mark object as PDO mapped
-			objd.pdo_mappings.push(pdo.mappingValue);
+			addPdoMapping(objd, pdo.mappingValue);
 			break;
 		} 
 		case OTYPE.ARRAY: {
@@ -241,6 +238,21 @@ function addPdoObjectsSection(od, odSection, pdo){
 		++currentSMoffsetValue;
 	});
 
+	function isInArray(array, seekValue) {
+		return array && (array[0] == seekValue
+			|| array.find(currentValue => currentValue == seekValue));
+	}
+	
+	function addPdoMapping(objd, mappingValue) {
+		// make sure there is space
+		if (!objd.pdo_mappings) {
+			objd.pdo_mappings = [];
+		}
+		// mark object as PDO mapped, if it is nod already
+		if(!isInArray(objd.pdo_mappings, mappingValue)) {
+			objd.pdo_mappings.push(mappingValue);
+		}
+	}
 	
 	function ensurePDOAssignmentExists(od, index) {	
 		if (!od[index]) {
@@ -1252,9 +1264,41 @@ function ecat_options_generator(form, od, indexes)
 // ####################### utypes.h generation ####################### //
 
 function utypes_generator(form, od, indexes) {
-	utypes = '#ifndef __UTYPES_H__\n#define __UTYPES_H__\n\n#include "cc.h"\n\n/* Object dictionary storage */\n\ntypedef struct\n{\n   /* Identity */\n'
+	var utypes = '#ifndef __UTYPES_H__\n#define __UTYPES_H__\n\n#include "cc.h"\n\n/* Object dictionary storage */\n\ntypedef struct\n{\n   /* Identity */\n'
 	utypes += '\n   uint32_t serial;\n\n';
-	/* TODO implement OD type declaration */
+	
+	/* TODO implement OD type declarations */
+
+	var utypesInputs = '   /* Inputs */\n'; 
+	var utypesOutputs = '   /* Outputs */\n';
+	var inputs = false; var outputs = false;
+	indexes.forEach(index => {
+		objd = od[index];
+		if (objd.pdo_mappings) {
+			if(objd.pdo_mappings.length > 1) { alert(`${index} ${objd.name} Generating utypes.h for objects with multiple PDO mappings is not yet supported`); }
+			const ctype = ESI_DT[objd.dtype].ctype;
+			const varName = variableName(objd.name);
+			switch (objd.otype) {
+			case OTYPE.VAR: {
+				const line = `\n   ${ctype} ${varName};`
+				if (objd.pdo_mappings[0] == txpdo)  {
+					utypesInputs += line;
+					inputs = true;
+				} else {
+					utypesOutputs += line;
+					outputs = true;
+				}
+				break;
+			}
+			default: {
+				alert("Generating utypes.h for complex, non-VAR objects with multiple items is not yet supported");
+			}}	
+		}
+	});
+
+	if (inputs) { utypes += utypesInputs + '\n'; }
+	if (outputs) { utypes += utypesOutputs + '\n'; }
+
 	utypes += '\n} _Objects;\n\nextern _Objects Obj;\n\n#endif /* __UTYPES_H__ */\n';
 
 	return utypes;
