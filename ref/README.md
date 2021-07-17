@@ -51,7 +51,8 @@ https://www.sitepoint.com/mime-types-complete-list/
 - adding PDO with mappings, types et al
 - check generated C, XML code
 - check .bin output
-- test if code compilation
+- make .bin generation work for 256B EEPROM (for now fails < 512B)
+- test if code compilation works
 - test on real HW
 - make GUI look better
 - add favicon

@@ -1,3 +1,6 @@
+const automaticCodegen = true; 		// code is regenerated on every form change. 
+									// no need to remember to generate before copying or downloading
+									// app is noticeably slower
 
 // ####################### Constants, lookup tables ####################### //
 var configdata = ""
@@ -57,11 +60,7 @@ var rxpdo = 'rxpdo';
 
 const SDO_category = {  // these are required by minimal CiA 301 device /* TODO check if all */
 	'1000': 'm',
-	// '1008': true,
 	'1009': 'o',
-	// '100A': true,
-	// '1018': true,
-	// '1C00': true,
 };
 
 function getMandatoryObjects() {
@@ -1355,9 +1354,9 @@ window.onload = (event) => {
 	tryRestoreLocalBackup();
 	form = getForm();
 	// for convinience during tool development, trigger codegen on page refresh
-	// processForm(form); // TODO remove me
+	processForm(form); // TODO remove me
 	
-	const _isComputerFast = false;
+	const _isComputerFast = automaticCodegen;
 	
 	if (_isComputerFast) {
 		// code is regenerated on every form change. 
@@ -1526,7 +1525,7 @@ function onRemoveClick(odSectionName, indexValue, subindex = null) {
 }
 
 function onFormChanged() {
-	// processForm(getForm()); //
+	processForm(getForm());
 	saveLocalBackup();  // persist OD changes over page reload
 }
 
