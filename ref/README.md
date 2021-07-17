@@ -43,13 +43,14 @@ https://www.sitepoint.com/mime-types-complete-list/
 
 # TODO
 
+- check generated XML for PDOs
 - add subitem edition on ARR, RECORD objects
 - use [dl](https://www.w3schools.com/html/tryit.asp?filename=tryhtml_lists_description) to display it
-<!-- - merging OD sections -->
+- merging OD sections for ARR, RECORDs
 - adding PDO with mappings, types et al
 - check .bin output
 - test compilation
 - test on real HW
 - make GUI look better
-- save OD + form state in localstorage
-- reuse repeated string constants, test if does any good
+- add favicon
+- reuse repeated string constants in objlist.c names, test if does any good or compiler does that for you anyway

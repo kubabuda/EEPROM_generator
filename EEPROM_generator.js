@@ -400,6 +400,8 @@ function prepareBackupFileContent() {
 
 // ####################### Backup using JSON file from filesystem ####################### //
 
+// Localstorage limit is usually 5MB, super large object dictionaries on older browsers might be problematic
+
 function downloadBackupFile() {
 	const backupFileContent = prepareBackupFileContent(); // pretty print
 	downloadFile(backupFileContent, fileName = 'esi.json', contentType = 'text/json');
@@ -422,6 +424,12 @@ function saveLocalBackup() {
 function tryRestoreLocalBackup() {
 	if (localStorage.etherCATeepromGeneratorBackup) {
 		restoreBackup(localStorage.etherCATeepromGeneratorBackup);
+	}
+}
+
+function resetLocalBackup() {
+	if (localStorage.ethetruerCATeepromGeneratorBackup) {
+		delete localStorage.etherCATeepromGeneratorBackup;
 	}
 }
 
@@ -471,6 +479,13 @@ document.onkeydown = function(e) {
 function onRestoreClick() {
 	// trigger file input dialog window
 	document.getElementById('restoreFileInput').click();
+}
+
+function onResetClick() {
+	if (confirm("Are you sure you want to reset project to default values?")){
+		resetLocalBackup();
+		location.reload(true);
+	}
 }
 
 // ####################### Objectlist.c generating ####################### //
@@ -1268,8 +1283,7 @@ window.onload = (event) => {
 	modalSetup();
 	tryRestoreLocalBackup();
 	// for convinience during tool development, trigger codegen on page refresh
-	var form = getForm();
-	onGenerateSubmit(form);
+	onGenerateSubmit(getForm()); // TODO remove me
 }
 
 function getDialogForm() {
@@ -1404,6 +1418,7 @@ function onEditObjectSubmit(modalform) {
 	showSection(modal.odSectionName);
 	delete modal.odSectionName;
 	modal.objd = {};
+	saveLocalBackup(); // persist OD changes over page reload
 }
 
 function onRemoveClick(odSectionName, indexValue, subindex = null) {
@@ -1417,6 +1432,7 @@ function onRemoveClick(odSectionName, indexValue, subindex = null) {
 			removeObject(odSection, index);
 		}
 		showSection(odSectionName);
+		saveLocalBackup(); // persist OD changes over page reload
 	}
 }
 
@@ -1443,5 +1459,4 @@ function showSection(odSectionName) {
 		}
 	});
 	document.getElementById(`tr_${odSectionName}`).innerHTML = section;
-	saveLocalBackup(); // persist OD changes over page reload
 }
