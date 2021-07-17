@@ -1247,7 +1247,7 @@ function modalUpdate(index, objd) {
 // ####################### Modal dialogs for OD edition ####################### //
 
 function editExistingObject(odSectionName, index, otype) {
-	od = getObjDictSection(odSectionName);
+	const od = getObjDictSection(odSectionName);
 	var objd = od[index]; 
 	modal.index_initial_value = index;
 	checkObjectType(otype, objd);
@@ -1255,9 +1255,14 @@ function editExistingObject(odSectionName, index, otype) {
 }
 
 function addNewObject(odSectionName, otype) {
-	objd = { 
+	const readableNames = {
+		VAR: 'Variable',
+		ARRAY: 'Array',
+		RECORD: 'Record'
+	}
+	const objd = { 
 		otype: otype,
-		name: "New Object",
+		name: `New ${readableNames[otype]}`,
 		access: 'RO',
 	};
 	var index = getFirstFreeIndex(odSectionName);
