@@ -58,13 +58,13 @@ var sdo = 'sdo';
 var txpdo = 'txpdo';
 var rxpdo = 'rxpdo';
 
-const requided_SDOs = {  // these are required by minimal CiA 301 device /* TODO check if all */
-	'1000': true,
-	'1008': true,
-	'1009': true,
-	'100A': true,
-	'1018': true,
-	'1C00': true,
+const SDO_category = {  // these are required by minimal CiA 301 device /* TODO check if all */
+	'1000': 'm',
+	// '1008': true,
+	'1009': 'o',
+	// '100A': true,
+	// '1018': true,
+	// '1C00': true,
 };
 
 function getMandatoryObjects() {
@@ -802,18 +802,18 @@ function esi_generator(form, od, indexes)
 				subindex++;
 			});
 		}
-		const isMandatory = requided_SDOs[index]; /* TODO review which objects are mandatory */
-		esi += `\n                </Info>\n                <Flags>\n                  <Access>ro</Access>${ isMandatory ? '\n                  <Category>m</Category>' : '\n'}\n                </Flags>\n              </Object>`;
+		const isMandatory = SDO_category[index]; /* TODO review which objects are mandatory */
+		esi += `\n                </Info>\n                <Flags>\n                  <Access>ro</Access>${ isMandatory ? '\n                  <Category>m</Category>' : '' }\n                </Flags>\n              </Object>`;
 	});
 	esi += `\n            </Objects>\n          </Dictionary>\n        </Profile>\n        <Fmmu>Outputs</Fmmu>\n        <Fmmu>Inputs</Fmmu>\n        <Fmmu>MBoxState</Fmmu>\n`;
 	//Add Rxmailbox sizes
-	esi += `        <Sm DefaultSize="${parseInt(form.MailboxSize.value).toString(10)}" StartAddress="#x${parseInt(form.RxMailboxOffset.value).toString(16)}" ControlByte="#x26" Enable="1">MBoxOut</Sm>\n`;
+	esi += `        <Sm DefaultSize="${parseInt(form.MailboxSize.value).toString(10)}" StartAddress="#x${indexToString(form.RxMailboxOffset.value)}" ControlByte="#x26" Enable="1">MBoxOut</Sm>\n`;
 	//Add Txmailbox sizes
-	esi += `        <Sm DefaultSize="${parseInt(form.MailboxSize.value).toString(10)}" StartAddress="#x${parseInt(form.TxMailboxOffset.value).toString(16)}" ControlByte="#x22" Enable="1">MBoxIn</Sm>\n`;
+	esi += `        <Sm DefaultSize="${parseInt(form.MailboxSize.value).toString(10)}" StartAddress="#x${indexToString(form.TxMailboxOffset.value)}" ControlByte="#x22" Enable="1">MBoxIn</Sm>\n`;
 	//Add SM2
-	esi += `        <Sm StartAddress="#x${parseInt(form.SM2Offset.value).toString(16)}" ControlByte="#x24" Enable="1">Outputs</Sm>\n`;
+	esi += `        <Sm StartAddress="#x${indexToString(form.SM2Offset.value)}" ControlByte="#x24" Enable="1">Outputs</Sm>\n`;
 	//Add SM3
-	esi += `        <Sm StartAddress="#x${parseInt(form.SM3Offset.value).toString(16)}" ControlByte="#x20" Enable="1">Inputs</Sm>\n`;
+	esi += `        <Sm StartAddress="#x${indexToString(form.SM3Offset.value)}" ControlByte="#x20" Enable="1">Inputs</Sm>\n`;
 	//Add Mailbox DLL
 	esi += `        <Mailbox DataLinkLayer="true">\n          <CoE ${getCoEString(form)}/>\n        </Mailbox>\n`;
 	//Add DC
@@ -1292,17 +1292,18 @@ window.onload = (event) => {
 	modalSetup();
 	tryRestoreLocalBackup();
 	form = getForm();
+	// for convinience during tool development, trigger codegen on page refresh
+	processForm(form); // TODO remove me
 	
 	const _isComputerFast = automaticCodegen;
 	
 	if (_isComputerFast) {
+		processForm(form); // make sure displayed code is up to date at startup, e.g redo, if it came from backup
+	
 		document.getElementById('GenerateFilesButton').style.display = 'none'; // 'generate' button no longer needed
 		form.addEventListener('change', function() {
 			onFormChanged();
 		});
-	} else {
-		// for convinience during tool development, trigger codegen on page refresh
-		processForm(form); // TODO remove me
 	}
 }
 
