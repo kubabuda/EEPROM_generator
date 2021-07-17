@@ -43,11 +43,11 @@ https://www.sitepoint.com/mime-types-complete-list/
 
 # TODO
 
-- add PDO variables to utypes.h
 - check generated XML for PDOs
 - add subitem edition on ARR, RECORD objects
 - use [dl](https://www.w3schools.com/html/tryit.asp?filename=tryhtml_lists_description) to display it
 - merging OD sections for ARR, RECORDs
+- add PDO variable types to utypes.h
 - adding PDO with mappings, types et al
 - check generated C, XML code
 - check .bin output

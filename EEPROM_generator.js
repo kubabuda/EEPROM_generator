@@ -1,6 +1,3 @@
-const automaticCodegen = true; 		// code is regenerated on every form change. 
-									// no need to remember to generate before copying or downloading
-									// app is noticeably slower
 
 // ####################### Constants, lookup tables ####################### //
 var configdata = ""
@@ -134,6 +131,11 @@ function removeObject(od, index) {
 	}
 }
 
+function isInArray(array, seekValue) {
+	return array && (array[0] == seekValue
+		|| array.find(currentValue => currentValue == seekValue));
+}
+
 function variableName(objectName) {
 	const charsToReplace = [ ' ', '.', ',', ';', ':', '/' ];
 	const charsToRemove = [ '+', '-', '*', '=', '!', '@' ];
@@ -237,11 +239,6 @@ function addPdoObjectsSection(od, odSection, pdo){
 
 		++currentSMoffsetValue;
 	});
-
-	function isInArray(array, seekValue) {
-		return array && (array[0] == seekValue
-			|| array.find(currentValue => currentValue == seekValue));
-	}
 	
 	function addPdoMapping(objd, mappingValue) {
 		// make sure there is space
@@ -437,9 +434,9 @@ function saveLocalBackup() {
 }
 
 function tryRestoreLocalBackup() {
-	if (localStorage.etherCATeepromGeneratorBackup) {
-		restoreBackup(localStorage.etherCATeepromGeneratorBackup);
-	}
+	// if (localStorage.etherCATeepromGeneratorBackup) {
+	// 	restoreBackup(localStorage.etherCATeepromGeneratorBackup);
+	// }
 }
 
 function resetLocalBackup() {
@@ -456,11 +453,13 @@ function processForm(form)
 	const od = buildObjectDictionary(form);
 	const indexes = getUsedIndexes(od);
 
-	form.objectlist.value = objectlist_generator(form, od, indexes);
-	form.ecat_options.value = ecat_options_generator(form, od, indexes);
-	form.utypes.value = utypes_generator(form, od, indexes);
-	form.HEX.value = hex_generator(form); //HEX generator needs to be run first, data from hex is used in esi
-	form.ESI.value = esi_generator(form, od, indexes);
+	var outputCtl = document.getElementById('outCodeForm');
+
+	outputCtl.objectlist.value = objectlist_generator(form, od, indexes);
+	outputCtl.ecat_options.value = ecat_options_generator(form, od, indexes);
+	outputCtl.utypes.value = utypes_generator(form, od, indexes);
+	outputCtl.HEX.value = hex_generator(form); //HEX generator needs to be run first, data from hex is used in esi
+	outputCtl.ESI.value = esi_generator(form, od, indexes);
 
 	// saveLocalBackup();
 
@@ -826,6 +825,14 @@ function esi_generator(form, od, indexes)
 	esi += `        <Sm StartAddress="#x${indexToString(form.SM2Offset.value)}" ControlByte="#x24" Enable="1">Outputs</Sm>\n`;
 	//Add SM3
 	esi += `        <Sm StartAddress="#x${indexToString(form.SM3Offset.value)}" ControlByte="#x20" Enable="1">Inputs</Sm>\n`;
+	var hasTxPdo = isPdoWithVariables(od, indexes, txpdo);
+	if (hasTxPdo) {
+		esi += `        <TxPdo Fixed="true" Mandatory="true" Sm="3">`;
+		esi += `\n          <Index>#x1A00</Index>\n          <Name>New Variable</Name>\n          <Entry>\n            <Index>#x6000</Index>\n            <SubIndex>#x0</SubIndex>\n            <BitLen>8</BitLen>\n            <Name>New Variable</Name>\n            <DataType>SINT</DataType>\n          </Entry>`
+		esi += `\n        </TxPdo>\n`;
+	}
+	var hasRxPdo = isPdoWithVariables(od, indexes, rxpdo);
+
 	//Add Mailbox DLL
 	esi += `        <Mailbox DataLinkLayer="true">\n          <CoE ${getCoEString(form)}/>\n        </Mailbox>\n`;
 	//Add DC
@@ -1263,6 +1270,17 @@ function ecat_options_generator(form, od, indexes)
 
 // ####################### utypes.h generation ####################### //
 
+function isPdoWithVariables(od, indexes, pdoName) {
+	for (let i = 0; i < indexes.length; i++) {
+		const index = indexes[i];
+		objd = od[index];
+		if (isInArray(objd.pdo_mappings, pdoName)) {
+			return true;
+		}
+	}
+	return false;
+}
+
 function utypes_generator(form, od, indexes) {
 	var utypes = '#ifndef __UTYPES_H__\n#define __UTYPES_H__\n\n#include "cc.h"\n\n/* Object dictionary storage */\n\ntypedef struct\n{\n   /* Identity */\n'
 	utypes += '\n   uint32_t serial;\n\n';
@@ -1271,7 +1289,9 @@ function utypes_generator(form, od, indexes) {
 
 	var utypesInputs = '   /* Inputs */\n'; 
 	var utypesOutputs = '   /* Outputs */\n';
-	var inputs = false; var outputs = false;
+	var hasInputs = isPdoWithVariables(od, indexes, txpdo); 
+	var hasOutputs = isPdoWithVariables(od, indexes, rxpdo);
+
 	indexes.forEach(index => {
 		objd = od[index];
 		if (objd.pdo_mappings) {
@@ -1283,10 +1303,8 @@ function utypes_generator(form, od, indexes) {
 				const line = `\n   ${ctype} ${varName};`
 				if (objd.pdo_mappings[0] == txpdo)  {
 					utypesInputs += line;
-					inputs = true;
 				} else {
 					utypesOutputs += line;
-					outputs = true;
 				}
 				break;
 			}
@@ -1296,8 +1314,8 @@ function utypes_generator(form, od, indexes) {
 		}
 	});
 
-	if (inputs) { utypes += utypesInputs + '\n'; }
-	if (outputs) { utypes += utypesOutputs + '\n'; }
+	if (hasInputs) { utypes += utypesInputs + '\n'; }
+	if (hasOutputs) { utypes += utypesOutputs + '\n'; }
 
 	utypes += '\n} _Objects;\n\nextern _Objects Obj;\n\n#endif /* __UTYPES_H__ */\n';
 
@@ -1337,11 +1355,15 @@ window.onload = (event) => {
 	tryRestoreLocalBackup();
 	form = getForm();
 	// for convinience during tool development, trigger codegen on page refresh
-	processForm(form); // TODO remove me
+	// processForm(form); // TODO remove me
 	
-	const _isComputerFast = automaticCodegen;
+	const _isComputerFast = false;
 	
 	if (_isComputerFast) {
+		// code is regenerated on every form change. 
+		// no need to remember to generate before copying or downloading
+		// app is noticeably slower
+
 		processForm(form); // make sure displayed code is up to date at startup, e.g redo, if it came from backup
 	
 		document.getElementById('GenerateFilesButton').style.display = 'none'; // 'generate' button no longer needed
@@ -1504,7 +1526,7 @@ function onRemoveClick(odSectionName, indexValue, subindex = null) {
 }
 
 function onFormChanged() {
-	processForm(getForm()); // 
+	// processForm(getForm()); //
 	saveLocalBackup();  // persist OD changes over page reload
 }
 

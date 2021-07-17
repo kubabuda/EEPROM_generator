@@ -188,7 +188,7 @@ This page serves as a tool to generate consistent data across your code, ESI fil
 
    <tr><td colspan="6"><hr></td</tr>
    <tr><td colspan="6" align="center">
-      <input type="button" name="GenerateDownload" value="&nbsp;Download all files&nbsp;" onclick="onGenerateDownloadClick()">
+      <input type="button" name="GenerateDownload" value="&nbsp;Generate and download all files&nbsp;" onclick="onGenerateDownloadClick()">
       <input type="button" id='GenerateFilesButton' name="Generate" value="&nbsp;Generate files&nbsp;" onClick="onGenerateClick();">
       <input type="button" name="Save" value="&nbsp;Save project&nbsp;" onClick='onSaveClick();'>
       <input type="button" name="Restore" value="&nbsp;Restore project&nbsp;" onClick='onRestoreClick();'> 
@@ -196,6 +196,8 @@ This page serves as a tool to generate consistent data across your code, ESI fil
    </td></tr>
 </table>
 <br><br>
+</form>
+<form name="outCodeForm" id="outCodeForm" action="" onsubmit="return false;">
 ESI file:<input type="button" name="DownloadESI" value="&nbsp;Download&nbsp;" onClick="downloadFile(getForm().ESI.value, fileName = 'esi.xml', contentType = 'text/html');"><br>
 <textarea cols = "150" rows = "12" name="ESI">ESI File</textarea><br><br>
 Hex file: <input type="button" name="Download_HEX" value="&nbsp;Download&nbsp;" onClick="downloadFile(getForm().HEX.value, fileName = 'eeprom.hex', contentType = 'application/octet-stream');"><br>
@@ -208,6 +210,5 @@ objectlist.c: <input type="button" name="Download_objectlist" value="&nbsp;Downl
 <textarea cols = "150" rows = "12" name="objectlist">objectlist.c</textarea><br><br>
 utypes.h: <input type="button" name="Download_utypes" value="&nbsp;Download&nbsp;" onClick="downloadFile(getForm().utypes.value, fileName = 'utypes.h', contentType = 'text/plain');"><br>
 <textarea cols = "150" rows = "12" name="utypes">utypes.h</textarea><br><br>
-</form>
 <input id="restoreFileInput" type='file' style="visibility:hidden;" onchange="readFile(event)" />
 </body>
