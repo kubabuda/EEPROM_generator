@@ -63,7 +63,7 @@ const requided_SDOs = {  // these are required by minimal CiA 301 device /* TODO
 	'1C00': true,
 };
 
-function get_default_od() {
+function getMandatoryObjects() {
 	// OD index is hexadecimal value without '0x' prefix
 	const OD = {
 		'1000': { otype: OTYPE.VAR, dtype: DTYPE.UNSIGNED32, name: 'Device Type', value: 0x1389 },
@@ -154,20 +154,47 @@ function variableName(objectName) {
 	return variableName;
 }
 
-function addTxPdoObjects(od, txpdoSection) {
-	const form = getForm();
-	const sm3offset = parseInt(form.SM3Offset.value); // usually 0x1A00
-	const sm3PdoAssignmentIndex = '1C13';
-	const pdoMappingValue = 'TXPDO';
-	
-	const smPdoAssignmentIndex = sm3PdoAssignmentIndex;
-	var currentSMoffsetValue = sm3offset;
-	
-	ensurePDOAssignmentExists(od, smPdoAssignmentIndex);
-	const indexes = getUsedIndexes(txpdoSection);
+function addSDOitems(od) {
+	const sdoSection = getObjDictSection(sdo);
+	const indexes = getUsedIndexes(sdoSection);
 
 	indexes.forEach(index => {
-		const objd = txpdoSection[index];
+		const item = sdoSection[index];
+		addObject(od, item, index);
+	});
+}
+
+function addRXPDOitems(od) {
+	const rxpdoSection = getObjDictSection(rxpdo);
+	const form = getForm();
+	const pdo = {
+		mappingValue : rxpdo.toUpperCase(),
+		SMassignmentIndex : '1C12',
+		smOffset : parseInt(form.SM2Offset.value), // usually 0x1400
+	};
+	addPdoObjectsSection(od, rxpdoSection, pdo);
+}
+
+function addTXPDOitems(od) {
+	const txpdoSection = getObjDictSection(txpdo);
+	const form = getForm();
+	const pdo = {
+		mappingValue : txpdo.toUpperCase(),
+		SMassignmentIndex : '1C13',
+		smOffset : parseInt(form.SM3Offset.value), // usually 0x1A00
+	};
+	addPdoObjectsSection(od, txpdoSection, pdo);
+}
+
+function addPdoObjectsSection(od, odSection, pdo){
+	
+	var currentSMoffsetValue = pdo.smOffset;
+	
+	ensurePDOAssignmentExists(od, pdo.SMassignmentIndex);
+	const indexes = getUsedIndexes(odSection);
+
+	indexes.forEach(index => {
+		const objd = odSection[index];
 		const currentOffset = indexToString(currentSMoffsetValue)
 		
 		const pdoMappingObj = { otype: OTYPE.RECORD, name: objd.name, items: [
@@ -178,7 +205,7 @@ function addTxPdoObjects(od, txpdoSection) {
 		switch (objd.otype) {
 		case  OTYPE.VAR: {
 			// create PDO mappings and SM assignments
-			pdoMappingObj.items.push({ name: objd.name, dtype: UNSIGNED32, value: getPdoMappingValue(index, 0, objd.dtype) });
+			pdoMappingObj.items.push({ name: objd.name, dtype: DTYPE.UNSIGNED32, value: getPdoMappingValue(index, 0, objd.dtype) });
 			// create mapping
 			pdoAssignments.push({ name: "PDO Mapping", value: `0x${currentOffset}` });
 			// link to OD variable declared on OD struct
@@ -186,7 +213,7 @@ function addTxPdoObjects(od, txpdoSection) {
 			if (!objd.pdo_mappings) {
 				objd.pdo_mappings = [];
 			} // mark object as PDO mapped
-			objd.pdo_mappings.push(pdoMappingValue);
+			objd.pdo_mappings.push(pdo.mappingValue);
 			break;
 		} 
 		case OTYPE.ARRAY: {
@@ -211,7 +238,7 @@ function addTxPdoObjects(od, txpdoSection) {
 		addObject(od, pdoMappingObj, currentOffset);
 
 		pdoAssignments.forEach(pdoAssignment => {
-			od[smPdoAssignmentIndex].items.push(pdoAssignment);
+			od[pdo.SMassignmentIndex].items.push(pdoAssignment);
 		});
 
 		addObject(od, objd, index);
@@ -230,7 +257,7 @@ function addTxPdoObjects(od, txpdoSection) {
 	
 	function getPdoMappingValue(index, subindex, dtype) {
 		var subindex_byte = subindex.toString(16).slice(0, 2);
-		var bitsize = esiBitsize(dtype);
+		var bitsize = esiDTbitsize(dtype);
 		var bitsize_byte = bitsize.toString(16).slice(0, 2);
 		
 		return `0x${index}${subindex_byte}${bitsize_byte}`;
@@ -239,7 +266,7 @@ function addTxPdoObjects(od, txpdoSection) {
 
 // ####################### Building Object Dictionary model ####################### //
 
-function populate_od(form, od) {
+function populateMandatoryObjectValues(form, od) {
 	// populate mandatory object values
 	od['1008'].data = form.TextDeviceName.value;
 	od['1009'].data = form.HWversion.value;
@@ -248,6 +275,17 @@ function populate_od(form, od) {
 	od['1018'].items[2].value = parseInt(form.ProductCode.value);
 	od['1018'].items[3].value = parseInt(form.RevisionNumber.value);
 	od['1018'].items[4].value = parseInt(form.SerialNumber.value);
+}
+
+function buildObjectDictionary(form) {
+	const od = getMandatoryObjects();
+	populateMandatoryObjectValues(form, od);
+	// populate custom objects
+	addSDOitems(od);
+	addTXPDOitems(od);
+	addRXPDOitems(od);
+
+	return od;
 }
 
 function getFirstFreeIndex(odSectionName) {
@@ -374,8 +412,7 @@ function loadBackup(backup) {
 
 function onGenerateSubmit(form)
 {
-	const od = get_default_od();
-	populate_od(form, od); // TODO populate with SDO, TXPDO, RXPDO section objects
+	const od = buildObjectDictionary(form);
 	const indexes = getUsedIndexes(od);
 
 	form.objectlist.value = objectlist_generator(form, od, indexes);
@@ -583,27 +620,31 @@ function esiDtName(element, index) {
 	}
 }
 
+function esiDTbitsize(dtype) {
+	return ESI_DT[dtype].bitsize;
+}
+
 function esiBitsize(element) {
 	switch (element.otype) {
 		case OTYPE.VAR: {
-			let bitsize = ESI_DT[element.dtype].bitsize;
+			let bitsize = esiDTbitsize(element.dtype);
 			if (element.dtype == DTYPE.VISIBLE_STRING) {
 				return bitsize * element.data.length;
 			}
 			return bitsize;
 		}
 		case OTYPE.ARRAY: {
-			const maxsubindex_bitsize = ESI_DT[DTYPE.UNSIGNED8].bitsize;
-			let bitsize = ESI_DT[element.dtype].bitsize;
+			const maxsubindex_bitsize = esiDTbitsize(DTYPE.UNSIGNED8);
+			let bitsize = esiDTbitsize(element.dtype);
 			let elements = element.items.length - 1; // skip max subindex
 			return maxsubindex_bitsize * 2 + elements * bitsize;
 		}
 		case OTYPE.RECORD: {
-			const maxsubindex_bitsize = ESI_DT[DTYPE.UNSIGNED8].bitsize;
+			const maxsubindex_bitsize = esiDTbitsize(DTYPE.UNSIGNED8);
 			let bitsize = maxsubindex_bitsize * 2;
 			for (let subindex = 1; subindex < element.items.length; subindex++) {
 				const subitem = element.items[subindex];
-				bitsize += ESI_DT[subitem.dtype].bitsize;
+				bitsize += esiDTbitsize(subitem.dtype);
 			}
 			return bitsize;
 		}
@@ -642,7 +683,7 @@ function esi_generator(form, od, indexes)
 		}		
 		let el_name = esiVariableTypeName(element);
 		if (!variableTypes[el_name]) {
-			const bitsize = (element.dtype == DTYPE.VISIBLE_STRING) ? esiBitsize(element) : ESI_DT[element.dtype].bitsize;
+			const bitsize = (element.dtype == DTYPE.VISIBLE_STRING) ? esiBitsize(element) : esiDTbitsize(element.dtype);
 			variableTypes[el_name] = bitsize;
 		}
 	}
@@ -671,7 +712,7 @@ function esi_generator(form, od, indexes)
 			esi += `\n                <Name>${el_name}</Name>\n                <BitSize>${bitsize}</BitSize>`;
 			esi += `\n                <SubItem>\n                  <SubIdx>0</SubIdx>\n                  <Name>Max SubIndex</Name>\n                  <Type>USINT</Type>\n                  <BitSize>8</BitSize>\n                  <BitOffs>0</BitOffs>\n                  <Flags>\n                    <Access>ro</Access>\n                  </Flags>\n                </SubItem>`;
 			if (element.otype == OTYPE.ARRAY) {
-	 			let arr_bitsize = (element.items.length - 1) * ESI_DT[element.dtype].bitsize
+	 			let arr_bitsize = (element.items.length - 1) * esiDTbitsize(element.dtype);
 				esi += `\n                <SubItem>\n                  <Name>Elements</Name>\n                  <Type>${el_name}ARR</Type>\n                  <BitSize>${arr_bitsize}</BitSize>\n                  <BitOffs>16</BitOffs>\n                  <Flags>\n                    <Access>ro</Access>\n                  </Flags>\n                </SubItem>`;
 			} else if (element.otype == OTYPE.RECORD) {
 				let subindex = 0;
@@ -1315,7 +1356,7 @@ function onEditObjectSubmit(modalform) {
 	modalClose();
 	showSection(modal.odSectionName);
 	delete modal.odSectionName;
-	delete modal.objd;
+	// modal.objd = {};
 }
 
 function onRemoveClick(odSectionName, indexValue, subindex = null) {
