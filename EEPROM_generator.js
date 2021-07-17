@@ -134,9 +134,22 @@ function removeObject(od, index) {
 	}
 }
 
+function addPdoObject(od, objd, index, pdoName) {
+	if (pdoName != txpdo && pdoName != rxpdo) {
+		alert(`Cannot add object ${pdoName} to `)
+	}
+}
+
+function addTxPdoObjects(od, txpdoSection) {
+	const form = getForm();
+	const sm3offset = form.SM3Offset.value;
+
+}
+
 // ####################### Building Object Dictionary model ####################### //
 
 function populate_od(form, od) {
+	// populate mandatory object values
 	od['1008'].data = form.TextDeviceName.value;
 	od['1009'].data = form.HWversion.value;
 	od['100A'].data = form.SWversion.value;
@@ -144,8 +157,6 @@ function populate_od(form, od) {
 	od['1018'].items[2].value = parseInt(form.ProductCode.value);
 	od['1018'].items[3].value = parseInt(form.RevisionNumber.value);
 	od['1018'].items[4].value = parseInt(form.SerialNumber.value);
-
-	scan_indexes(od);
 }
 
 function getFirstFreeIndex(odSectionName) {
@@ -169,26 +180,19 @@ function indexToString(index) {
 	return indexValue.toString(16).toUpperCase();
 }
 
-_usedIndexes = [];
-
-function scan_indexes(od) {
+function getUsedIndexes(od) {
 	const index_min = 0x1000;
 	const index_max = 0xFFFF;
-	// clear
-	_usedIndexes = [];
+	const usedIndexes = [];
 	// scan index address space for ones used  
 	for (let i = index_min; i <= index_max; i++) {
 		const index = indexToString(i);
 		const element = od[index];
 		if (element) {
-			_usedIndexes.push(index);
+			usedIndexes.push(index);
 		}
 	}
-	return _usedIndexes;
-}
-
-function get_used_indexes() {
-	return _usedIndexes;
+	return usedIndexes;
 }
 
 // ####################### File accessing ####################### //
@@ -232,7 +236,6 @@ function readFile(e) {
 // ####################### Backup serialization + deserialization ####################### //
 
 function isValidBackup(backup) {
-	debugger;
 	if (!backup || !backup.form || !backup.od ) {
 		if (!confirm('Backup is incomplete or invalid, proceed anyway?')) {
 			return false;
@@ -281,13 +284,14 @@ function loadBackup(backup) {
 function onGenerateSubmit(form)
 {
 	const od = get_default_od();
-	populate_od(form, od);
+	populate_od(form, od); // TODO populate with SDO, TXPDO, RXPDO section objects
+	const indexes = getUsedIndexes(od);
 
-	form.objectlist.value = objectlist_generator(form, od);
-	form.ecat_options.value = ecat_options_generator(form, od);
-	form.utypes.value = utypes_generator(form, od);
+	form.objectlist.value = objectlist_generator(form, od, indexes);
+	form.ecat_options.value = ecat_options_generator(form, od, indexes);
+	form.utypes.value = utypes_generator(form, od, indexes);
 	form.HEX.value = hex_generator(form); //HEX generator needs to be run first, data from hex is used in esi
-	form.ESI.value = esi_generator(form, od);
+	form.ESI.value = esi_generator(form, od, indexes);
 
 	return true;
 }
@@ -364,10 +368,9 @@ function get_objdBitsize(element) {
 	return bitsize;
 }
 
-function objectlist_generator(form, od)
+function objectlist_generator(form, od, indexes)
 {
 	var objectlist  = '#include "esc_coe.h"\n#include "utypes.h"\n#include <stddef.h>\n\n';
-	const indexes = get_used_indexes();
 
 	//Variable names
 	indexes.forEach(index => {
@@ -520,7 +523,7 @@ function esiBitsize(element) {
 }
 
 //See ETG2000 for ESI format
-function esi_generator(form, od)
+function esi_generator(form, od, indexes)
 {
 	//VendorID
 	var esi =`<?xml version="1.0" encoding="UTF-8"?>\n<EtherCATInfo>\n  <Vendor>\n    <Id>${parseInt(form.VendorID.value).toString()}</Id>\n`;
@@ -536,7 +539,6 @@ function esi_generator(form, od)
 	esi += `        <GroupType>${form.TextGroupType.value}</GroupType>\n`;
 	//Add profile
 	esi += `        <Profile>\n          <ProfileNo>5001</ProfileNo>\n          <AddInfo>0</AddInfo>\n          <Dictionary>\n            <DataTypes>`;
-	const indexes = get_used_indexes();
 	const customTypes = {};
 	const variableTypes = {};
 	
@@ -1002,7 +1004,7 @@ function FindCRC(data,datalen)         // computes crc value
 
 // ####################### ecat_options.h generation ####################### //
 
-function ecat_options_generator(form, od)
+function ecat_options_generator(form, od, indexes)
 {
 	ecat_options = '#ifndef __ECAT_OPTIONS_H__\n#define __ECAT_OPTIONS_H__\n\n#define USE_FOE          0\n#define USE_EOE          0\n\n';
 
@@ -1038,7 +1040,6 @@ function ecat_options_generator(form, od)
 				+ '\n#define SM3_smc          0x20'
 				+ '\n#define SM3_act          1\n\n';
 	// Mappings config
-	const indexes = get_used_indexes();
 	indexes.forEach(index => {
 		const element = od[index];
 		if(element.pdo_mappings) {};
@@ -1055,7 +1056,7 @@ function ecat_options_generator(form, od)
 
 // ####################### utypes.h generation ####################### //
 
-function utypes_generator(form, od) {
+function utypes_generator(form, od, indexes) {
 	utypes = '#ifndef __UTYPES_H__\n#define __UTYPES_H__\n\n#include "cc.h"\n\n/* Object dictionary storage */\n\ntypedef struct\n{\n   /* Identity */\n'
 	utypes += '\n   uint32_t serial;\n\n';
 	/* TODO implement OD type declaration */
@@ -1249,7 +1250,7 @@ function reloadOD_Sections() {
 
 function showSection(odSectionName) {
 	const odSection = getObjDictSection(odSectionName);
-	var indexes = scan_indexes(odSection);
+	var indexes = getUsedIndexes(odSection);
 	var section = '';
 	indexes.forEach(index => {
 		const objd = odSection[index];
