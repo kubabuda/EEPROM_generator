@@ -140,10 +140,101 @@ function addPdoObject(od, objd, index, pdoName) {
 	}
 }
 
+function variableName(objectName) {
+	const charsToReplace = [ ' ', '.', ',', ';', ':', '/' ];
+	const charsToRemove = [ '+', '-', '*', '=', '!', '@' ];
+
+	var variableName = objectName;
+	charsToReplace.forEach(c => {
+		variableName = variableName.replaceAll(c, '_');
+	});
+	charsToRemove.forEach(c => {
+		variableName = variableName.replaceAll(c, '');
+	});
+	return variableName;
+}
+
 function addTxPdoObjects(od, txpdoSection) {
 	const form = getForm();
-	const sm3offset = form.SM3Offset.value;
+	const sm3offset = parseInt(form.SM3Offset.value); // usually 0x1A00
+	const sm3PdoAssignmentIndex = '1C13';
+	const pdoMappingValue = 'TXPDO';
+	
+	const smPdoAssignmentIndex = sm3PdoAssignmentIndex;
+	var currentSMoffsetValue = sm3offset;
+	
+	ensurePDOAssignmentExists(od, smPdoAssignmentIndex);
+	const indexes = getUsedIndexes(txpdoSection);
 
+	indexes.forEach(index => {
+		const objd = txpdoSection[index];
+		const currentOffset = indexToString(currentSMoffsetValue)
+		
+		const pdoMappingObj = { otype: OTYPE.RECORD, name: objd.name, items: [
+			{ name: 'Max SubIndex' },
+		]};
+		const pdoAssignments = [];
+		
+		switch (objd.otype) {
+		case  OTYPE.VAR: {
+			// create PDO mappings and SM assignments
+			pdoMappingObj.items.push({ name: objd.name, dtype: UNSIGNED32, value: getPdoMappingValue(index, 0, objd.dtype) });
+			// create mapping
+			pdoAssignments.push({ name: "PDO Mapping", value: `0x${currentOffset}` });
+			// link to OD variable declared on OD struct
+			objd.data = `&Obj.${variableName(objd.name)}`;
+			if (!objd.pdo_mappings) {
+				objd.pdo_mappings = [];
+			} // mark object as PDO mapped
+			objd.pdo_mappings.push(pdoMappingValue);
+			break;
+		} 
+		case OTYPE.ARRAY: {
+			objd.items.foreach(subitem => {
+				// TODO add mapping for every item
+				// TODO assign mapping for every item
+			});
+			break;
+		}
+		case OTYPE.RECORD: {
+			objd.items.foreach(subitem => {
+				// TODO add mapping for every item
+				// TODO assign mapping for every item
+			});
+			break;
+		}
+		default: {
+			alert(`${pdoMappingValue} object ${index} ${objd.name} has unexpected object type ${objd.otype}!`);
+			break;
+		}}
+
+		addObject(od, pdoMappingObj, currentOffset);
+
+		pdoAssignments.forEach(pdoAssignment => {
+			od[smPdoAssignmentIndex].items.push(pdoAssignment);
+		});
+
+		addObject(od, objd, index);
+
+		++currentSMoffsetValue;
+	});
+
+	
+	function ensurePDOAssignmentExists(od, index) {	
+		if (!od[index]) {
+			od[index] = { otype: OTYPE.ARRAY, dtype: DTYPE.UNSIGNED16, name: `Sync Manager ${index[3]} PDO Assignment`, items: [
+				{ name: 'Max SubIndex' },
+			]};
+		}
+	}
+	
+	function getPdoMappingValue(index, subindex, dtype) {
+		var subindex_byte = subindex.toString(16).slice(0, 2);
+		var bitsize = esiBitsize(dtype);
+		var bitsize_byte = bitsize.toString(16).slice(0, 2);
+		
+		return `0x${index}${subindex_byte}${bitsize_byte}`;
+	}	
 }
 
 // ####################### Building Object Dictionary model ####################### //
@@ -167,7 +258,7 @@ function getFirstFreeIndex(odSectionName) {
 	}
 	var result = addressRangeStart[odSectionName];
 	var odSection = getObjDictSection(odSectionName);
-	while (odSection[result.toString(16)]) {
+	while (odSection[indexToString(result)]) {
 		result++;
 	}
 
@@ -340,7 +431,7 @@ function get_objdFlags(element) {
 	let flags = "ATYPE_RO";
 	/* TODO these can be set by PDO mappings */
 	if (element.pdo_mappings) {
-		element.pdo_mappings.forEach(mapping => {
+		element.pdo_mappings .forEach(mapping => {
 			flags = `${flags} | ATYPE_${mapping}`;
 		});
 	}
@@ -1042,10 +1133,10 @@ function ecat_options_generator(form, od, indexes)
 	// Mappings config
 	indexes.forEach(index => {
 		const element = od[index];
-		if(element.pdo_mappings) {};
+		if(element.pdo_mappings ) {};
 	});
-	ecat_options += '#define MAX_MAPPINGS_SM2 ' + 2  /* TODO iterate over indexes, count pdo_mappings to RXPDO */
-				+ '\n#define MAX_MAPPINGS_SM3 ' + 10 /* TODO iterate over indexes, count pdo_mappings to TXPDO */ + '\n\n';
+	ecat_options += '#define MAX_MAPPINGS_SM2 ' + 2  /* TODO iterate over indexes, count pdo_mappings  to RXPDO */
+				+ '\n#define MAX_MAPPINGS_SM3 ' + 10 /* TODO iterate over indexes, count pdo_mappings  to TXPDO */ + '\n\n';
 	// PDO buffer config
 	ecat_options += '#define MAX_RXPDO_SIZE   512'
 				+ '\n#define MAX_TXPDO_SIZE   512\n\n'
