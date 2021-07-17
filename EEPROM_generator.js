@@ -1,6 +1,9 @@
-var configdata = ""
+const automaticCodegen = true; 		// code is regenerated on every form change. 
+									// no need to remember to generate before copying or downloading
+									// app is noticeably slower
 
 // ####################### Constants, lookup tables ####################### //
+var configdata = ""
 
 // Object Type
 const OTYPE = {
@@ -435,7 +438,8 @@ function resetLocalBackup() {
 
 // ####################### Button handlers ####################### //
 
-function onGenerateSubmit(form)
+
+function processForm(form)
 {
 	const od = buildObjectDictionary(form);
 	const indexes = getUsedIndexes(od);
@@ -446,21 +450,25 @@ function onGenerateSubmit(form)
 	form.HEX.value = hex_generator(form); //HEX generator needs to be run first, data from hex is used in esi
 	form.ESI.value = esi_generator(form, od, indexes);
 
-	saveLocalBackup();
+	// saveLocalBackup();
 
 	return true;
 }
 
 function onGenerateDownloadClick()
 {
-	var form = getForm();
-	onGenerateSubmit(form);
+	const form = getForm();
+	processForm(form);
 	downloadFile(form.ESI.value, fileName = 'esi.xml', contentType = 'text/html');
 	// TODO this probably is wrong MIME type, check another one: https://www.sitepoint.com/mime-types-complete-list/
 	downloadFile(form.HEX.value, fileName = 'eeprom.hex', contentType = 'application/octet-stream');
 	downloadFile(form.ecat_options.value, fileName = 'ecat_options.h', contentType = 'text/plain');
 	downloadFile(form.objectlist.value, fileName = 'objectlist.c', contentType = 'text/plain');
 	downloadFile(form.utypes.value, fileName = 'utypes.h', contentType = 'text/plain');
+}
+
+function onGenerateClick() {
+	processForm(getForm());
 }
 
 function onSaveClick() {
@@ -1278,13 +1286,26 @@ window.onclick = function(event) {
 		modalClose();
 	}
 }
-  
+
+
 window.onload = (event) => {
 	modalSetup();
 	tryRestoreLocalBackup();
-	// for convinience during tool development, trigger codegen on page refresh
-	onGenerateSubmit(getForm()); // TODO remove me
+	form = getForm();
+	
+	const _isComputerFast = automaticCodegen;
+	
+	if (_isComputerFast) {
+		document.getElementById('GenerateFilesButton').style.display = 'none'; // 'generate' button no longer needed
+		form.addEventListener('change', function() {
+			onFormChanged();
+		});
+	} else {
+		// for convinience during tool development, trigger codegen on page refresh
+		processForm(form); // TODO remove me
+	}
 }
+
 
 function getDialogForm() {
 	return document.getElementById('EditObjectForm');
@@ -1418,7 +1439,8 @@ function onEditObjectSubmit(modalform) {
 	showSection(modal.odSectionName);
 	delete modal.odSectionName;
 	modal.objd = {};
-	saveLocalBackup(); // persist OD changes over page reload
+	
+	onFormChanged();
 }
 
 function onRemoveClick(odSectionName, indexValue, subindex = null) {
@@ -1432,8 +1454,13 @@ function onRemoveClick(odSectionName, indexValue, subindex = null) {
 			removeObject(odSection, index);
 		}
 		showSection(odSectionName);
-		saveLocalBackup(); // persist OD changes over page reload
+		onFormChanged();
 	}
+}
+
+function onFormChanged() {
+	processForm(getForm()); // 
+	saveLocalBackup();  // persist OD changes over page reload
 }
 
 // ####################### Display Object Dictionary in building ####################### //

@@ -64,7 +64,7 @@
 This page serves as a tool to generate consistent data across your code, ESI file and EEPROM data. Hover over the fields to get additional info about the items you can change. <br><br>
 <p>For more detail on how these values translate to the corresponding files, and where you can find more info in the ETG documentation, look into the <a href="EEPROM_generator.js">source of the javascript that generates these files</a>.</p>
 
-<form  name="SlaveForm" id="SlaveForm" action="" onsubmit="onGenerateSubmit(this); return false;">
+<form  name="SlaveForm" id="SlaveForm" action="" onsubmit="return false;">
 <table border="0">
    <tr>
       <td><strong>Item:</strong></td><td><strong>Value</strong></td><td width="12%"><strong>ESI</strong></td><td width="12%"><strong>EEPROM</strong></td><td width="12%"><strong>objectlist.c</strong></td><td width="12%"><strong>ecat_options.h</strong></td>
@@ -188,8 +188,8 @@ This page serves as a tool to generate consistent data across your code, ESI fil
 
    <tr><td colspan="6"><hr></td</tr>
    <tr><td colspan="6" align="center">
-      <input type="submit" name="Generate" value="&nbsp;Generate&nbsp;">
-      <input type="button" name="GenerateDownload" value="&nbsp;Generate + download&nbsp;" onClick='onGenerateDownloadClick();'>
+      <input type="button" name="GenerateDownload" value="&nbsp;Download all files&nbsp;" onclick="onGenerateDownloadClick()">
+      <input type="button" id='GenerateFilesButton' name="Generate" value="&nbsp;GenerateFiles files&nbsp;" onClick="onGenerateClick();">
       <input type="button" name="Save" value="&nbsp;Save project&nbsp;" onClick='onSaveClick();'>
       <input type="button" name="Restore" value="&nbsp;Restore project&nbsp;" onClick='onRestoreClick();'> 
       <input type="button" name="Reset" value="&nbsp;Reset project&nbsp;" onClick='onResetClick();'> 
