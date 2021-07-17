@@ -45,7 +45,7 @@ https://www.sitepoint.com/mime-types-complete-list/
 
 - add subitem edition on ARR, RECORD objects
 - use [dl](https://www.w3schools.com/html/tryit.asp?filename=tryhtml_lists_description) to display it
-- merging OD sections
+<!-- - merging OD sections -->
 - adding PDO with mappings, types et al
 - check .bin output
 - test compilation

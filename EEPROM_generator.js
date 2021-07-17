@@ -40,20 +40,21 @@ const dtype_bitsize = {
 	'VISIBLE_STRING' : 8,
 };
 const ESI_DT = {
-	'BOOLEAN': { name: 'BOOL', bitsize: 1 },
-	'INTEGER8': { name: 'SINT', bitsize: 8 },
-	'INTEGER16': { name: 'INT', bitsize: 16 },
-	'INTEGER32': { name: 'DINT', bitsize: 32 },
-	'UNSIGNED8': { name: 'USINT', bitsize: 8 },
-	'UNSIGNED16': { name: 'UINT', bitsize: 16 },
-	'UNSIGNED32': { name: 'UDINT', bitsize: 32 },
-	'REAL32': { name: 'REAL', bitsize: 32 },
-	'VISIBLE_STRING': { name: 'STRING', bitsize: 8 },
+	'BOOLEAN': { name: 'BOOL', bitsize: 1, ctype: 'uint8_t' },
+	'INTEGER8': { name: 'SINT', bitsize: 8, ctype: 'int8_t' },
+	'INTEGER16': { name: 'INT', bitsize: 16, ctype: 'int16_t' },
+	'INTEGER32': { name: 'DINT', bitsize: 32, ctype: 'int32_t' },
+	'UNSIGNED8': { name: 'USINT', bitsize: 8, ctype: 'uint8_t' },
+	'UNSIGNED16': { name: 'UINT', bitsize: 16, ctype: 'uint16_t' },
+	'UNSIGNED32': { name: 'UDINT', bitsize: 32, ctype: 'uint32_t' },
+	'REAL32': { name: 'REAL', bitsize: 32, ctype: 'double' }, // TODO check C type name
+	'VISIBLE_STRING': { name: 'STRING', bitsize: 8, ctype: 'char *' }, // TODO check C type name
 };
-const ATYPE = {
-	TXPDO : 'TXPDO',
-	RXPDO : 'RXPDO',
-};
+
+var sdo = 'sdo';
+var txpdo = 'txpdo';
+var rxpdo = 'rxpdo';
+
 const requided_SDOs = {  // these are required by minimal CiA 301 device /* TODO check if all */
 	'1000': true,
 	'1008': true,
@@ -96,10 +97,6 @@ const _odSections = {
 	rxpdo : {}, // this will be done when stitching sections during code generation - TODO
 };
 
-var sdo = 'sdo';
-var txpdo = 'txpdo';
-var rxpdo = 'rxpdo';
-
 function getObjDictSection(odSectionName) {
 	return _odSections[odSectionName];
 }
@@ -134,12 +131,6 @@ function removeObject(od, index) {
 	}
 }
 
-function addPdoObject(od, objd, index, pdoName) {
-	if (pdoName != txpdo && pdoName != rxpdo) {
-		alert(`Cannot add object ${pdoName} to `)
-	}
-}
-
 function variableName(objectName) {
 	const charsToReplace = [ ' ', '.', ',', ';', ':', '/' ];
 	const charsToRemove = [ '+', '-', '*', '=', '!', '@' ];
@@ -168,7 +159,7 @@ function addRXPDOitems(od) {
 	const rxpdoSection = getObjDictSection(rxpdo);
 	const form = getForm();
 	const pdo = {
-		mappingValue : rxpdo.toUpperCase(),
+		mappingValue : rxpdo,
 		SMassignmentIndex : '1C12',
 		smOffset : parseInt(form.SM2Offset.value), // usually 0x1400
 	};
@@ -179,7 +170,7 @@ function addTXPDOitems(od) {
 	const txpdoSection = getObjDictSection(txpdo);
 	const form = getForm();
 	const pdo = {
-		mappingValue : txpdo.toUpperCase(),
+		mappingValue : txpdo,
 		SMassignmentIndex : '1C13',
 		smOffset : parseInt(form.SM3Offset.value), // usually 0x1A00
 	};
@@ -187,7 +178,6 @@ function addTXPDOitems(od) {
 }
 
 function addPdoObjectsSection(od, odSection, pdo){
-	
 	var currentSMoffsetValue = pdo.smOffset;
 	
 	ensurePDOAssignmentExists(od, pdo.SMassignmentIndex);
@@ -466,10 +456,9 @@ function subindex_padded(subindex) {
 
 function get_objdFlags(element) {
 	let flags = "ATYPE_RO";
-	/* TODO these can be set by PDO mappings */
 	if (element.pdo_mappings) {
 		element.pdo_mappings .forEach(mapping => {
-			flags = `${flags} | ATYPE_${mapping}`;
+			flags = `${flags} | ATYPE_${mapping.toUpperCase()}`;
 		});
 	}
 	return flags;
@@ -1172,18 +1161,40 @@ function ecat_options_generator(form, od, indexes)
 				+ '\n#define SM3_smc          0x20'
 				+ '\n#define SM3_act          1\n\n';
 	// Mappings config
-	indexes.forEach(index => {
-		const element = od[index];
-		if(element.pdo_mappings ) {};
-	});
-	ecat_options += '#define MAX_MAPPINGS_SM2 ' + 2  /* TODO iterate over indexes, count pdo_mappings  to RXPDO */
-				+ '\n#define MAX_MAPPINGS_SM3 ' + 10 /* TODO iterate over indexes, count pdo_mappings  to TXPDO */ + '\n\n';
+	const MAX_MAPPINGS = getMaxMappings(od, indexes);
+	ecat_options += `#define MAX_MAPPINGS_SM2 ${MAX_MAPPINGS.SM2}`
+				+ `\n#define MAX_MAPPINGS_SM3 ${MAX_MAPPINGS.SM3}\n\n`
 	// PDO buffer config
 	ecat_options += '#define MAX_RXPDO_SIZE   512'
 				+ '\n#define MAX_TXPDO_SIZE   512\n\n'
 				+ '#endif /* __ECAT_OPTIONS_H__ */\n';
 
 	return ecat_options;
+
+	function getMaxMappings(od, indexes) {
+		let MAX_MAPPINGS_SM2 = 0;
+		let MAX_MAPPINGS_SM3 = 0;
+		indexes.forEach(index => {
+			const element = od[index];
+			if(element.pdo_mappings) {
+				element.pdo_mappings.forEach(mapping => {
+					if (mapping == rxpdo) { ++MAX_MAPPINGS_SM2 }
+					if (mapping == txpdo) { ++MAX_MAPPINGS_SM3 }
+				});
+			};
+			if(element.items) {
+				element.items.forEach(subitem => {
+					if(subitem.pdo_mappings) {
+						subitem.pdo_mappings.forEach(mapping => {
+							if (mapping == rxpdo) { ++MAX_MAPPINGS_SM2 }
+							if (mapping == txpdo) { ++MAX_MAPPINGS_SM3 }
+						});
+					};		
+				});
+			}
+		});
+		return { SM2: MAX_MAPPINGS_SM2, SM3: MAX_MAPPINGS_SM3 };
+	}
 }
 
 // ####################### utypes.h generation ####################### //
