@@ -210,14 +210,14 @@ function addPdoObjectsSection(od, odSection, pdo){
 			break;
 		} 
 		case OTYPE.ARRAY: {
-			objd.items.foreach(subitem => {
+			objd.items.forEach(subitem => {
 				// TODO add mapping for every item
 				// TODO assign mapping for every item
 			});
 			break;
 		}
 		case OTYPE.RECORD: {
-			objd.items.foreach(subitem => {
+			objd.items.forEach(subitem => {
 				// TODO add mapping for every item
 				// TODO assign mapping for every item
 			});
@@ -433,9 +433,9 @@ function saveLocalBackup() {
 }
 
 function tryRestoreLocalBackup() {
-	// if (localStorage.etherCATeepromGeneratorBackup) {
-	// 	restoreBackup(localStorage.etherCATeepromGeneratorBackup);
-	// }
+	if (localStorage.etherCATeepromGeneratorBackup) {
+		restoreBackup(localStorage.etherCATeepromGeneratorBackup);
+	}
 }
 
 function resetLocalBackup() {
@@ -553,20 +553,20 @@ function objectlist_generator(form, od, indexes)
 
 	//Variable names
 	indexes.forEach(index => {
-		const element = od[index];
-		objectlist += `\nstatic const char acName${index}[] = "${element.name}";`;
-		switch (element.otype) {
+		const objd = od[index];
+		objectlist += `\nstatic const char acName${index}[] = "${objd.name}";`;
+		switch (objd.otype) {
 			case OTYPE.VAR:
 				break;
 			case OTYPE.ARRAY:
 			case OTYPE.RECORD: 
-				for (let subindex = 0; subindex < element.items.length; subindex++) {
-					const item = element.items[subindex];
+				for (let subindex = 0; subindex < objd.items.length; subindex++) {
+					const item = objd.items[subindex];
 					objectlist += `\nstatic const char acName${index}_${subindex_padded(subindex)}[] = "${item.name}";`;
 				}
 				break;
 			default:
-				alert("Unexpected object type in object dictionary: ", element)
+				alert("Unexpected object type in object dictionary: ", objd)
 				break;
 		};
 	});
@@ -863,24 +863,42 @@ function esi_generator(form, od, indexes)
 		const PdoName = pdo[0].toUpperCase();
 		const SmNo = (pdo == txpdo) ? 3 : 2;
 		const memoryOffset = indexToString(memOffset);
-		const esiType = 'SINT';
 		esi += `        <${PdoName}xPdo Fixed="true" Mandatory="true" Sm="${SmNo}">\n          <Index>#x${memoryOffset}</Index>\n          <Name>${objd.name}</Name>`;
+		var subindex = 0;
 		switch (objd.otype) {
-		case OTYPE.VAR:
-			const subindex = 0;
-			const bitsize = 8;
+		case OTYPE.VAR: {
+			const esiType = esiVariableTypeName(objd);
+			const bitsize = esiDTbitsize(objd.dtype);
 			esi += `\n          <Entry>\n            <Index>#x${index}</Index>\n            <SubIndex>#x${subindex.toString(16)}</SubIndex>\n            <BitLen>${bitsize}</BitLen>\n            <Name>${objd.name}</Name>\n            <DataType>${esiType}</DataType>\n          </Entry>`;
 			break;
-		case OTYPE.ARRAY:
-			alert("ARRAY not yet supported in ESI TXPDOs");
-			break;
-		case OTYPE.RECORD:
-			alert("RECORD not yet supported in ESI TXPDOs");
-			break;
-		default:
-			alert(`Unexpected OTYPE ${objd.otype} for ${index} ${objd.name} in ESI TXPDOs`);
+		}
+		case OTYPE.ARRAY: {
+			const esiType = esiVariableTypeName(objd);
+			const bitsize = esiDTbitsize(objd.dtype);
+			// TODO check DTYPE
+			objd.items?.forEach(subitem => {
+				if(subindex > 0) { // skip 'Max subindex'
+					esi += `\n          <Entry>\n            <Index>#x${index}</Index>\n            <SubIndex>#x${subindex.toString(16)}</SubIndex>\n            <BitLen>${bitsize}</BitLen>\n            <Name>${subitem.name}</Name>\n            <DataType>${esiType}</DataType>\n          </Entry>`;
+				}
+				++subindex;
+			});
 			break;
 		}
+		case OTYPE.RECORD: {
+			objd.items?.forEach(subitem => {
+				const esiType = esiVariableTypeName(subitem.dtype);
+				const bitsize = esiDTbitsize(subitem.dtype);
+				if(subindex > 0) { // skip 'Max subindex'
+					esi += `\n          <Entry>\n            <Index>#x${index}</Index>\n            <SubIndex>#x${subindex.toString(16)}</SubIndex>\n            <BitLen>${bitsize}</BitLen>\n            <Name>${subitem.name}</Name>\n            <DataType>${esiType}</DataType>\n          </Entry>`;
+				}
+				++subindex;
+			});
+			break;
+		}
+		default: {
+			alert(`Unexpected OTYPE ${objd.otype} for ${index} ${objd.name} in ESI TXPDOs`);
+			break;
+		}}
 		esi += `\n        </${PdoName}xPdo>\n`;
 		
 		return esi;
@@ -1452,6 +1470,14 @@ function addNewObject(odSectionName, otype) {
 		name: `New ${readableNames[otype]}`,
 		access: 'RO',
 	};
+	if (otype == OTYPE.ARRAY || otype == OTYPE.RECORD) {
+		objd.items = [
+			{ name: 'Max SubIndex' },
+		];
+	}
+	if (odSectionName == txpdo || odSectionName == rxpdo) {
+		objd.pdo_mappings = [ odSectionName ];
+	}
 	var index = getFirstFreeIndex(odSectionName);
 	delete modal.index_initial_value;
 	modalUpdate(index, objd);
