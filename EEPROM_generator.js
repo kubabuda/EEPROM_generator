@@ -58,7 +58,7 @@ var sdo = 'sdo';
 var txpdo = 'txpdo';
 var rxpdo = 'rxpdo';
 
-const SDO_category = {  // these are required by minimal CiA 301 device /* TODO check if all */
+const SDO_category = {  // these are required by minimal CiA 301 device
 	'1000': 'm',
 	'1009': 'o',
 };
@@ -93,7 +93,7 @@ function getMandatoryObjects() {
 const _odSections = {
 	sdo : {},
 	txpdo : {}, // addding PDO requires matching SDO in Sync Manager, and PDO mapping
-	rxpdo : {}, // this will be done when stitching sections during code generation - TODO
+	rxpdo : {}, // this will be done when stitching sections during code generation
 };
 
 function getObjDictSection(odSectionName) {
@@ -197,6 +197,7 @@ function addPdoObjectsSection(od, odSection, pdo){
 			{ name: 'Max SubIndex' },
 		]};
 		const pdoAssignments = [];
+		addPdoMapping(objd, pdo.mappingValue);
 		
 		switch (objd.otype) {
 		case  OTYPE.VAR: {
@@ -206,13 +207,21 @@ function addPdoObjectsSection(od, odSection, pdo){
 			pdoAssignments.push({ name: "PDO Mapping", value: `0x${currentOffset}` });
 			// link to OD variable declared on OD struct
 			objd.data = `&Obj.${variableName(objd.name)}`;
-			addPdoMapping(objd, pdo.mappingValue);
 			break;
 		} 
 		case OTYPE.ARRAY: {
-			objd.items.forEach(subitem => {
+			var subindex = 1;
+			objd.items.slice(subindex).forEach(subitem => {
 				// TODO add mapping for every item
 				// TODO assign mapping for every item
+				/*
+				// create PDO mappings and SM assignments
+				pdoMappingObj.items.push({ name: subitem.name, dtype: DTYPE.UNSIGNED32, value: getPdoMappingValue(index, subindex , objd.dtype) });
+				// create mapping
+				pdoAssignments.push({ name: "PDO Mapping", value: `0x${currentOffset}` });
+				// link to OD variable declared on OD struct
+				objd.data = `&Obj.${variableName(objd.name)}[${subindex - 1}]`;*/
+				++subindex;
 			});
 			break;
 		}
@@ -1371,7 +1380,8 @@ function utypes_generator(form, od, indexes) {
 				break;
 			}
 			default: {
-				alert("Generating utypes.h for complex, non-VAR objects with multiple items is not yet supported");
+				/* TODO implement adding complex DTs to utypes */
+				// alert("Generating utypes.h for complex, non-VAR objects with multiple items is not yet supported");
 			}}	
 		}
 	});
@@ -1451,7 +1461,7 @@ function modalUpdate(index, objd) {
 
 // ####################### Modal dialogs for OD edition ####################### //
 
-function editExistingObject(odSectionName, index, otype) {
+function editExistingOD_ObjectDialog(odSectionName, index, otype) {
 	const od = getObjDictSection(odSectionName);
 	var objd = od[index]; 
 	modal.index_initial_value = index;
@@ -1459,7 +1469,21 @@ function editExistingObject(odSectionName, index, otype) {
 	modalUpdate(index, objd);
 }
 
-function addNewObject(odSectionName, otype) {
+function addArraySubitem(objd) {
+	if (objd.otype != OTYPE.ARRAY) { alert(`${objd} is not ARRAY, cannot add subitem`); return; }
+	if (!objd.items) { alert(`${objd} does not have items list, cannot add subitem`); return; }
+	objd.items.push({ name: 'New array subitem' });
+}
+
+function addRecordSubitem(objd) {
+	if (objd.otype != OTYPE.RECORD) { alert(`${objd} is not RECORD, cannot add subitem`); return; }
+	if (!objd.items) { alert(`${objd} does not have items list, cannot add subitem`); return; }
+
+	const default_subitemDT = DTYPE.UNSIGNED8; // first from list
+	objd.items.push({ name: 'New record subitem', dtype: default_subitemDT });
+}
+
+function addNewOD_ObjectDialog(odSectionName, otype) {
 	const readableNames = {
 		VAR: 'Variable',
 		ARRAY: 'Array',
@@ -1470,11 +1494,21 @@ function addNewObject(odSectionName, otype) {
 		name: `New ${readableNames[otype]}`,
 		access: 'RO',
 	};
-	if (otype == OTYPE.ARRAY || otype == OTYPE.RECORD) {
+	switch(otype) {
+	case OTYPE.ARRAY: {
 		objd.items = [
 			{ name: 'Max SubIndex' },
 		];
+		addArraySubitem(objd);
+		break;
 	}
+	case OTYPE.RECORD: {
+		objd.items = [
+			{ name: 'Max SubIndex' },
+		];
+		addRecordSubitem(objd);
+		break;
+	}}
 	if (odSectionName == txpdo || odSectionName == rxpdo) {
 		objd.pdo_mappings = [ odSectionName ];
 	}
@@ -1490,10 +1524,10 @@ function editVAR_Dialog(odSectionName, indexValue = null) {
 	modal.odSectionName = odSectionName;
 
 	if (objectExists(odSectionName, index)) {
-		editExistingObject(odSectionName, index, otype);
+		editExistingOD_ObjectDialog(odSectionName, index, otype);
 		modal.form.DTYPE.value = modal.objd.dtype;
 	} else {
-		addNewObject(odSectionName, otype);
+		addNewOD_ObjectDialog(odSectionName, otype);
 		actionName = "Add"
 	}
 	document.getElementById('editObjectTitle').innerHTML = `${actionName} ${odSectionName.toUpperCase()} variable`;
@@ -1509,10 +1543,10 @@ function editARRAY_Dialog(odSectionName, indexValue = null) {
 	modal.odSectionName = odSectionName;
 
 	if (objectExists(odSectionName, index)) {
-		editExistingObject(odSectionName, index, otype);
+		editExistingOD_ObjectDialog(odSectionName, index, otype);
 		modal.form.DTYPE.value = modal.objd.dtype;
 	} else {
-		addNewObject(odSectionName, otype);
+		addNewOD_ObjectDialog(odSectionName, otype);
 		actionName = "Add"
 	}
 	document.getElementById('editObjectTitle').innerHTML = `${actionName} ${odSectionName.toUpperCase()} array`;
@@ -1528,9 +1562,9 @@ function editRECORD_Dialog(odSectionName, indexValue = null) {
 	modal.odSectionName = odSectionName;
 
 	if (objectExists(odSectionName, index)) {
-		editExistingObject(odSectionName, index, otype);
+		editExistingOD_ObjectDialog(odSectionName, index, otype);
 	} else {
-		addNewObject(odSectionName, otype);
+		addNewOD_ObjectDialog(odSectionName, otype);
 		actionName = "Add"
 	}
 	document.getElementById('editObjectTitle').innerHTML = `${actionName} ${odSectionName.toUpperCase()} record`;
@@ -1582,16 +1616,33 @@ function onEditObjectSubmit(modalform) {
 
 function onRemoveClick(odSectionName, indexValue, subindex = null) {
 	const index = indexToString(indexValue);
-	if (confirm(`Are you sure you want to remove object 0x${index}?`)) {
+	const odSection = getObjDictSection(odSectionName);
+	const objd = odSection[index];
+	if(!objd) { alert(`${odSectionName.toUpperCase()} object ${index} does not exist!`); return; }
+
+	if(subindex) {
+		if(!objd.items) { alert(`Object 0x${index} "${objd.name}" does not have any items!`); return; }
+		if(objd.items.length < subindex) { alert(`Object 0x${index} "${objd.name}" does not have enough items!`); return; }
+		if(objd.items.length = 2) { alert(`Object 0x${index} "${objd.name}" has only 1 subitem, it cannot be empty!`); return; }
+	}
+
+	if (confirm(getConfirmMessage(objd, index, subindex))) {
 		
-		const odSection = getObjDictSection(odSectionName);
 		if (subindex) {
-			// TODO remove subindex
+			const subitemsToRemove = 1;			
+			objd.items.splice(subindex, subitemsToRemove); 
 		} else {
 			removeObject(odSection, index);
 		}
 		showSection(odSectionName);
 		onFormChanged();
+	}
+
+	function getConfirmMessage(objd, index, subindex) {
+		if (subindex) {
+			return `Are you sure you want to remove subitem ${subindex} "${objd.items[subindex].name }" from object 0x${index} "${objd.name}"?`
+		}
+		return `Are you sure you want to remove object 0x${index} "${objd.name}"?`
 	}
 }
 
@@ -1619,7 +1670,14 @@ function showSection(odSectionName) {
 		section += `<button onClick='edit${objd.otype}_Dialog(${odSectionName}, 0x${index})'>Edit object</button>`;
 		section += `</dt>`;
 		if (objd.items) {
-			section += `<dd>-items<dd>`;
+			var subindex = 1; // skip Max Subindex
+			objd.items.slice(subindex).forEach(subitem => {
+				section += `<dd>:${subindex} "${subitem.name}" ${subitem.otype ?? ''}`
+				section += `<button onClick='onRemoveClick(${odSectionName}, 0x${index}, ${subindex})'>Remove subitem</button>`
+				section += `<button onClick='editSubitem_Dialog(${odSectionName}, 0x${index})'>Edit object</button>`;
+				+`<dd>`;
+				++subindex;
+			})
 		}
 	});
 	document.getElementById(`tr_${odSectionName}`).innerHTML = section;
