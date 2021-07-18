@@ -341,6 +341,58 @@ function getUsedIndexes(od) {
 	return usedIndexes;
 }
 
+function getNewObjd(odSectionName, otype) {
+	const readableNames = {
+		VAR: 'Variable',
+		ARRAY: 'Array',
+		RECORD: 'Record'
+	}
+	const objd = { 
+		otype: otype,
+		name: `New ${readableNames[otype]}`,
+		access: 'RO',
+	};
+	switch(otype) {
+	case OTYPE.ARRAY: {
+		objd.items = [
+			{ name: 'Max SubIndex' },
+		];
+		addArraySubitem(objd);
+		break;
+	}
+	case OTYPE.RECORD: {
+		objd.items = [
+			{ name: 'Max SubIndex' },
+		];
+		addRecordSubitem(objd);
+		break;
+	}}
+	if (odSectionName == txpdo || odSectionName == rxpdo) {
+		objd.pdo_mappings = [ odSectionName ];
+	}
+	return objd;
+}
+
+function addArraySubitem(objd) {
+	if (objd.otype != OTYPE.ARRAY) { alert(`${objd} is not ARRAY, cannot add subitem`); return; }
+	if (!objd.items) { alert(`${objd} does not have items list, cannot add subitem`); return; }
+	const newSubitem = { name: 'New array subitem' }
+	objd.items.push(newSubitem);
+
+	return newSubitem;
+}
+
+function addRecordSubitem(objd) {
+	if (objd.otype != OTYPE.RECORD) { alert(`${objd} is not RECORD, cannot add subitem`); return; }
+	if (!objd.items) { alert(`${objd} does not have items list, cannot add subitem`); return; }
+
+	const default_subitemDT = DTYPE.UNSIGNED8; // first from list
+	const newSubitem = { name: 'New record subitem', dtype: default_subitemDT }
+	objd.items.push(newSubitem);
+
+	return newSubitem;
+}
+
 // ####################### File accessing ####################### //
 
 // saves file in local filesystem - downloads from browser
@@ -1469,55 +1521,14 @@ function editExistingOD_ObjectDialog(odSectionName, index, otype) {
 	modalUpdate(index, objd);
 }
 
-function addArraySubitem(objd) {
-	if (objd.otype != OTYPE.ARRAY) { alert(`${objd} is not ARRAY, cannot add subitem`); return; }
-	if (!objd.items) { alert(`${objd} does not have items list, cannot add subitem`); return; }
-	objd.items.push({ name: 'New array subitem' });
-}
-
-function addRecordSubitem(objd) {
-	if (objd.otype != OTYPE.RECORD) { alert(`${objd} is not RECORD, cannot add subitem`); return; }
-	if (!objd.items) { alert(`${objd} does not have items list, cannot add subitem`); return; }
-
-	const default_subitemDT = DTYPE.UNSIGNED8; // first from list
-	objd.items.push({ name: 'New record subitem', dtype: default_subitemDT });
-}
-
 function addNewOD_ObjectDialog(odSectionName, otype) {
-	const readableNames = {
-		VAR: 'Variable',
-		ARRAY: 'Array',
-		RECORD: 'Record'
-	}
-	const objd = { 
-		otype: otype,
-		name: `New ${readableNames[otype]}`,
-		access: 'RO',
-	};
-	switch(otype) {
-	case OTYPE.ARRAY: {
-		objd.items = [
-			{ name: 'Max SubIndex' },
-		];
-		addArraySubitem(objd);
-		break;
-	}
-	case OTYPE.RECORD: {
-		objd.items = [
-			{ name: 'Max SubIndex' },
-		];
-		addRecordSubitem(objd);
-		break;
-	}}
-	if (odSectionName == txpdo || odSectionName == rxpdo) {
-		objd.pdo_mappings = [ odSectionName ];
-	}
+	var objd = getNewObjd(odSectionName, otype);
 	var index = getFirstFreeIndex(odSectionName);
-	delete modal.index_initial_value;
+	delete modal.index_initial_value; // add new object, not replace edited one 
 	modalUpdate(index, objd);
 }
 
-function editVAR_Dialog(odSectionName, indexValue = null) {
+function editVAR_Click(odSectionName, indexValue = null) {
 	const otype = OTYPE.VAR;
 	const index = indexToString(indexValue);
 	var actionName = "Edit";
@@ -1536,7 +1547,7 @@ function editVAR_Dialog(odSectionName, indexValue = null) {
 	modalOpen();
 }
 
-function editARRAY_Dialog(odSectionName, indexValue = null) {
+function editARRAY_Click(odSectionName, indexValue = null) {
 	const otype = OTYPE.ARRAY;
 	const index = indexToString(indexValue);
 	var actionName = "Edit";
@@ -1555,7 +1566,7 @@ function editARRAY_Dialog(odSectionName, indexValue = null) {
 	modalOpen();
 }
 
-function editRECORD_Dialog(odSectionName, indexValue = null) {
+function editRECORD_Click(odSectionName, indexValue = null) {
 	const otype = OTYPE.RECORD;
 	const index = indexToString(indexValue);
 	var actionName = "Edit";
@@ -1607,7 +1618,7 @@ function onEditObjectSubmit(modalform) {
 	}
 	addObject(odSection, objd, index);	// attach updated object
 	modalClose();
-	showSection(modal.odSectionName);
+	reloadOD_Section(modal.odSectionName);
 	delete modal.odSectionName;
 	modal.objd = {};
 	
@@ -1623,7 +1634,8 @@ function onRemoveClick(odSectionName, indexValue, subindex = null) {
 	if(subindex) {
 		if(!objd.items) { alert(`Object 0x${index} "${objd.name}" does not have any items!`); return; }
 		if(objd.items.length < subindex) { alert(`Object 0x${index} "${objd.name}" does not have enough items!`); return; }
-		if(objd.items.length = 2) { alert(`Object 0x${index} "${objd.name}" has only 1 subitem, it cannot be empty!`); return; }
+		if(objd.items.length < 3) { // only max subindex and one more subitem
+			alert(`Object 0x${index} "${objd.name}" has only 1 subitem, it should not be empty. Remove entire object instead.`); return; }
 	}
 
 	if (confirm(getConfirmMessage(objd, index, subindex))) {
@@ -1634,7 +1646,7 @@ function onRemoveClick(odSectionName, indexValue, subindex = null) {
 		} else {
 			removeObject(odSection, index);
 		}
-		showSection(odSectionName);
+		reloadOD_Section(odSectionName);
 		onFormChanged();
 	}
 
@@ -1646,6 +1658,42 @@ function onRemoveClick(odSectionName, indexValue, subindex = null) {
 	}
 }
 
+function addSubitemClick(odSectionName, indexValue) {
+	const index = indexToString(indexValue);
+	const odSection = getObjDictSection(odSectionName);
+	const objd = odSection[index]; 
+
+	// we expect objd to have items array with at least [{ name: 'Max SubIndex' }]
+	if(!objd.items || !objd.items.length ) { alert(`Object ${index} "${objd.name}" has no subitems!`); return; }
+
+	switch(objd.otype) {
+		case OTYPE.ARRAY: {
+			addArraySubitem(objd);
+			break;
+		}
+		case OTYPE.RECORD: {
+			addRecordSubitem(objd);
+			break;
+		}
+		default: {
+			alert(`Object ${index} "${objd.name}" has OTYPE ${objd.otype} so cannot add subitems`);
+		}
+	}
+	const subindex = objd.items.length - 1;
+	editSubitemClick(odSectionName, index, subindex);
+}
+
+function editSubitemClick(odSectionName, indexValue, subindex) {
+	const index = indexToString(indexValue);
+	const odSection = getObjDictSection(odSectionName);
+	const objd = odSection[index];
+	
+	// TODO implement
+	
+	onFormChanged();
+	reloadOD_Section(odSectionName);
+}
+
 function onFormChanged() {
 	processForm(getForm());
 	saveLocalBackup();  // persist OD changes over page reload
@@ -1654,27 +1702,30 @@ function onFormChanged() {
 // ####################### Display Object Dictionary in building ####################### //
 
 function reloadOD_Sections() {
-	showSection(sdo);
-	showSection(txpdo);
-	showSection(rxpdo);
+	reloadOD_Section(sdo);
+	reloadOD_Section(txpdo);
+	reloadOD_Section(rxpdo);
 }
 
-function showSection(odSectionName) {
+function reloadOD_Section(odSectionName) {
 	const odSection = getObjDictSection(odSectionName);
 	var indexes = getUsedIndexes(odSection);
 	var section = '';
 	indexes.forEach(index => {
 		const objd = odSection[index];
 		section += `<dt>0x${index} "${objd.name}" ${objd.otype} ${objd.dtype ?? ''}`
-		section += `<button onClick='onRemoveClick(${odSectionName}, 0x${index})'>Remove object</button>`
-		section += `<button onClick='edit${objd.otype}_Dialog(${odSectionName}, 0x${index})'>Edit object</button>`;
+		section += `<button onClick='onRemoveClick(${odSectionName}, 0x${index})'>&nbsp; Remove &nbsp;</button>`
+		section += `<button onClick='edit${objd.otype}_Click(${odSectionName}, 0x${index})'>&nbsp; Edit &nbsp;</button>`;
+		if (objd.otype == OTYPE.ARRAY || objd.otype == OTYPE.RECORD) {
+			section += `<button onClick='addSubitemClick(${odSectionName}, 0x${index})'>&nbsp; Add subitem &nbsp;</button>`;
+		}
 		section += `</dt>`;
 		if (objd.items) {
 			var subindex = 1; // skip Max Subindex
 			objd.items.slice(subindex).forEach(subitem => {
 				section += `<dd>:${subindex} "${subitem.name}" ${subitem.otype ?? ''}`
-				section += `<button onClick='onRemoveClick(${odSectionName}, 0x${index}, ${subindex})'>Remove subitem</button>`
-				section += `<button onClick='editSubitem_Dialog(${odSectionName}, 0x${index})'>Edit object</button>`;
+				section += `<button onClick='onRemoveClick(${odSectionName}, 0x${index}, ${subindex})'>&nbsp; Remove &nbsp;</button>`
+				section += `<button onClick='editSubitemClick(${odSectionName}, 0x${index}, ${subindex})'>&nbsp; Edit &nbsp;</button>`;
 				+`<dd>`;
 				++subindex;
 			})
