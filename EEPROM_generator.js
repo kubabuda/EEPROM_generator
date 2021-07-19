@@ -1533,6 +1533,7 @@ function addNewOD_ObjectDialog(odSectionName, otype) {
 }
 
 function modalHideControls() {
+	document.getElementById('dialogRowIndex').style.display = 'none';
 	document.getElementById('dialogRowDtype').style.display = 'none';
 	document.getElementById('dialogRowValue').style.display = 'none';
 	document.getElementById('dialogRowAccess').style.display = 'none';
@@ -1540,21 +1541,20 @@ function modalHideControls() {
 
 function modalOpenForObject(otype) {
 	modalHideControls();
+	document.getElementById('dialogRowIndex').style.display = '';
+	document.getElementById('dialogRowAccess').style.display = '';
 
 	switch (otype) {
 		case OTYPE.VAR: {
 			document.getElementById('dialogRowDtype').style.display = '';
 			document.getElementById('dialogRowValue').style.display = '';
-			document.getElementById('dialogRowAccess').style.display = '';
 			break;
 		}
 		case OTYPE.ARRAY: {
 			document.getElementById('dialogRowDtype').style.display = "";
-			document.getElementById('dialogRowAccess').style.display = '';
 			break;		
 		}
 		case OTYPE.RECORD: {
-			document.getElementById('dialogRowAccess').style.display = '';
 			break;
 		}
 		default: { 
@@ -1620,6 +1620,10 @@ function editRECORD_Click(odSectionName, indexValue = null) {
 }
 
 function onEditObjectSubmit(modalform) {
+	if (modal.subitem) {
+		onEditSubitemSubmit(modal.subitem);
+		delete modal.subitem;
+	}
 	const objd = modal.objd;
 	const objectType = objd.otype;
 	const index = indexToString(modalform.Index.value);
@@ -1715,16 +1719,38 @@ function addSubitemClick(odSectionName, indexValue) {
 		}
 	}
 	const subindex = objd.items.length - 1; // subitem is added to end of items list
-	editSubitemClick(odSectionName, index, subindex);
+	editSubitemClick(odSectionName, index, subindex, "Add");
 }
 
-function editSubitemClick(odSectionName, indexValue, subindex) {
+function editSubitemClick(odSectionName, indexValue, subindex, actionName = "Edit") {
 	const index = indexToString(indexValue);
 	const odSection = getObjDictSection(odSectionName);
 	const objd = odSection[index];
+	if(!objd.items || objd.items.length <= subindex ) { alert(`Object ${index} "${objd.name}" does not have ${subindex} subitems!`); return; }
+	const subitem = objd.items[subindex];
 	
-	// TODO implement
+	modalHideControls();
+	modalSetTitle(`${actionName} ${odSectionName.toUpperCase()} object 0x${index} "${objd.name}" subitem 0x${subindex.toString(16).toUpperCase()}`);
 	
+	if (objd.otype == OTYPE.RECORD) {
+		document.getElementById('dialogRowDtype').style.display = "";
+	}
+	modal.form.ObjectName.value = subitem.name;
+	modal.subitem = { odSectionName: odSectionName, index: index, subindex: subindex };
+	modalOpen();
+	
+}
+
+function onEditSubitemSubmit(modalSubitem) {
+	debugger;
+	const odSection = getObjDictSection(modalSubitem.odSectionName);
+	const objd = odSection[modalSubitem.index];
+	const subitem = objd.items[modalSubitem.subindex];
+
+	subitem.name =  modal.form.ObjectName.value;
+	if (objd.otype == OTYPE.RECORD) {
+		subitem.dtype = modal.form.DTYPE.value;
+	}
 	onFormChanged();
 	reloadOD_Section(odSectionName);
 }
