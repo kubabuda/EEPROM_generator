@@ -576,10 +576,8 @@ function onResetClick() {
 
 function onDownloadBinClick() {
 	const record = getOutputForm().HEX.hexData;
-	const eepromSize = getForm().EEPROMsize.value;
 	if (!record) { alert("Generate code before you can download it"); return; }
-	const binaryContent = toBlobContent(record, eepromSize);
-	downloadFile(binaryContent, fileName = 'eeprom.bin', contentType = 'application/octet-stream');
+	downloadFile(record, fileName = 'eeprom.bin', contentType = 'application/octet-stream');
 }
 
 // ####################### Objectlist.c generating ####################### //
@@ -1077,7 +1075,11 @@ function hex_generator(form)
 	offset = writeSyncManagers(form, offset, record); //See Table 23 ETG1000.6
 	//End of EEPROM contents
 
-	return record;
+	
+	const eepromSize = getForm().EEPROMsize.value;
+	const binaryContent = toBlobContent(record, eepromSize);
+
+	return binaryContent;
 
 	function getConfigData(record, configdata_bytecount) {
 		// takes bytes array and count, returns ConfigData string
@@ -1086,6 +1088,15 @@ function hex_generator(form)
 			configdata += (record[bytecount] + 0x100).toString(16).slice(-2).toUpperCase();
 		}
 		return configdata;
+	}
+
+	function toBlobContent(record, size) {
+		// returns Uint8Array, that can be feed into Blob constructor
+		var result = new Uint8Array(size);
+		for (let i = 0; i <= size; i++) {
+			result[i] = parseInt(record[i]);
+		};
+		return result;
 	}
 }
 
@@ -1102,14 +1113,6 @@ function toIntelHex(record) {
 	return hex.toUpperCase();
 }
 
-function toBlobContent(record, size) {
-	// returns Uint8Array, that can be feed into Blob constructor
-	var result = new Uint8Array(size);
-	for (let i = 0; i <= size; i++) {
-		result[i] = parseInt(record[i]);
-	};
-	return result;
-}
 
 function writeSyncManagers(form, offset, record)
 {//See Table 23 ETG1000.6
@@ -1443,8 +1446,6 @@ function utypes_generator(form, od, indexes) {
 	var utypes = '#ifndef __UTYPES_H__\n#define __UTYPES_H__\n\n#include "cc.h"\n\n/* Object dictionary storage */\n\ntypedef struct\n{\n   /* Identity */\n'
 	utypes += '\n   uint32_t serial;\n';
 	
-	/* TODO implement OD type declarations */
-
 	var utypesInputs = '\n   /* Inputs */\n'; 
 	var utypesOutputs = '\n   /* Outputs */\n';
 	var hasInputs = isPdoWithVariables(od, indexes, txpdo); 
@@ -1535,7 +1536,7 @@ window.onload = (event) => {
 	tryRestoreLocalBackup();
 	form = getForm();
 	// for convinience during tool development, trigger codegen on page refresh
-	processForm(form); // TODO remove me
+	processForm(form);
 	
 	const _isComputerFast = automaticCodegen;
 	
