@@ -1090,10 +1090,13 @@ function hex_generator(form)
 		return configdata;
 	}
 
-	function toBlobContent(record, size) {
-		// returns Uint8Array, that can be feed into Blob constructor
-		var result = new Uint8Array(size);
-		for (let i = 0; i <= size; i++) {
+	function toBlobContent(record, eepromSize) {
+		// takes array and file size, returns Uint8Array, that can be feed into Blob constructor
+		if (record.length > eepromSize) { 
+			alert(`Configuration will not fit on EEPROM with configured size! ${record.length} bytes used, but only ${eepromSize} available`);
+		}
+		var result = new Uint8Array(eepromSize);
+		for (let i = 0; i <= eepromSize; i++) {
 			result[i] = parseInt(record[i]);
 		};
 		return result;
@@ -1101,12 +1104,17 @@ function hex_generator(form)
 }
 
 function toIntelHex(record) {
-	// takes bytes array
+	// takes bytes array, returns Intel Hex as string
 	var hex = "";
 	const bytes_per_rule = 32;
-	for (var rulenumber = 0 ; rulenumber < (record.length/bytes_per_rule) ; rulenumber++)
+	const rulesTotalCount = record.length/bytes_per_rule;
+
+	for (var rulenumber = 0 ; rulenumber < (rulesTotalCount); rulenumber++)
 	{
-		hex += CreateiHexRule(bytes_per_rule, rulenumber, record.slice(rulenumber*bytes_per_rule,bytes_per_rule+(rulenumber*bytes_per_rule)));
+		const sliceStart = rulenumber*bytes_per_rule;
+		const sliceEnd = bytes_per_rule + (rulenumber * bytes_per_rule);
+		const recordSlice = record.slice(sliceStart, sliceEnd);
+		hex += CreateiHexRule(bytes_per_rule, rulenumber, recordSlice);
 	}
 	//end of file marker
 	hex += ':00000001FF';

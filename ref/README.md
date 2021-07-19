@@ -63,7 +63,6 @@ https://www.sitepoint.com/mime-types-complete-list/
 - test on real HW
 - DC configuration
 ### non critical / known issues
-- make .bin generation work for 256B EEPROM (for now fails < 512B)
 - add option to switch between .bin and Intel HEX for EEPROM file output
 - add indexes list to OD model, to decrease parametes count in methods
 - save backup before form processing (now even valid OD changes can be erased by error in code generation logic)
