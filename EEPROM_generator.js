@@ -785,13 +785,13 @@ function esi_generator(form, od, indexes)
 	//VendorID
 	var esi =`<?xml version="1.0" encoding="UTF-8"?>\n<EtherCATInfo>\n  <Vendor>\n    <Id>${parseInt(form.VendorID.value).toString()}</Id>\n`;
 	//VendorName
-	esi += `    <Name>${form.VendorName.value}</Name>\n  </Vendor>\n  <Descriptions>\n`;
+	esi += `    <Name LcId="1033">${form.VendorName.value}</Name>\n  </Vendor>\n  <Descriptions>\n`;
 	//Groups
-	esi += `    <Groups>\n      <Group>\n        <Type>${form.TextGroupType.value}</Type>\n        <Name>${form.TextGroupName5.value}</Name>\n      </Group>\n    </Groups>\n    <Devices>\n`;
+	esi += `    <Groups>\n      <Group>\n        <Type>${form.TextGroupType.value}</Type>\n        <Name LcId="1033">${form.TextGroupName5.value}</Name>\n      </Group>\n    </Groups>\n    <Devices>\n`;
 	//Physics  
 	esi += `      <Device Physics="${form.Port0Physical.value + form.Port1Physical.value + form.Port2Physical.value || + form.Port3Physical.value}">\n        <Type ProductCode="#x${parseInt(form.ProductCode.value).toString(16)}" RevisionNo="#x${parseInt(form.RevisionNumber.value).toString(16)}">${form.TextDeviceType.value}</Type>\n`;
 	//Add  Name info
-	esi += `        <Name><![CDATA[${form.TextDeviceName.value}]]></Name>\n`;
+	esi += `        <Name LcId="1033">${form.TextDeviceName.value}</Name>\n`;
 	//Add in between
 	esi += `        <GroupType>${form.TextGroupType.value}</GroupType>\n`;
 	//Add profile
