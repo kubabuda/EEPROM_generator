@@ -1,21 +1,6 @@
-# Binary file comparison: [VBinDiff](https://www.cjmweb.net/vbindiff/VBinDiff-Win32)
+# OD structure
 
-```cmd
-VBinDiff ref/et1100.bin  ref/lan9252.bin
-```
-
-# Config Data
-
-<ConfigData>05060344640000</ConfigData> gen
-<ConfigData>0502030000000000</ConfigData> start
-<ConfigData>050403440a00000000001a000000</ConfigData> AX
-<ConfigData>050603446400000000001A000000</ConfigData>
-
-# MIME types
-
-https://www.sitepoint.com/mime-types-complete-list/
-
-# OD 
+OD is keept as JSON object. Expected data format:
 
 ```js
 {
@@ -40,21 +25,49 @@ https://www.sitepoint.com/mime-types-complete-list/
 }   
 ```
 
+There is 4 parts to it: 
+- `sdo`, not mapped to PDOs
+- `txpdo`, mapped to TXPDO (SM3). Expected format (for OTYPE VAR):
+```js
+{
+    '6000': { otype: OTYPE.VAR, dtype: DTYPE.UNSIGNED32, name: 'TXPDO', value: 0x1389, pdo_mappings: ['tx'] },
+}
+```
+- `rxpdo`, same as above, but `pdo_mappings: ['rx']`
+- mandatory objects. These are added at code gen stage, with values populated form UI controls.
+
+Code generation copies all values into single OD, adds PDO mappings and SM assignments. 
+
+## PDO mappings
+
+Currently single, not dynamic PDO is supported for TX and RX respectively.
+
+# Binary file comparison tool: [VBinDiff](https://www.cjmweb.net/vbindiff/VBinDiff-Win32)
+
+```cmd
+VBinDiff ref/et1100.bin  ref/lan9252.bin
+```
+
+# MIME types
+
+HEX .bin file was not yet tested. 
+Not sure about mime type
+https://www.sitepoint.com/mime-types-complete-list/
+
 
 # TODO
-
 - check generated XML for PDOs
-- add indexes list to OD model, to decrease parametes count in methods
-- save backup before form processing (keep valid OD changes from being erased by generators code error)
-- merging OD sections for ARR, RECORDs
-- add PDO variable types to utypes.h
-- adding PDO with mappings, types et al
 - check generated C, XML code
 - check .bin output
-- make .bin generation work for 256B EEPROM (for now fails < 512B)
 - test if code compilation works
 - test on real HW
-- make GUI look better
+- DC configuration
+### non critical / known issues
+- make .bin generation work for 256B EEPROM (for now fails < 512B)
+- add option to switch between .bin and Intel HEX for EEPROM file output
+- add indexes list to OD model, to decrease parametes count in methods
+- save backup before form processing (now even valid OD changes can be erased by error in code generation logic)
+- make GUI look more nice & modern
 - add favicon
 ### Code optimization
 - reuse repeated string constants in objlist.c names, test if does any good or compiler does that for you anyway
