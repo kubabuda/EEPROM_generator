@@ -515,14 +515,15 @@ function processForm(form)
 {
 	const od = buildObjectDictionary(form);
 	const indexes = getUsedIndexes(od);
-
 	const useIntelHex = form.HEX_Format.value == 'ihex';
 	var outputCtl = getOutputForm();
 
 	outputCtl.objectlist.value = objectlist_generator(form, od, indexes);
 	outputCtl.ecat_options.value = ecat_options_generator(form, od, indexes);
 	outputCtl.utypes.value = utypes_generator(form, od, indexes);
-	outputCtl.HEX.value = hex_generator(form); //HEX generator needs to be run first, data from hex is used in esi
+	debugger;
+	outputCtl.HEX.hexData = hex_generator(form); //HEX generator needs to be run first, data from hex is used in esi
+	outputCtl.HEX.value = toIntelHex(outputCtl.HEX.hexData);
 	outputCtl.ESI.value = esi_generator(form, od, indexes);
 
 	document.getElementById('hexInstallCmd').innerHTML = useIntelHex ? 'sudo ./eepromtool 1 eth0 -wi eeprom.hex' : 'sudo ./eepromtool 1 eth0 -w eeprom.hex';;
@@ -999,13 +1000,12 @@ function getCoEString(form)
 		result +='CompleteAccess="false" ';
 	return result;										
 }
+
 function hex_generator(form)
 {
-	var hex ="";
 	configdata = "";
 	var record = [0,0];
 	record.length = parseInt(form.EEPROMsize.value);
-	const bytes_per_rule = 32;
 	for(var count = 0 ; count < record.length ; count++) {//initialize array
 		record[count] = 0xFF;
 	}
@@ -1027,9 +1027,7 @@ function hex_generator(form)
 	writeEEPROMword_wordaddress(reserved_0x05,5,record); //Reserved, 0 (when not AX58100)
 	writeEEPROMword_wordaddress(0x00,6,record); //Reserved, 0
 	writeEEPROMword_wordaddress(FindCRC(record,14),7,record); //CRC
-	for (var bytecount = 0 ; bytecount < configdata_bytecount ; bytecount++) {
-		configdata += (record[bytecount]+0x100).toString(16).slice(-2).toUpperCase();//store EEPROM data for future use in ESI file
-	}
+	configdata = getConfigData(record, configdata_bytecount);
 	//WORD ADDRESS 8-15
 	writeEEPROMDword_wordaddress(parseInt(form.VendorID.value),8,record);		//CoE 0x1018:01
 	writeEEPROMDword_wordaddress(parseInt(form.ProductCode.value),10,record);	//CoE 0x1018:02
@@ -1070,6 +1068,23 @@ function hex_generator(form)
 	//SyncManagers
 	offset = writeSyncManagers(form, offset, record); //See Table 23 ETG1000.6
 	//End of EEPROM contents
+
+	return record;
+
+	function getConfigData(record, configdata_bytecount) {
+		// takes bytes array and count, returns ConfigData string
+		var configdata = '';
+		for (var bytecount = 0; bytecount < configdata_bytecount; bytecount++) {
+			configdata += (record[bytecount] + 0x100).toString(16).slice(-2).toUpperCase();
+		}
+		return configdata;
+	}
+}
+
+function toIntelHex(record) {
+	// takes bytes array
+	var hex = "";
+	const bytes_per_rule = 32;
 	for (var rulenumber = 0 ; rulenumber < (record.length/bytes_per_rule) ; rulenumber++)
 	{
 		hex += CreateiHexRule(bytes_per_rule, rulenumber, record.slice(rulenumber*bytes_per_rule,bytes_per_rule+(rulenumber*bytes_per_rule)));
