@@ -940,28 +940,25 @@ function esi_generator(form, od, indexes)
 		case OTYPE.ARRAY: {
 			const esiType = esiVariableTypeName(objd);
 			const bitsize = esiDTbitsize(objd.dtype);
-			// TODO check DTYPE
-			objd.items?.forEach(subitem => {
-				if(subindex > 0) { // skip 'Max subindex'
-					esi += `\n          <Entry>\n            <Index>#x${index}</Index>\n            <SubIndex>#x${subindex.toString(16)}</SubIndex>\n            <BitLen>${bitsize}</BitLen>\n            <Name>${subitem.name}</Name>\n            <DataType>${esiType}</DataType>\n          </Entry>`;
-				}
+			subindex = 1;  // skip 'Max subindex'
+			objd.items.slice(subindex).forEach(subitem => {
+				esi += `\n          <Entry>\n            <Index>#x${index}</Index>\n            <SubIndex>#x${subindex.toString(16)}</SubIndex>\n            <BitLen>${bitsize}</BitLen>\n            <Name>${subitem.name}</Name>\n            <DataType>${esiType}</DataType>\n          </Entry>`;
 				++subindex;
 			});
 			break;
 		}
 		case OTYPE.RECORD: {
-			objd.items?.forEach(subitem => {
-				const esiType = esiVariableTypeName(subitem.dtype);
+			subindex = 1;  // skip 'Max subindex'
+			objd.items.slice(subindex).forEach(subitem => {
+				const esiType = esiVariableTypeName(subitem);
 				const bitsize = esiDTbitsize(subitem.dtype);
-				if(subindex > 0) { // skip 'Max subindex'
-					esi += `\n          <Entry>\n            <Index>#x${index}</Index>\n            <SubIndex>#x${subindex.toString(16)}</SubIndex>\n            <BitLen>${bitsize}</BitLen>\n            <Name>${subitem.name}</Name>\n            <DataType>${esiType}</DataType>\n          </Entry>`;
-				}
+				esi += `\n          <Entry>\n            <Index>#x${index}</Index>\n            <SubIndex>#x${subindex.toString(16)}</SubIndex>\n            <BitLen>${bitsize}</BitLen>\n            <Name>${subitem.name}</Name>\n            <DataType>${esiType}</DataType>\n          </Entry>`;
 				++subindex;
 			});
 			break;
 		}
 		default: {
-			alert(`Unexpected OTYPE ${objd.otype} for ${index} ${objd.name} in ESI TXPDOs`);
+			alert(`Unexpected OTYPE ${objd.otype} for ${index} ${objd.name} in ESI ${PdoName}PDOs`);
 			break;
 		}}
 		esi += `\n        </${PdoName}xPdo>\n`;
@@ -1410,12 +1407,12 @@ function isPdoWithVariables(od, indexes, pdoName) {
 
 function utypes_generator(form, od, indexes) {
 	var utypes = '#ifndef __UTYPES_H__\n#define __UTYPES_H__\n\n#include "cc.h"\n\n/* Object dictionary storage */\n\ntypedef struct\n{\n   /* Identity */\n'
-	utypes += '\n   uint32_t serial;\n\n';
+	utypes += '\n   uint32_t serial;\n';
 	
 	/* TODO implement OD type declarations */
 
-	var utypesInputs = '   /* Inputs */\n'; 
-	var utypesOutputs = '   /* Outputs */\n';
+	var utypesInputs = '\n   /* Inputs */\n'; 
+	var utypesOutputs = '\n   /* Outputs */\n';
 	var hasInputs = isPdoWithVariables(od, indexes, txpdo); 
 	var hasOutputs = isPdoWithVariables(od, indexes, rxpdo);
 
@@ -1450,13 +1447,22 @@ function utypes_generator(form, od, indexes) {
 			}
 			case OTYPE.ARRAY: {
 				const ctype = ESI_DT[objd.dtype].ctype;
-				// debugger;
 				return `\n   ${ctype} ${varName}[${objd.items.length - 1}];`
 			}
+			case OTYPE.RECORD: {
+				var section = `\n   struct\n   {`;
+				/* TODO test */
+				objd.items.slice(1).forEach(subitem => {
+					const subitemCType = ESI_DT[subitem.dtype].ctype;
+					const subitemName = variableName(subitem.name);
+					section += `\n      ${subitemCType} ${subitemName};`
+				});
+				section += `\n   } ${varName};`
+				return section;
+			}
 			default: {
-				/* TODO implement adding complex DTs to utypes */
-				// alert("Generating utypes.h for complex, non-VAR objects with multiple items is not yet supported");
-				return "/* TODO */";
+				alert(`Cannot generate utypes.h for object ${objd?.name} with has unexpected OTYPE ${objd?.otype}`);
+				return '';
 			}
 		}
 	}
@@ -1754,7 +1760,6 @@ function editSubitemClick(odSectionName, indexValue, subindex, actionName = "Edi
 }
 
 function onEditSubitemSubmit(modalSubitem) {
-	debugger;
 	const odSection = getObjDictSection(modalSubitem.odSectionName);
 	const objd = odSection[modalSubitem.index];
 	const subitem = objd.items[modalSubitem.subindex];
