@@ -1397,30 +1397,30 @@ function ecat_options_generator(form, od, indexes)
 				+ '\n#define MBXSIZEBOOT      ' + parseInt(form.MailboxSize.value).toString()
 				+ '\n#define MBXBUFFERS       3\n\n';
 	//Mailbox 0 Config
-	ecat_options += `#define MBX0_sma         0x${indexToString(form.RxMailboxOffset.value)}`;
+	ecat_options += `#define MBX0_sma         0x${indexToString(form.RxMailboxOffset.value)}`
 				+ '\n#define MBX0_sml         MBXSIZE' 
 				+ '\n#define MBX0_sme         MBX0_sma+MBX0_sml-1' 
 				+ '\n#define MBX0_smc         0x26\n';
 	//Mailbox 1 Config
-	ecat_options += `#define MBX1_sma         MBX0_sma+MBX0_sml' //'0x${indexToString(form.TxMailboxOffset.value)}`;
+	ecat_options += `#define MBX1_sma         MBX0_sma+MBX0_sml` //'0x${indexToString(form.TxMailboxOffset.value)}`;
 				+ '\n#define MBX1_sml         MBXSIZE' 
 				+ '\n#define MBX1_sme         MBX1_sma+MBX1_sml-1'
 				+ '\n#define MBX1_smc         0x22\n\n';
 	// Mailbox boot configuration
-	ecat_options += `#define MBX0_sma_b       0x${indexToString(form.RxMailboxOffset.value)}`;
+	ecat_options += `#define MBX0_sma_b       0x${indexToString(form.RxMailboxOffset.value)}`
 				+ '\n#define MBX0_sml_b       MBXSIZEBOOT' 
 				+ '\n#define MBX0_sme_b       MBX0_sma_b+MBX0_sml_b-1' 
 				+ '\n#define MBX0_smc_b       0x26\n';
-	ecat_options += `#define MBX1_sma_b       MBX0_sma_b+MBX0_sml_b1` //'0x${indexToString(form.TxMailboxOffset.value)}`;
+	ecat_options += `#define MBX1_sma_b       MBX0_sma_b+MBX0_sml_b` //'0x${indexToString(form.TxMailboxOffset.value)}`;
 				+ '\n#define MBX1_sml_b       MBXSIZEBOOT' 
 				+ '\n#define MBX1_sme_b       MBX1_sma_b+MBX1_sml_b-1'
 				+ '\n#define MBX1_smc_b       0x22\n\n';
 	//SyncManager2 Config
-	ecat_options += `#define SM2_sma          0x${indexToString(form.SM2Offset.value)}`;
+	ecat_options += `#define SM2_sma          0x${indexToString(form.SM2Offset.value)}`
 				+ '\n#define SM2_smc          0x24' 
 				+ '\n#define SM2_act          1\n';
 	//SyncManager3 Config
-	ecat_options += `#define SM3_sma          0x${indexToString(form.SM3Offset.value)}`;
+	ecat_options += `#define SM3_sma          0x${indexToString(form.SM3Offset.value)}`
 				+ '\n#define SM3_smc          0x20'
 				+ '\n#define SM3_act          1\n\n';
 	// Mappings config
