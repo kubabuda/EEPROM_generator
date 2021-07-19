@@ -325,6 +325,7 @@ function indexToString(index) {
 }
 
 function getUsedIndexes(od) {
+	// returns list of indexes that are used in given OD, as array of integer values
 	const index_min = 0x1000;
 	const index_max = 0xFFFF;
 	const usedIndexes = [];
@@ -1639,6 +1640,7 @@ function onEditObjectSubmit(modalform) {
 	if (modal.subitem) {
 		onEditSubitemSubmit(modal.subitem);
 		delete modal.subitem;
+		return;
 	}
 	const objd = modal.objd;
 	const objectType = objd.otype;
@@ -1735,13 +1737,14 @@ function addSubitemClick(odSectionName, indexValue) {
 		}
 	}
 	const subindex = objd.items.length - 1; // subitem is added to end of items list
-	editSubitemClick(odSectionName, index, subindex, "Add");
+	editSubitemClick(odSectionName, indexValue, subindex, "Add");
 }
 
 function editSubitemClick(odSectionName, indexValue, subindex, actionName = "Edit") {
 	const index = indexToString(indexValue);
 	const odSection = getObjDictSection(odSectionName);
 	const objd = odSection[index];
+
 	if(!objd.items || objd.items.length <= subindex ) { alert(`Object ${index} "${objd.name}" does not have ${subindex} subitems!`); return; }
 	const subitem = objd.items[subindex];
 	
@@ -1766,8 +1769,9 @@ function onEditSubitemSubmit(modalSubitem) {
 	if (objd.otype == OTYPE.RECORD) {
 		subitem.dtype = modal.form.DTYPE.value;
 	}
+	modalClose();
 	onFormChanged();
-	reloadOD_Section(odSectionName);
+	reloadOD_Section(modalSubitem.odSectionName);
 }
 
 function onFormChanged() {
@@ -1789,20 +1793,21 @@ function reloadOD_Section(odSectionName) {
 	var section = '';
 	indexes.forEach(index => {
 		const objd = odSection[index];
-		section += `<dt>0x${index} "${objd.name}" ${objd.otype} ${objd.dtype ?? ''}`
-		section += `<button onClick='onRemoveClick(${odSectionName}, 0x${index})'>&nbsp; ❌ Remove &nbsp;</button>`
+		section += `<div class="odItem"><span class="odItemContent"><strong>0x${index}</strong> "${objd.name}" ${objd.otype} ${objd.dtype ?? ''}</span>`;
+		section += `<button onClick='onRemoveClick(${odSectionName}, 0x${index})'>&nbsp; ❌ Remove &nbsp;</button>`;
 		section += `<button onClick='edit${objd.otype}_Click(${odSectionName}, 0x${index})'>&nbsp; Edit &nbsp;</button>`;
 		if (objd.otype == OTYPE.ARRAY || objd.otype == OTYPE.RECORD) {
 			section += `<button onClick='addSubitemClick(${odSectionName}, 0x${index})'>&nbsp; ➕ Add subitem &nbsp;</button>`;
 		}
-		section += `</dt>`;
+		section += `</div>`;
 		if (objd.items) {
 			var subindex = 1; // skip Max Subindex
 			objd.items.slice(subindex).forEach(subitem => {
-				section += `<dd>:${subindex} "${subitem.name}" ${subitem.otype ?? ''}`
-				section += `<button onClick='onRemoveClick(${odSectionName}, 0x${index}, ${subindex})'>&nbsp; ❌ Remove &nbsp;</button>`
+				var subindexHex = subindex < 16 ? `0${subindex.toString(16)}` : subindex.toString(16);
+				section += `<div class="odSubitem"><span class="odSubitemContent"><strong>:0x${subindexHex}</strong> "${subitem.name}" ${subitem.otype ?? ''}</span>`;
+				section += `<button onClick='onRemoveClick(${odSectionName}, 0x${index}, ${subindex})'>&nbsp; ❌ Remove &nbsp;</button>`;
 				section += `<button onClick='editSubitemClick(${odSectionName}, 0x${index}, ${subindex})'>&nbsp; Edit &nbsp;</button>`;
-				+`<dd>`;
+				section += `</div>`;
 				++subindex;
 			})
 		}

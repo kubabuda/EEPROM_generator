@@ -156,34 +156,34 @@ This page serves as a tool to generate consistent data across your code, ESI fil
    <tr><td colspan="6"><hr></td</tr>
    <tr><td colspan="6">
       <h3>
-         SDO
+         <span class="odSectionTitle"> SDO </span>
          <button onClick="editVAR_Click(sdo)">➕ Add variable</button>
          <button onClick="editARRAY_Click(sdo)">➕ Add Array</button>
          <button onClick="editRECORD_Click(sdo)">➕ Add Record</button>
       </h3>
-      <dl id="tr_sdo"> </dl>
+      <div id="tr_sdo"></div>
    </td></tr>
    
    <tr><td colspan="6"><hr></td</tr>
    <tr><td colspan="6">
       <h3>
-         TXPDO  (slv to master)
+         <span class="odSectionTitle"> TXPDO  (slv to master) </span>
          <button onClick="editVAR_Click(txpdo)">➕ Add variable</button>
-         <button onClick="editARRAY_Click(txpdo)">Add Array</button>
-         <button onClick="editRECORD_Click(txpdo)">Add Record</button>
+         <button onClick="editARRAY_Click(txpdo)">➕ Add Array</button>
+         <button onClick="editRECORD_Click(txpdo)">➕ Add Record</button>
       </h3>
-      <dl id="tr_txpdo"> </dl>
+      <div id="tr_txpdo"></div>
    </td></tr>
    
    <tr><td colspan="6"><hr></td</tr>
    <tr><td colspan="6">
       <h3>
-         RXPDO  (master to slv)
+         <span class="odSectionTitle"> RXPDO  (master to slv) </span>
          <button onClick="editVAR_Click(rxpdo)">➕ Add variable</button>
          <button onClick="editARRAY_Click(rxpdo)">➕ Add Array</button>
          <button onClick="editRECORD_Click(rxpdo)">➕ Add Record</button>
       </h3>
-      <dl id="tr_rxpdo"> </dl>
+      <div id="tr_rxpdo"></div>
    </td></tr>
 
    <tr><td colspan="6"><hr></td</tr>
@@ -197,18 +197,19 @@ This page serves as a tool to generate consistent data across your code, ESI fil
 </table>
 <br><br>
 </form>
-<form name="outCodeForm" id="outCodeForm" action="" onsubmit="return false;">
-ESI file:<input type="button" name="DownloadESI" value="&nbsp; Download &nbsp;" onClick="downloadFile(getOutputForm().ESI.value, fileName = 'esi.xml', contentType = 'text/html');"><br>
-<textarea cols = "150" rows = "12" name="ESI">ESI File</textarea><br><br>
-Hex file: <input type="button" name="Download_HEX" value="&nbsp; Download &nbsp;" onClick="downloadFile(getOutputForm().HEX.value, fileName = 'eeprom.hex', contentType = 'application/octet-stream');"><br>
-<!-- TODO this probably is wrong MIME type, check another one: https://www.sitepoint.com/mime-types-complete-list/ -->
-To flash generated binary, install SOEM and run <br><br><i>sudo ./eepromtool 1 eth0 -wi eeprom.hex</i><br><br>
-<textarea cols = "150" rows = "12" name="HEX">Hex File</textarea><br><br>
-ecat_options.h: <input type="button" name="Download_ecat_options" value="&nbsp; Download &nbsp;" onClick="downloadFile(getOutputForm().ecat_options.value, fileName = 'ecat_options.h', contentType = 'text/plain');"><br>
-<textarea cols = "150" rows = "12" name="ecat_options">ecat_options.h</textarea><br><br>
-objectlist.c: <input type="button" name="Download_objectlist" value="&nbsp; Download &nbsp;" onClick="downloadFile(getOutputForm().objectlist.value, fileName = 'objectlist.c', contentType = 'text/plain');"><br>
-<textarea cols = "150" rows = "12" name="objectlist">objectlist.c</textarea><br><br>
-utypes.h: <input type="button" name="Download_utypes" value="&nbsp; Download &nbsp;" onClick="downloadFile(getOutputForm().utypes.value, fileName = 'utypes.h', contentType = 'text/plain');"><br>
-<textarea cols = "150" rows = "12" name="utypes">utypes.h</textarea><br><br>
-<input id="restoreFileInput" type='file' style="visibility:hidden;" onchange="readFile(event)" />
+   <form name="outCodeForm" id="outCodeForm" action="" onsubmit="return false;">
+   ESI file:<input type="button" name="DownloadESI" value="&nbsp; Download &nbsp;" onClick="downloadFile(getOutputForm().ESI.value, fileName = 'esi.xml', contentType = 'text/html');"><br>
+   <textarea cols = "150" rows = "12" name="ESI">ESI File</textarea><br><br>
+   Hex file: <input type="button" name="Download_HEX" value="&nbsp; Download &nbsp;" onClick="downloadFile(getOutputForm().HEX.value, fileName = 'eeprom.hex', contentType = 'application/octet-stream');"><br>
+   <!-- TODO this probably is wrong MIME type, check another one: https://www.sitepoint.com/mime-types-complete-list/ -->
+   To flash generated binary, install SOEM and run <br><br><i>sudo ./eepromtool 1 eth0 -wi eeprom.hex</i><br><br>
+   <textarea cols = "150" rows = "12" name="HEX">Hex File</textarea><br><br>
+   ecat_options.h: <input type="button" name="Download_ecat_options" value="&nbsp; Download &nbsp;" onClick="downloadFile(getOutputForm().ecat_options.value, fileName = 'ecat_options.h', contentType = 'text/plain');"><br>
+   <textarea cols = "150" rows = "12" name="ecat_options">ecat_options.h</textarea><br><br>
+   objectlist.c: <input type="button" name="Download_objectlist" value="&nbsp; Download &nbsp;" onClick="downloadFile(getOutputForm().objectlist.value, fileName = 'objectlist.c', contentType = 'text/plain');"><br>
+   <textarea cols = "150" rows = "12" name="objectlist">objectlist.c</textarea><br><br>
+   utypes.h: <input type="button" name="Download_utypes" value="&nbsp; Download &nbsp;" onClick="downloadFile(getOutputForm().utypes.value, fileName = 'utypes.h', contentType = 'text/plain');"><br>
+   <textarea cols = "150" rows = "12" name="utypes">utypes.h</textarea><br><br>
+   <input id="restoreFileInput" type='file' style="visibility:hidden;" onchange="readFile(event)" />
+</form>
 </body>

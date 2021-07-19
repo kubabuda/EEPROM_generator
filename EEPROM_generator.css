@@ -61,7 +61,25 @@ button {
    margin-right: 5px;
 }
 
-dt, dl {
-   padding-top: 2px;
-   padding-bottom: 2px;
+div.odItem, div.odSubitem {
+   padding-top: 4px;
+   padding-bottom: 4px;
+   width: 100%;
+   border-top: 1px dotted;
+}
+
+span.odItemContent, span.odSectionTitle {
+   min-width: 600px;
+   display: inline-block;
+}
+
+span.odSectionTitle {
+   margin-top: 10px;
+   margin-right: -5px;
+}
+
+span.odSubitemContent {
+   margin-left: 15px;
+   min-width: 585px;
+   display: inline-block;
 }
