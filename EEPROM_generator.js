@@ -516,6 +516,7 @@ function processForm(form)
 	const od = buildObjectDictionary(form);
 	const indexes = getUsedIndexes(od);
 
+	const useIntelHex = form.HEX_Format.value == 'ihex';
 	var outputCtl = getOutputForm();
 
 	outputCtl.objectlist.value = objectlist_generator(form, od, indexes);
@@ -523,6 +524,8 @@ function processForm(form)
 	outputCtl.utypes.value = utypes_generator(form, od, indexes);
 	outputCtl.HEX.value = hex_generator(form); //HEX generator needs to be run first, data from hex is used in esi
 	outputCtl.ESI.value = esi_generator(form, od, indexes);
+
+	document.getElementById('hexInstallCmd').innerHTML = useIntelHex ? 'sudo ./eepromtool 1 eth0 -wi eeprom.hex' : 'sudo ./eepromtool 1 eth0 -w eeprom.hex';;
 
 	// saveLocalBackup();
 
@@ -1756,8 +1759,7 @@ function editSubitemClick(odSectionName, indexValue, subindex, actionName = "Edi
 	}
 	modal.form.ObjectName.value = subitem.name;
 	modal.subitem = { odSectionName: odSectionName, index: index, subindex: subindex };
-	modalOpen();
-	
+	modalOpen();	
 }
 
 function onEditSubitemSubmit(modalSubitem) {
@@ -1809,7 +1811,7 @@ function reloadOD_Section(odSectionName) {
 				section += `<button onClick='editSubitemClick(${odSectionName}, 0x${index}, ${subindex})'>&nbsp; Edit &nbsp;</button>`;
 				section += `</div>`;
 				++subindex;
-			})
+			});
 		}
 	});
 	document.getElementById(`tr_${odSectionName}`).innerHTML = section;
