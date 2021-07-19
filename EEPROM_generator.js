@@ -1423,31 +1423,43 @@ function utypes_generator(form, od, indexes) {
 		objd = od[index];
 		if (objd.pdo_mappings) {
 			if(objd.pdo_mappings.length > 1) { alert(`${index} ${objd.name} Generating utypes.h for objects with multiple PDO mappings is not yet supported`); }
-			const ctype = ESI_DT[objd.dtype].ctype;
-			const varName = variableName(objd.name);
-			switch (objd.otype) {
+			
+			const line = getDeclaration(objd, index);			
+			
+			if (objd.pdo_mappings[0] == txpdo)  {
+				utypesInputs += line;
+			} else {
+				utypesOutputs += line;
+			}
+		}
+	});
+	
+	if (hasInputs) { utypes += utypesInputs + '\n'; }
+	if (hasOutputs) { utypes += utypesOutputs + '\n'; }
+	
+	utypes += '\n} _Objects;\n\nextern _Objects Obj;\n\n#endif /* __UTYPES_H__ */\n';
+	
+	return utypes;
+	
+	function getDeclaration(objd, index) {
+		const varName = variableName(objd.name);
+		switch (objd.otype) {
 			case OTYPE.VAR: {
-				const line = `\n   ${ctype} ${varName};`
-				if (objd.pdo_mappings[0] == txpdo)  {
-					utypesInputs += line;
-				} else {
-					utypesOutputs += line;
-				}
-				break;
+				const ctype = ESI_DT[objd.dtype].ctype;
+				return `\n   ${ctype} ${varName};`
+			}
+			case OTYPE.ARRAY: {
+				const ctype = ESI_DT[objd.dtype].ctype;
+				// debugger;
+				return `\n   ${ctype} ${varName}[${objd.items.length - 1}];`
 			}
 			default: {
 				/* TODO implement adding complex DTs to utypes */
 				// alert("Generating utypes.h for complex, non-VAR objects with multiple items is not yet supported");
-			}}	
+				return "/* TODO */";
+			}
 		}
-	});
-
-	if (hasInputs) { utypes += utypesInputs + '\n'; }
-	if (hasOutputs) { utypes += utypesOutputs + '\n'; }
-
-	utypes += '\n} _Objects;\n\nextern _Objects Obj;\n\n#endif /* __UTYPES_H__ */\n';
-
-	return utypes;
+	}
 }
 
 // ####################### Handle modal dialog ####################### //
