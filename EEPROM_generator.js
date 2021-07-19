@@ -186,68 +186,63 @@ function addPdoObjectsSection(od, odSection, pdo){
 	const indexes = getUsedIndexes(odSection);
 
 	if (indexes.length) {
-		ensurePDOAssignmentExists(od, pdo.SMassignmentIndex);
+		const pdoAssignments = ensurePDOAssignmentExists(od, pdo.SMassignmentIndex);	
+
+		indexes.forEach(index => {
+			const objd = odSection[index];
+			const currentOffset = indexToString(currentSMoffsetValue)
+			
+			const pdoMappingObj = { otype: OTYPE.RECORD, name: objd.name, items: [
+				{ name: 'Max SubIndex' },
+			]};
+			// create PDO assignment to SM
+			const pdoAssignment = { name: "PDO Mapping", value: `0x${currentOffset}` };
+			addPdoMapping(objd, pdo.mappingValue);
+			
+			switch (objd.otype) {
+			case  OTYPE.VAR: {
+				// create PDO mapping
+				pdoMappingObj.items.push({ name: objd.name, dtype: DTYPE.UNSIGNED32, value: getPdoMappingValue(index, 0, objd.dtype) });
+				// link to OD variable declared on OD struct
+				objd.data = `&Obj.${variableName(objd.name)}`;
+				break;
+			} 
+			case OTYPE.ARRAY: {
+				var subindex = 1;
+				objd.items.slice(subindex).forEach(subitem => {
+					// create PDO mappings
+					pdoMappingObj.items.push({ name: subitem.name, dtype: DTYPE.UNSIGNED32, value: getPdoMappingValue(index, subindex , objd.dtype) });
+					// link to OD variable declared on OD struct
+					subitem.data = `&Obj.${variableName(objd.name)}[${subindex - 1}]`;
+					++subindex;
+				});
+				break;
+			}
+			case OTYPE.RECORD: {
+				var subindex = 1;
+				objd.items.slice(subindex).forEach(subitem => {
+					// create PDO mappings
+					pdoMappingObj.items.push({ name: subitem.name, dtype: DTYPE.UNSIGNED32, value: getPdoMappingValue(index, subindex , subitem.dtype) });
+					// link to OD variable declared on OD struct
+					subitem.data = `&Obj.${variableName(objd.name)}.${variableName(subitem.name)}]`;
+					++subindex;
+				});
+				break;
+			}
+			default: {
+				alert(`${pdoMappingValue} object ${index} ${objd.name} has unexpected object type ${objd.otype}!`);
+				break;
+			}}
+
+			addObject(od, pdoMappingObj, currentOffset);
+			pdoAssignments.items.push(pdoAssignment);
+
+			addObject(od, objd, index);
+
+			++currentSMoffsetValue;
+		});
 	}
 
-	indexes.forEach(index => {
-		const objd = odSection[index];
-		const currentOffset = indexToString(currentSMoffsetValue)
-		
-		const pdoMappingObj = { otype: OTYPE.RECORD, name: objd.name, items: [
-			{ name: 'Max SubIndex' },
-		]};
-		const pdoAssignments = [];
-		addPdoMapping(objd, pdo.mappingValue);
-		
-		switch (objd.otype) {
-		case  OTYPE.VAR: {
-			// create PDO mappings and SM assignments
-			pdoMappingObj.items.push({ name: objd.name, dtype: DTYPE.UNSIGNED32, value: getPdoMappingValue(index, 0, objd.dtype) });
-			// create mapping
-			pdoAssignments.push({ name: "PDO Mapping", value: `0x${currentOffset}` });
-			// link to OD variable declared on OD struct
-			objd.data = `&Obj.${variableName(objd.name)}`;
-			break;
-		} 
-		case OTYPE.ARRAY: {
-			var subindex = 1;
-			objd.items.slice(subindex).forEach(subitem => {
-				// TODO add mapping for every item
-				// TODO assign mapping for every item
-				/*
-				// create PDO mappings and SM assignments
-				pdoMappingObj.items.push({ name: subitem.name, dtype: DTYPE.UNSIGNED32, value: getPdoMappingValue(index, subindex , objd.dtype) });
-				// create mapping
-				pdoAssignments.push({ name: "PDO Mapping", value: `0x${currentOffset}` });
-				// link to OD variable declared on OD struct
-				objd.data = `&Obj.${variableName(objd.name)}[${subindex - 1}]`;*/
-				++subindex;
-			});
-			break;
-		}
-		case OTYPE.RECORD: {
-			objd.items.forEach(subitem => {
-				// TODO add mapping for every item
-				// TODO assign mapping for every item
-			});
-			break;
-		}
-		default: {
-			alert(`${pdoMappingValue} object ${index} ${objd.name} has unexpected object type ${objd.otype}!`);
-			break;
-		}}
-
-		addObject(od, pdoMappingObj, currentOffset);
-
-		pdoAssignments.forEach(pdoAssignment => {
-			od[pdo.SMassignmentIndex].items.push(pdoAssignment);
-		});
-
-		addObject(od, objd, index);
-
-		++currentSMoffsetValue;
-	});
-	
 	function addPdoMapping(objd, mappingValue) {
 		// make sure there is space
 		if (!objd.pdo_mappings) {
@@ -260,11 +255,14 @@ function addPdoObjectsSection(od, odSection, pdo){
 	}
 	
 	function ensurePDOAssignmentExists(od, index) {	
-		if (!od[index]) {
-			od[index] = { otype: OTYPE.ARRAY, dtype: DTYPE.UNSIGNED16, name: `Sync Manager ${index[3]} PDO Assignment`, items: [
+		var pdoAssignments = od[index];
+		if (!pdoAssignments) {
+			pdoAssignments = { otype: OTYPE.ARRAY, dtype: DTYPE.UNSIGNED16, name: `Sync Manager ${index[3]} PDO Assignment`, items: [
 				{ name: 'Max SubIndex' },
 			]};
+			od[index] = pdoAssignments;
 		}
+		return pdoAssignments;
 	}
 	
 	function getPdoMappingValue(index, subindex, dtype) {
