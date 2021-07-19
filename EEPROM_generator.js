@@ -896,9 +896,8 @@ function esi_generator(form, od, indexes)
 			var result = ""
 			let subindex = 0;
 			element_items.forEach(subitem => {
-				var subitemValue = (subindex > 0) ? subitem.value : max_subindex_value;
-				const defaultValue = toEsiHexValue(subitemValue);
-				result += `\n                  <SubItem>\n                    <Name>${subitem.name}</Name>\n                    <Info>\n                      <DefaultValue>${defaultValue}</DefaultValue>\n                    </Info>\n                  </SubItem>`;
+				var defaultValue = (subindex > 0) ? subitem.value : max_subindex_value;
+				result += `\n                  <SubItem>\n                    <Name>${subitem.name}</Name>\n                    <Info>\n                      <DefaultValue>${toEsiHexValue(defaultValue)}</DefaultValue>\n                    </Info>\n                  </SubItem>`;
 				subindex++;
 			});
 			return result;
@@ -993,7 +992,10 @@ function esi_generator(form, od, indexes)
 	}
 
 	function toEsiHexValue(value) {
-		return value > 9 ? "#x"+ indexToString(value) : value;
+		if (value.startsWith && value.startsWith('0x')) {
+			value = `#x${value.slice(2)}`;
+		}
+		return value;
 	}
 }
 
