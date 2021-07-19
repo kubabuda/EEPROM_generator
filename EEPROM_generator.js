@@ -992,6 +992,9 @@ function esi_generator(form, od, indexes)
 	}
 
 	function toEsiHexValue(value) {
+		if (!value) { 
+			return 0;
+		}
 		if (value.startsWith && value.startsWith('0x')) {
 			value = `#x${value.slice(2)}`;
 		}
@@ -1087,7 +1090,7 @@ function hex_generator(form)
 	////////////////////////////////////
 	
 	//Strings
-	var array_of_strings = [form.TextDeviceType.value, form.TextGroupType.value, form.TextLine3.value, form.TextDeviceName.value];
+	var array_of_strings = [form.TextDeviceType.value, form.TextGroupType.value, form.ImageName.value, form.TextDeviceName.value];
 	var offset = 0;
 	offset = writeEEPROMstrings(record, 0x80, array_of_strings); //See ETG1000.6 Table20
 	//General info
@@ -1861,7 +1864,7 @@ function reloadOD_Section(odSectionName) {
 		const objd = odSection[index];
 		section += `<div class="odItem"><span class="odItemContent"><strong>0x${index}</strong> "${objd.name}" ${objd.otype} ${objd.dtype ?? ''}</span>`;
 		section += `<button onClick='onRemoveClick(${odSectionName}, 0x${index})'>&nbsp; ❌ Remove &nbsp;</button>`;
-		section += `<button onClick='edit${objd.otype}_Click(${odSectionName}, 0x${index})'>&nbsp; Edit &nbsp;</button>`;
+		section += `<button onClick='edit${objd.otype}_Click(${odSectionName}, 0x${index})'>&nbsp; 🛠️ &nbsp; Edit &nbsp;</button>`;
 		if (objd.otype == OTYPE.ARRAY || objd.otype == OTYPE.RECORD) {
 			section += `<button onClick='addSubitemClick(${odSectionName}, 0x${index})'>&nbsp; ➕ Add subitem &nbsp;</button>`;
 		}
@@ -1870,9 +1873,9 @@ function reloadOD_Section(odSectionName) {
 			var subindex = 1; // skip Max Subindex
 			objd.items.slice(subindex).forEach(subitem => {
 				var subindexHex = subindex < 16 ? `0${subindex.toString(16)}` : subindex.toString(16);
-				section += `<div class="odSubitem"><span class="odSubitemContent"><strong>:0x${subindexHex}</strong> "${subitem.name}" ${subitem.otype ?? ''}</span>`;
+				section += `<div class="odSubitem"><span class="odSubitemContent"><strong>:0x${subindexHex}</strong> "${subitem.name}" ${subitem.dtype ?? ''}</span>`;
 				section += `<button onClick='onRemoveClick(${odSectionName}, 0x${index}, ${subindex})'>&nbsp; ❌ Remove &nbsp;</button>`;
-				section += `<button onClick='editSubitemClick(${odSectionName}, 0x${index}, ${subindex})'>&nbsp; Edit &nbsp;</button>`;
+				section += `<button onClick='editSubitemClick(${odSectionName}, 0x${index}, ${subindex})'>&nbsp; 🛠️ &nbsp; Edit &nbsp;</button>`;
 				section += `</div>`;
 				++subindex;
 			});
