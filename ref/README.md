@@ -45,6 +45,7 @@ https://www.sitepoint.com/mime-types-complete-list/
 
 - check generated XML for PDOs
 - add subitem edition on ARR, RECORD objects
+- add indexes list to OD model, to decrease parametes count in methods
 - use [dl](https://www.w3schools.com/html/tryit.asp?filename=tryhtml_lists_description) to display it
 - merging OD sections for ARR, RECORDs
 - add PDO variable types to utypes.h

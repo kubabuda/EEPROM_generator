@@ -41,7 +41,7 @@
                   <td>Value:</td>
                   <td><input type = "text" name="InitalValue" value="0" title="Enter initial value for the new object"></td>
                </tr>
-               <tr>
+               <tr id="dialogRowAccess">
                   <td>Access:</td>
                   <td><select type = "text" name="Access" title="Enter access mode of new object">
                      <option value="RO">RO</option>
@@ -198,17 +198,17 @@ This page serves as a tool to generate consistent data across your code, ESI fil
 <br><br>
 </form>
 <form name="outCodeForm" id="outCodeForm" action="" onsubmit="return false;">
-ESI file:<input type="button" name="DownloadESI" value="&nbsp; Download &nbsp;" onClick="downloadFile(getForm().ESI.value, fileName = 'esi.xml', contentType = 'text/html');"><br>
+ESI file:<input type="button" name="DownloadESI" value="&nbsp; Download &nbsp;" onClick="downloadFile(getOutputForm().ESI.value, fileName = 'esi.xml', contentType = 'text/html');"><br>
 <textarea cols = "150" rows = "12" name="ESI">ESI File</textarea><br><br>
-Hex file: <input type="button" name="Download_HEX" value="&nbsp; Download &nbsp;" onClick="downloadFile(getForm().HEX.value, fileName = 'eeprom.hex', contentType = 'application/octet-stream');"><br>
+Hex file: <input type="button" name="Download_HEX" value="&nbsp; Download &nbsp;" onClick="downloadFile(getOutputForm().HEX.value, fileName = 'eeprom.hex', contentType = 'application/octet-stream');"><br>
 <!-- TODO this probably is wrong MIME type, check another one: https://www.sitepoint.com/mime-types-complete-list/ -->
 To flash generated binary, install SOEM and run <br><br><i>sudo ./eepromtool 1 eth0 -wi eeprom.hex</i><br><br>
 <textarea cols = "150" rows = "12" name="HEX">Hex File</textarea><br><br>
-ecat_options.h: <input type="button" name="Download_ecat_options" value="&nbsp; Download &nbsp;" onClick="downloadFile(getForm().ecat_options.value, fileName = 'ecat_options.h', contentType = 'text/plain');"><br>
+ecat_options.h: <input type="button" name="Download_ecat_options" value="&nbsp; Download &nbsp;" onClick="downloadFile(getOutputForm().ecat_options.value, fileName = 'ecat_options.h', contentType = 'text/plain');"><br>
 <textarea cols = "150" rows = "12" name="ecat_options">ecat_options.h</textarea><br><br>
-objectlist.c: <input type="button" name="Download_objectlist" value="&nbsp; Download &nbsp;" onClick="downloadFile(getForm().objectlist.value, fileName = 'objectlist.c', contentType = 'text/plain');"><br>
+objectlist.c: <input type="button" name="Download_objectlist" value="&nbsp; Download &nbsp;" onClick="downloadFile(getOutputForm().objectlist.value, fileName = 'objectlist.c', contentType = 'text/plain');"><br>
 <textarea cols = "150" rows = "12" name="objectlist">objectlist.c</textarea><br><br>
-utypes.h: <input type="button" name="Download_utypes" value="&nbsp; Download &nbsp;" onClick="downloadFile(getForm().utypes.value, fileName = 'utypes.h', contentType = 'text/plain');"><br>
+utypes.h: <input type="button" name="Download_utypes" value="&nbsp; Download &nbsp;" onClick="downloadFile(getOutputForm().utypes.value, fileName = 'utypes.h', contentType = 'text/plain');"><br>
 <textarea cols = "150" rows = "12" name="utypes">utypes.h</textarea><br><br>
 <input id="restoreFileInput" type='file' style="visibility:hidden;" onchange="readFile(event)" />
 </body>

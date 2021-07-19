@@ -408,6 +408,10 @@ function getForm() {
 	return document.getElementById("SlaveForm");
 }
 
+function getOutputForm() {
+	return document.getElementById("outCodeForm");
+}
+
 function readFile(e) {
 	var file = e.target.files[0];
 	if (!file) return;
@@ -513,7 +517,7 @@ function processForm(form)
 	const od = buildObjectDictionary(form);
 	const indexes = getUsedIndexes(od);
 
-	var outputCtl = document.getElementById('outCodeForm');
+	var outputCtl = getOutputForm();
 
 	outputCtl.objectlist.value = objectlist_generator(form, od, indexes);
 	outputCtl.ecat_options.value = ecat_options_generator(form, od, indexes);
@@ -523,19 +527,19 @@ function processForm(form)
 
 	// saveLocalBackup();
 
-	return true;
+	return outputCtl;
 }
 
 function onGenerateDownloadClick()
 {
 	const form = getForm();
-	processForm(form);
-	downloadFile(form.ESI.value, fileName = 'esi.xml', contentType = 'text/html');
+	var result = processForm(form);
+	downloadFile(result.ESI.value, fileName = 'esi.xml', contentType = 'text/html');
 	// TODO this probably is wrong MIME type, check another one: https://www.sitepoint.com/mime-types-complete-list/
-	downloadFile(form.HEX.value, fileName = 'eeprom.hex', contentType = 'application/octet-stream');
-	downloadFile(form.ecat_options.value, fileName = 'ecat_options.h', contentType = 'text/plain');
-	downloadFile(form.objectlist.value, fileName = 'objectlist.c', contentType = 'text/plain');
-	downloadFile(form.utypes.value, fileName = 'utypes.h', contentType = 'text/plain');
+	downloadFile(result.HEX.value, fileName = 'eeprom.hex', contentType = 'application/octet-stream');
+	downloadFile(result.ecat_options.value, fileName = 'ecat_options.h', contentType = 'text/plain');
+	downloadFile(result.objectlist.value, fileName = 'objectlist.c', contentType = 'text/plain');
+	downloadFile(result.utypes.value, fileName = 'utypes.h', contentType = 'text/plain');
 }
 
 function onGenerateClick() {
@@ -1528,6 +1532,43 @@ function addNewOD_ObjectDialog(odSectionName, otype) {
 	modalUpdate(index, objd);
 }
 
+function modalHideControls() {
+	document.getElementById('dialogRowDtype').style.display = 'none';
+	document.getElementById('dialogRowValue').style.display = 'none';
+	document.getElementById('dialogRowAccess').style.display = 'none';
+}
+
+function modalOpenForObject(otype) {
+	modalHideControls();
+
+	switch (otype) {
+		case OTYPE.VAR: {
+			document.getElementById('dialogRowDtype').style.display = '';
+			document.getElementById('dialogRowValue').style.display = '';
+			document.getElementById('dialogRowAccess').style.display = '';
+			break;
+		}
+		case OTYPE.ARRAY: {
+			document.getElementById('dialogRowDtype').style.display = "";
+			document.getElementById('dialogRowAccess').style.display = '';
+			break;		
+		}
+		case OTYPE.RECORD: {
+			document.getElementById('dialogRowAccess').style.display = '';
+			break;
+		}
+		default: { 
+			alert(`Unknown object type ${otype}, cannot open modal for it!`);
+			return;
+		}
+	}
+	modalOpen();
+}
+
+function modalSetTitle(message) {
+	document.getElementById('editObjectTitle').innerHTML = message;
+}
+
 function editVAR_Click(odSectionName, indexValue = null) {
 	const otype = OTYPE.VAR;
 	const index = indexToString(indexValue);
@@ -1541,10 +1582,8 @@ function editVAR_Click(odSectionName, indexValue = null) {
 		addNewOD_ObjectDialog(odSectionName, otype);
 		actionName = "Add"
 	}
-	document.getElementById('editObjectTitle').innerHTML = `${actionName} ${odSectionName.toUpperCase()} variable`;
-	document.getElementById('dialogRowDtype').style.display = "";
-	document.getElementById('dialogRowValue').style.display = "";
-	modalOpen();
+	modalSetTitle(`${actionName} ${odSectionName.toUpperCase()} variable`);
+	modalOpenForObject(otype);
 }
 
 function editARRAY_Click(odSectionName, indexValue = null) {
@@ -1560,10 +1599,8 @@ function editARRAY_Click(odSectionName, indexValue = null) {
 		addNewOD_ObjectDialog(odSectionName, otype);
 		actionName = "Add"
 	}
-	document.getElementById('editObjectTitle').innerHTML = `${actionName} ${odSectionName.toUpperCase()} array`;
-	document.getElementById('dialogRowDtype').style.display = "";
-	document.getElementById('dialogRowValue').style.display = "none";  // hide unused controls
-	modalOpen();
+	modalSetTitle(`${actionName} ${odSectionName.toUpperCase()} array`);
+	modalOpenForObject(otype);
 }
 
 function editRECORD_Click(odSectionName, indexValue = null) {
@@ -1578,10 +1615,8 @@ function editRECORD_Click(odSectionName, indexValue = null) {
 		addNewOD_ObjectDialog(odSectionName, otype);
 		actionName = "Add"
 	}
-	document.getElementById('editObjectTitle').innerHTML = `${actionName} ${odSectionName.toUpperCase()} record`;
-	document.getElementById('dialogRowDtype').style.display = "none"; // hide unused controls
-	document.getElementById('dialogRowValue').style.display = "none";
-	modalOpen();
+	modalSetTitle(`${actionName} ${odSectionName.toUpperCase()} record`);
+	modalOpenForObject(otype);
 }
 
 function onEditObjectSubmit(modalform) {
