@@ -94,12 +94,12 @@ This page serves as a tool to generate consistent data across your code, ESI fil
    <tr>
       <td>Number of <strong>bytes</strong> in EEPROM:</td><td><input type = "text" name="EEPROMsize" value="2048" title="Number of bytes in EEPROM; 2048&#013;2048*8=16kilobit&#013;Enter in hex (0x...) or decimal."></td><td>x</td><td>x</td><td>&nbsp;</td><td>&nbsp;</td>
    </tr>
-   <tr>
+   <!-- <tr>
       <td>Number of <strong>bytes</strong> in EEPROM:</td><td><select name="HEX_Format" title="Binary Format">
          <option value="ihex">Intel HEX</option>
          <option value="bin">Raw .bin</option>
       </select></td><td></td><td>x</td><td>&nbsp;</td><td>&nbsp;</td>   
-   </tr>
+   </tr> -->
    <tr>
       <td>RxMailbox Offset:</td><td><input type = "text" name="RxMailboxOffset" value="0x1000" title="Offset in memory. Do not change unless you are really sure what you're doing"></td><td>x</td><td>x</td><td>&nbsp;</td><td>x</td>
    </tr>
@@ -237,7 +237,9 @@ This page serves as a tool to generate consistent data across your code, ESI fil
    ESI file:<input type="button" name="DownloadESI" value="&nbsp; Download &nbsp;" onClick="downloadFile(getOutputForm().ESI.value, fileName = 'esi.xml', contentType = 'text/html');"><br>
    <textarea cols = "150" rows = "12" name="ESI">ESI File</textarea><br><br>
    EEPROM HEX file:
-   <input type="button" name="Download_HEX" value="&nbsp; Download &nbsp;" onClick="downloadFile(getOutputForm().HEX.value, fileName = 'eeprom.hex', contentType = 'application/octet-stream');"><br>
+   <input type="button" name="Download_HEX" value="&nbsp; Download &nbsp;" onClick="downloadFile(getOutputForm().HEX.value, fileName = 'eeprom.hex', contentType = 'application/octet-stream');">
+   <input type="button" name="Download_BIN" value="&nbsp; Download .bin &nbsp;" onClick="onDownloadBinClick();">
+   <br>
    <!-- TODO this probably is wrong MIME type, check another one: https://www.sitepoint.com/mime-types-complete-list/ -->
    To flash generated binary, install SOEM and run 
    <br><br><i id="hexInstallCmd">sudo ./eepromtool 1 eth0 -wi eeprom.hex</i><br><br>

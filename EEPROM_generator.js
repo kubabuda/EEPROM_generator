@@ -401,6 +401,7 @@ function downloadFile(content, fileName, contentType) {
     a.href = URL.createObjectURL(file);
     a.download = fileName;
     a.click();
+	// a element will be garbage collected, no need to cleanup
 }
 
 function getForm() {
@@ -510,23 +511,22 @@ function resetLocalBackup() {
 
 // ####################### Button handlers ####################### //
 
-
 function processForm(form)
 {
 	const od = buildObjectDictionary(form);
 	const indexes = getUsedIndexes(od);
-	const useIntelHex = form.HEX_Format.value == 'ihex';
+	const useIntelHex = true; //form.HEX_Format.value == 'ihex';
 	var outputCtl = getOutputForm();
 
 	outputCtl.objectlist.value = objectlist_generator(form, od, indexes);
 	outputCtl.ecat_options.value = ecat_options_generator(form, od, indexes);
 	outputCtl.utypes.value = utypes_generator(form, od, indexes);
-	debugger;
-	outputCtl.HEX.hexData = hex_generator(form); //HEX generator needs to be run first, data from hex is used in esi
+	outputCtl.HEX.hexData = hex_generator(form); 			//HEX generator needs to be run before esi, it generates configdata
 	outputCtl.HEX.value = toIntelHex(outputCtl.HEX.hexData);
 	outputCtl.ESI.value = esi_generator(form, od, indexes);
 
-	document.getElementById('hexInstallCmd').innerHTML = useIntelHex ? 'sudo ./eepromtool 1 eth0 -wi eeprom.hex' : 'sudo ./eepromtool 1 eth0 -w eeprom.hex';;
+	const soemWriteFlag = useIntelHex ? "i" : "";
+	document.getElementById('hexInstallCmd').innerHTML = `sudo ./eepromtool 1 eth0 -w${soemWriteFlag} eeprom.hex`;
 
 	// saveLocalBackup();
 
@@ -572,6 +572,11 @@ function onResetClick() {
 		resetLocalBackup();
 		location.reload(true);
 	}
+}
+
+function onDownloadBinClick() {
+	const binaryContent = toBlobContent(getOutputForm().HEX.hexData, 2048);
+	downloadFile(binaryContent, fileName = 'eeprom.bin', contentType = 'application/octet-stream');
 }
 
 // ####################### Objectlist.c generating ####################### //
@@ -1092,6 +1097,24 @@ function toIntelHex(record) {
 	//end of file marker
 	hex += ':00000001FF';
 	return hex.toUpperCase();
+}
+
+function toBlobContent(record, size) {
+	// returns Uint8Array, that can be feed into Blob constructor
+	var result = new Uint8Array(record.length);
+
+	for (let i = 0; i <= size; i++) {
+		// const element = array[i];
+		result[i] = i % 0xFF;
+	};
+	// var count = 0;
+	// while (count < record.length) {
+	// 	for (var i=4; i--; ) {
+	// 		result[count++] = bytePacketValue & (255);
+	// 		bytePacketValue = bytePacketValue >> 8;
+	// 	}
+    // }
+	return result;
 }
 
 function writeSyncManagers(form, offset, record)
