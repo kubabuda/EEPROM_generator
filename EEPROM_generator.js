@@ -575,7 +575,10 @@ function onResetClick() {
 }
 
 function onDownloadBinClick() {
-	const binaryContent = toBlobContent(getOutputForm().HEX.hexData, 2048);
+	const record = getOutputForm().HEX.hexData;
+	const eepromSize = getForm().EEPROMsize.value;
+	if (!record) { alert("Generate code before you can download it"); return; }
+	const binaryContent = toBlobContent(record, eepromSize);
 	downloadFile(binaryContent, fileName = 'eeprom.bin', contentType = 'application/octet-stream');
 }
 
@@ -1101,19 +1104,10 @@ function toIntelHex(record) {
 
 function toBlobContent(record, size) {
 	// returns Uint8Array, that can be feed into Blob constructor
-	var result = new Uint8Array(record.length);
-
+	var result = new Uint8Array(size);
 	for (let i = 0; i <= size; i++) {
-		// const element = array[i];
-		result[i] = i % 0xFF;
+		result[i] = parseInt(record[i]);
 	};
-	// var count = 0;
-	// while (count < record.length) {
-	// 	for (var i=4; i--; ) {
-	// 		result[count++] = bytePacketValue & (255);
-	// 		bytePacketValue = bytePacketValue >> 8;
-	// 	}
-    // }
 	return result;
 }
 
