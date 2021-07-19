@@ -812,33 +812,33 @@ function esi_generator(form, od, indexes)
 			variableTypes[el_name] = bitsize;
 		}
 	}
-	// Add objects dictionary data types
-	indexes.forEach(index => {
+	function addObjectDictionaryDataType(od, index) {
 		const element = od[index];
 		const el_name = esiDtName(element, index);
-		
+		var result = '';
+
 		if (element.otype == OTYPE.VAR) {
 			addVariableType(element); // variable types will have to be be done later anyway, add to that queue
 		} else if (!customTypes[el_name]) {
 			// generate data types code for complex objects
 			const bitsize = esiBitsize(element);
 			customTypes[el_name] = true;
-			esi += `\n              <DataType>`;
+			result += `\n              <DataType>`;
 			
 			if (element.otype == OTYPE.ARRAY) {
 				addVariableType(element); // cannot add variable type now that array code is being generated, add to queue
 				let esi_type = ESI_DT[element.dtype];
 				let arr_bitsize = (element.items.length - 1) * esi_type.bitsize
-				esi += `\n                <Name>${el_name}ARR</Name>\n                <BaseType>${esi_type.name}</BaseType>\n                <BitSize>${arr_bitsize}</BitSize>`;
-				esi += `\n                <ArrayInfo>\n                  <LBound>1</LBound>\n                  <Elements>${element.items.length - 1}</Elements>\n                </ArrayInfo>`;
-				esi += `\n              </DataType>`;
-				esi += `\n              <DataType>`;
+				result += `\n                <Name>${el_name}ARR</Name>\n                <BaseType>${esi_type.name}</BaseType>\n                <BitSize>${arr_bitsize}</BitSize>`;
+				result += `\n                <ArrayInfo>\n                  <LBound>1</LBound>\n                  <Elements>${element.items.length - 1}</Elements>\n                </ArrayInfo>`;
+				result += `\n              </DataType>`;
+				result += `\n              <DataType>`;
 			}
-			esi += `\n                <Name>${el_name}</Name>\n                <BitSize>${bitsize}</BitSize>`;
-			esi += `\n                <SubItem>\n                  <SubIdx>0</SubIdx>\n                  <Name>Max SubIndex</Name>\n                  <Type>USINT</Type>\n                  <BitSize>8</BitSize>\n                  <BitOffs>0</BitOffs>\n                  <Flags>\n                    <Access>ro</Access>\n                  </Flags>\n                </SubItem>`;
+			result += `\n                <Name>${el_name}</Name>\n                <BitSize>${bitsize}</BitSize>`;
+			result += `\n                <SubItem>\n                  <SubIdx>0</SubIdx>\n                  <Name>Max SubIndex</Name>\n                  <Type>USINT</Type>\n                  <BitSize>8</BitSize>\n                  <BitOffs>0</BitOffs>\n                  <Flags>\n                    <Access>ro</Access>\n                  </Flags>\n                </SubItem>`;
 			if (element.otype == OTYPE.ARRAY) {
 	 			let arr_bitsize = (element.items.length - 1) * esiDTbitsize(element.dtype);
-				esi += `\n                <SubItem>\n                  <Name>Elements</Name>\n                  <Type>${el_name}ARR</Type>\n                  <BitSize>${arr_bitsize}</BitSize>\n                  <BitOffs>16</BitOffs>\n                  <Flags>\n                    <Access>ro</Access>\n                  </Flags>\n                </SubItem>`;
+				result += `\n                <SubItem>\n                  <Name>Elements</Name>\n                  <Type>${el_name}ARR</Type>\n                  <BitSize>${arr_bitsize}</BitSize>\n                  <BitOffs>16</BitOffs>\n                  <Flags>\n                    <Access>ro</Access>\n                  </Flags>\n                </SubItem>`;
 			} else if (element.otype == OTYPE.RECORD) {
 				let subindex = 0;
 				let bits_offset = 16;
@@ -847,15 +847,19 @@ function esi_generator(form, od, indexes)
 						addVariableType(subitem); // cannot add variable type now that record code is being generated
 						let subitem_dtype = ESI_DT[subitem.dtype];
 						let subitem_bitsize = subitem_dtype.bitsize
-						esi += `\n                <SubItem>\n                  <SubIdx>${subindex}</SubIdx>\n                  <Name>${subitem.name}</Name>\n                  <Type>${subitem_dtype.name}</Type>\n                  <BitSize>${subitem_bitsize}</BitSize>\n                  <BitOffs>${bits_offset}</BitOffs>\n                  <Flags>\n                    <Access>ro</Access>\n                  </Flags>\n                </SubItem>`;
+						result += `\n                <SubItem>\n                  <SubIdx>${subindex}</SubIdx>\n                  <Name>${subitem.name}</Name>\n                  <Type>${subitem_dtype.name}</Type>\n                  <BitSize>${subitem_bitsize}</BitSize>\n                  <BitOffs>${bits_offset}</BitOffs>\n                  <Flags>\n                    <Access>ro</Access>\n                  </Flags>\n                </SubItem>`;
 						bits_offset += subitem_bitsize;
 					}
 					subindex++;
 				});
 			}
-			esi += `\n              </DataType>`;
+			result += `\n              </DataType>`;
 		}
-	});
+
+		return result;
+	}
+	// Add objects dictionary data types
+	indexes.forEach(index => { esi += addObjectDictionaryDataType(od, index); });
 	// Add variable type
 	Object.entries(variableTypes).forEach(variableType => {
 		esi += `\n              <DataType>`;
@@ -864,31 +868,44 @@ function esi_generator(form, od, indexes)
 	});
 	esi += `\n            </DataTypes>\n            <Objects>`;
 	// Add objects dictionary
-	indexes.forEach(index => {
-		const element = od[index];
-		const el_dtype = esiDtName(element, index);
-		const bitsize = esiBitsize(element);
-		esi += `\n              <Object>\n                <Index>#x${index}</Index>\n                <Name>${element.name}</Name>\n                <Type>${el_dtype}</Type>\n                <BitSize>${bitsize}</BitSize>\n                <Info>`;
-		if (element.data) {
-			if (element.dtype == DTYPE.VISIBLE_STRING) {
-				esi += `\n                  <DefaultString>${element.data}</DefaultString>`;	
+	function addDictionaryObject(od, index) {
+		const objd = od[index];
+		const el_dtype = esiDtName(objd, index);
+		const bitsize = esiBitsize(objd);
+		result = `\n              <Object>\n                <Index>#x${index}</Index>\n                <Name>${objd.name}</Name>\n                <Type>${el_dtype}</Type>\n                <BitSize>${bitsize}</BitSize>\n                <Info>`;
+		if (objd.data) {
+			if (objd.dtype == DTYPE.VISIBLE_STRING) {
+				result += `\n                  <DefaultString>${objd.data}</DefaultString>`;	
 			}
-		} else if (element.value) {
-			esi += `\n                  <DefaultValue>${element.value ? "#x"+parseInt(element.value).toString(16) : 0}</DefaultValue>`;
+		}
+		if (objd.value) {
+			result += `\n                  <DefaultValue>${toEsiHexValue(objd.value)}</DefaultValue>`;
 		}
 		//Add object subitems for complex types
-		if (element.items) {
-			const max_subindex_value = element.items.length - 1;
+		if (objd.items) {
+			result += addDictionaryObjectSubitems(objd.items);
+		}
+		const isMandatory = SDO_category[index];
+		var flags = isMandatory ? `\n                  <Category>${SDO_category[index]}</Category>` : '';
+		if (objd.pdo_mappings) { flags += `\n                  <PdoMapping>T</PdoMapping>`; }
+		result += `\n                </Info>\n                <Flags>\n                  <Access>ro</Access>${flags}\n                </Flags>\n              </Object>`;
+		return result;
+
+		function addDictionaryObjectSubitems(element_items) {
+			const max_subindex_value = element_items.length - 1;
+			var result = ""
 			let subindex = 0;
-			element.items.forEach(subitem => {
-				const defaultValue = (subindex > 0) ? subitem.value : max_subindex_value;
-				esi += `\n                  <SubItem>\n                    <Name>${subitem.name}</Name>\n                    <Info>\n                      <DefaultValue>${defaultValue}</DefaultValue>\n                    </Info>\n                  </SubItem>`;
+			element_items.forEach(subitem => {
+				var subitemValue = (subindex > 0) ? subitem.value : max_subindex_value;
+				const defaultValue = toEsiHexValue(subitemValue);
+				result += `\n                  <SubItem>\n                    <Name>${subitem.name}</Name>\n                    <Info>\n                      <DefaultValue>${defaultValue}</DefaultValue>\n                    </Info>\n                  </SubItem>`;
 				subindex++;
 			});
+			return result;
 		}
-		const isMandatory = SDO_category[index]; /* TODO review which objects are mandatory */
-		esi += `\n                </Info>\n                <Flags>\n                  <Access>ro</Access>${ isMandatory ? '\n                  <Category>m</Category>' : '' }\n                </Flags>\n              </Object>`;
-	});
+	}
+	indexes.forEach(index => { esi += addDictionaryObject(od, index); });
+
 	esi += `\n            </Objects>\n          </Dictionary>\n        </Profile>\n        <Fmmu>Outputs</Fmmu>\n        <Fmmu>Inputs</Fmmu>\n        <Fmmu>MBoxState</Fmmu>\n`;
 	//Add Rxmailbox sizes
 	esi += `        <Sm DefaultSize="${parseInt(form.MailboxSize.value).toString(10)}" StartAddress="#x${indexToString(form.RxMailboxOffset.value)}" ControlByte="#x26" Enable="1">MBoxOut</Sm>\n`;
@@ -973,6 +990,10 @@ function esi_generator(form, od, indexes)
 		esi += `\n        </${PdoName}xPdo>\n`;
 		
 		return esi;
+	}
+
+	function toEsiHexValue(value) {
+		return value > 9 ? "#x"+ indexToString(value) : value;
 	}
 }
 
@@ -1374,30 +1395,30 @@ function ecat_options_generator(form, od, indexes)
 				+ '\n#define MBXSIZEBOOT      ' + parseInt(form.MailboxSize.value).toString()
 				+ '\n#define MBXBUFFERS       3\n\n';
 	//Mailbox 0 Config
-	ecat_options += '#define MBX0_sma         0x' + parseInt(form.RxMailboxOffset.value).toString(16)
+	ecat_options += `#define MBX0_sma         0x${indexToString(form.RxMailboxOffset.value)}`;
 				+ '\n#define MBX0_sml         MBXSIZE' 
 				+ '\n#define MBX0_sme         MBX0_sma+MBX0_sml-1' 
 				+ '\n#define MBX0_smc         0x26\n';
 	//Mailbox 1 Config
-	ecat_options += '#define MBX1_sma         MBX0_sma+MBX0_sml' //'0x' + parseInt(form.TxMailboxOffset.value).toString(16)
+	ecat_options += `#define MBX1_sma         MBX0_sma+MBX0_sml' //'0x${indexToString(form.TxMailboxOffset.value)}`;
 				+ '\n#define MBX1_sml         MBXSIZE' 
 				+ '\n#define MBX1_sme         MBX1_sma+MBX1_sml-1'
 				+ '\n#define MBX1_smc         0x22\n\n';
 	// Mailbox boot configuration
-	ecat_options += '#define MBX0_sma_b       0x' + parseInt(form.RxMailboxOffset.value).toString(16) 
+	ecat_options += `#define MBX0_sma_b       0x${indexToString(form.RxMailboxOffset.value)}`;
 				+ '\n#define MBX0_sml_b       MBXSIZEBOOT' 
 				+ '\n#define MBX0_sme_b       MBX0_sma_b+MBX0_sml_b-1' 
 				+ '\n#define MBX0_smc_b       0x26\n';
-	ecat_options += '#define MBX1_sma_b       MBX0_sma_b+MBX0_sml_b' //'0x' + parseInt(form.TxMailboxOffset.value).toString(16)
+	ecat_options += `#define MBX1_sma_b       MBX0_sma_b+MBX0_sml_b1` //'0x${indexToString(form.TxMailboxOffset.value)}`;
 				+ '\n#define MBX1_sml_b       MBXSIZEBOOT' 
 				+ '\n#define MBX1_sme_b       MBX1_sma_b+MBX1_sml_b-1'
 				+ '\n#define MBX1_smc_b       0x22\n\n';
 	//SyncManager2 Config
-	ecat_options += '#define SM2_sma          0x' + parseInt(form.SM2Offset.value).toString(16).toUpperCase()
+	ecat_options += `#define SM2_sma          0x${indexToString(form.SM2Offset.value)}`;
 				+ '\n#define SM2_smc          0x24' 
 				+ '\n#define SM2_act          1\n';
 	//SyncManager3 Config
-	ecat_options += '#define SM3_sma          0x' + parseInt(form.SM3Offset.value).toString(16).toUpperCase()
+	ecat_options += `#define SM3_sma          0x${indexToString(form.SM3Offset.value)}`;
 				+ '\n#define SM3_smc          0x20'
 				+ '\n#define SM3_act          1\n\n';
 	// Mappings config
@@ -1793,7 +1814,7 @@ function editSubitemClick(odSectionName, indexValue, subindex, actionName = "Edi
 	const subitem = objd.items[subindex];
 	
 	modalHideControls();
-	modalSetTitle(`${actionName} ${odSectionName.toUpperCase()} object 0x${index} "${objd.name}" subitem 0x${subindex.toString(16).toUpperCase()}`);
+	modalSetTitle(`${actionName} ${odSectionName.toUpperCase()} object 0x${index} "${objd.name}" subitem 0x${indexToString(subindex)}`);
 	
 	if (objd.otype == OTYPE.RECORD) {
 		document.getElementById('dialogRowDtype').style.display = "";
