@@ -1714,7 +1714,7 @@ function addSubitemClick(odSectionName, indexValue) {
 			alert(`Object ${index} "${objd.name}" has OTYPE ${objd.otype} so cannot add subitems`);
 		}
 	}
-	const subindex = objd.items.length - 1;
+	const subindex = objd.items.length - 1; // subitem is added to end of items list
 	editSubitemClick(odSectionName, index, subindex);
 }
 
@@ -1749,17 +1749,17 @@ function reloadOD_Section(odSectionName) {
 	indexes.forEach(index => {
 		const objd = odSection[index];
 		section += `<dt>0x${index} "${objd.name}" ${objd.otype} ${objd.dtype ?? ''}`
-		section += `<button onClick='onRemoveClick(${odSectionName}, 0x${index})'>&nbsp; Remove &nbsp;</button>`
+		section += `<button onClick='onRemoveClick(${odSectionName}, 0x${index})'>&nbsp; ❌ Remove &nbsp;</button>`
 		section += `<button onClick='edit${objd.otype}_Click(${odSectionName}, 0x${index})'>&nbsp; Edit &nbsp;</button>`;
 		if (objd.otype == OTYPE.ARRAY || objd.otype == OTYPE.RECORD) {
-			section += `<button onClick='addSubitemClick(${odSectionName}, 0x${index})'>&nbsp; Add subitem &nbsp;</button>`;
+			section += `<button onClick='addSubitemClick(${odSectionName}, 0x${index})'>&nbsp; ➕ Add subitem &nbsp;</button>`;
 		}
 		section += `</dt>`;
 		if (objd.items) {
 			var subindex = 1; // skip Max Subindex
 			objd.items.slice(subindex).forEach(subitem => {
 				section += `<dd>:${subindex} "${subitem.name}" ${subitem.otype ?? ''}`
-				section += `<button onClick='onRemoveClick(${odSectionName}, 0x${index}, ${subindex})'>&nbsp; Remove &nbsp;</button>`
+				section += `<button onClick='onRemoveClick(${odSectionName}, 0x${index}, ${subindex})'>&nbsp; ❌ Remove &nbsp;</button>`
 				section += `<button onClick='editSubitemClick(${odSectionName}, 0x${index}, ${subindex})'>&nbsp; Edit &nbsp;</button>`;
 				+`<dd>`;
 				++subindex;
