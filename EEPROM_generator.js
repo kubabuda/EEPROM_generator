@@ -1882,6 +1882,8 @@ function editSubitemClick(odSectionName, indexValue, subindex, actionName = "Edi
 	modalHideControls();
 	modalSetTitle(`${actionName} ${odSectionName.toUpperCase()} object 0x${index} "${objd.name}" subitem 0x${indexToString(subindex)}`);
 	
+	document.getElementById('dialogRowValue').style.display = "";
+	modal.form.InitalValue.value = subitem.value ?? 0;
 	if (objd.otype == OTYPE.RECORD) {
 		document.getElementById('dialogRowDtype').style.display = "";
 		modal.form.DTYPE.value = subitem.dtype;
@@ -1897,6 +1899,7 @@ function onEditSubitemSubmit(modalSubitem) {
 	const subitem = objd.items[modalSubitem.subindex];
 
 	subitem.name =  modal.form.ObjectName.value;
+	subitem.value = modal.form.InitalValue.value;
 	if (objd.otype == OTYPE.RECORD) {
 		subitem.dtype = modal.form.DTYPE.value;
 	}
