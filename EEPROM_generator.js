@@ -181,13 +181,14 @@ function addTXPDOitems(od) {
 	addPdoObjectsSection(od, txpdoSection, pdo);
 }
 
+var _booleanPaddingCount = 0;
+
 function addPdoObjectsSection(od, odSection, pdo){
 	var currentSMoffsetValue = pdo.smOffset;
 	const indexes = getUsedIndexes(odSection);
-
+	
 	if (indexes.length) {
 		const pdoAssignments = ensurePDOAssignmentExists(od, pdo.SMassignmentIndex);
-		var paddingCount = 1;
 
 		indexes.forEach(index => {
 			const objd = odSection[index];
@@ -205,7 +206,7 @@ function addPdoObjectsSection(od, odSection, pdo){
 				// create PDO mapping
 				pdoMappingObj.items.push({ name: objd.name, dtype: DTYPE.UNSIGNED32, value: getPdoMappingValue(index, 0, objd.dtype) });
 				if (objd.dtype == DTYPE.BOOLEAN) { 
-					addBooleanPadding(pdoMappingObj.items);
+					addBooleanPadding(pdoMappingObj.items, ++_booleanPaddingCount);
 				}
 				// link to OD variable declared on OD struct
 				objd.data = `&Obj.${variableName(objd.name)}`;
@@ -229,7 +230,7 @@ function addPdoObjectsSection(od, odSection, pdo){
 					// create PDO mappings
 					pdoMappingObj.items.push({ name: subitem.name, dtype: DTYPE.UNSIGNED32, value: getPdoMappingValue(index, subindex , subitem.dtype) });
 					if (subitem.dtype == DTYPE.BOOLEAN) { 
-						addBooleanPadding(pdoMappingObj.items);
+						addBooleanPadding(pdoMappingObj.items, ++_booleanPaddingCount);
 					}
 					// link to OD variable declared on OD struct
 					subitem.data = `&Obj.${variableName(objd.name)}.${variableName(subitem.name)}]`;
@@ -250,8 +251,8 @@ function addPdoObjectsSection(od, odSection, pdo){
 			++currentSMoffsetValue;
 		});
 
-		function addBooleanPadding(mappingOjbItems) {
-			mappingOjbItems.push({ name: `Padding ${paddingCount++}`, dtype: DTYPE.UNSIGNED32, value: '0x00000007' });
+		function addBooleanPadding(mappingOjbItems, paddingCount) {
+			mappingOjbItems.push({ name: `Padding ${paddingCount}`, dtype: DTYPE.UNSIGNED32, value: '0x00000007' });
 		}
 	}
 
@@ -311,6 +312,7 @@ function buildObjectDictionary(form) {
 	addSDOitems(od);
 	addTXPDOitems(od);
 	addRXPDOitems(od);
+	_booleanPaddingCount = 0;
 
 	return od;
 }
