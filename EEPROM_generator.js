@@ -1838,6 +1838,7 @@ function editSubitemClick(odSectionName, indexValue, subindex, actionName = "Edi
 	
 	if (objd.otype == OTYPE.RECORD) {
 		document.getElementById('dialogRowDtype').style.display = "";
+		modal.form.DTYPE.value = subitem.dtype;
 	}
 	modal.form.ObjectName.value = subitem.name;
 	modal.subitem = { odSectionName: odSectionName, index: index, subindex: subindex };
