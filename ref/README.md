@@ -57,8 +57,7 @@ https://www.sitepoint.com/mime-types-complete-list/
 
 # TODO
 - floating point default values in binary
-- ecat_options: 0x1400 vs 0x1600 for SM2?
-- MAX_MAPPINGS_SM2, MAX_MAPPINGS_SM3
+- objectlist.c : 0x1400 vs 0x1600 for SM2?
 
 - check generated XML for PDOs
 - check generated C, XML code
