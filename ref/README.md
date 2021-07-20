@@ -59,10 +59,25 @@ https://www.sitepoint.com/mime-types-complete-list/
 - check generated XML for PDOs
 - check generated C, XML code
 - check .bin output
+
+- missing `<PdoMapping>T</PdoMapping>` on complex types: should be on DT, not dictionary object
+- floating point default values in binary
+- enable and connect default value input in subitem edit dialog
+- padding entry in PDO after bool:
+```xml
+        <Entry>
+            <Index>0</Index>
+            <SubIndex>0</SubIndex>
+            <BitLen>7</BitLen>
+          </Entry>
+```
+- where is rxpdo in ESI xml?
+
 - test if code compilation works
 - test on real HW
 - DC configuration
 ### non critical / known issues
+- use [XML parsing](https://www.w3schools.com/xml/xml_parser.asp) for ESI output
 - add option to switch between .bin and Intel HEX for EEPROM file output
 - add indexes list to OD model, to decrease parametes count in methods
 - save backup before form processing (now even valid OD changes can be erased by error in code generation logic)

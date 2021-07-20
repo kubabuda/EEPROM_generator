@@ -833,32 +833,40 @@ function esi_generator(form, od, indexes)
 	}
 	function addObjectDictionaryDataType(od, index) {
 		const element = od[index];
-		const el_name = esiDtName(element, index);
+		const dtName = esiDtName(element, index);
 		var result = '';
 
 		if (element.otype == OTYPE.VAR) {
 			addVariableType(element); // variable types will have to be be done later anyway, add to that queue
-		} else if (!customTypes[el_name]) {
+		} else if (!customTypes[dtName]) {
 			// generate data types code for complex objects
 			const bitsize = esiBitsize(element);
-			customTypes[el_name] = true;
+			customTypes[dtName] = true;
 			result += `\n              <DataType>`;
 			
+			let flags = `\n                    <Access>ro</Access>`;
 			if (element.otype == OTYPE.ARRAY) {
 				addVariableType(element); // cannot add variable type now that array code is being generated, add to queue
 				let esi_type = ESI_DT[element.dtype];
 				let arr_bitsize = (element.items.length - 1) * esi_type.bitsize
-				result += `\n                <Name>${el_name}ARR</Name>\n                <BaseType>${esi_type.name}</BaseType>\n                <BitSize>${arr_bitsize}</BitSize>`;
+				result += `\n                <Name>${dtName}ARR</Name>\n                <BaseType>${esi_type.name}</BaseType>\n                <BitSize>${arr_bitsize}</BitSize>`;
 				result += `\n                <ArrayInfo>\n                  <LBound>1</LBound>\n                  <Elements>${element.items.length - 1}</Elements>\n                </ArrayInfo>`;
 				result += `\n              </DataType>`;
 				result += `\n              <DataType>`;
 			}
-			result += `\n                <Name>${el_name}</Name>\n                <BitSize>${bitsize}</BitSize>`;
-			result += `\n                <SubItem>\n                  <SubIdx>0</SubIdx>\n                  <Name>Max SubIndex</Name>\n                  <Type>USINT</Type>\n                  <BitSize>8</BitSize>\n                  <BitOffs>0</BitOffs>\n                  <Flags>\n                    <Access>ro</Access>\n                  </Flags>\n                </SubItem>`;
+			result += `\n                <Name>${dtName}</Name>\n                <BitSize>${bitsize}</BitSize>`;
+			result += `\n                <SubItem>\n                  <SubIdx>0</SubIdx>\n                  <Name>Max SubIndex</Name>\n                  <Type>USINT</Type>`
+				+ `\n                  <BitSize>8</BitSize>\n                  <BitOffs>0</BitOffs>\n                  <Flags>${flags}\n                  </Flags>\n                </SubItem>`;
+			
 			if (element.otype == OTYPE.ARRAY) {
-	 			let arr_bitsize = (element.items.length - 1) * esiDTbitsize(element.dtype);
-				result += `\n                <SubItem>\n                  <Name>Elements</Name>\n                  <Type>${el_name}ARR</Type>\n                  <BitSize>${arr_bitsize}</BitSize>\n                  <BitOffs>16</BitOffs>\n                  <Flags>\n                    <Access>ro</Access>\n                  </Flags>\n                </SubItem>`;
+				let flags = `\n                    <Access>ro</Access>`;
+				let arr_bitsize = (element.items.length - 1) * esiDTbitsize(element.dtype);
+				result += `\n                <SubItem>\n                  <Name>Elements</Name>\n                  <Type>${dtName}ARR</Type>\n                  <BitSize>${arr_bitsize}</BitSize>`
+						+`\n                  <BitOffs>16</BitOffs>\n                  <Flags>${flags}\n                  </Flags>\n                </SubItem>`;
 			} else if (element.otype == OTYPE.RECORD) {
+				let flags = `\n                    <Access>ro</Access>`;
+				// flags += getPdoMappingFlags(objd);
+				
 				let subindex = 0;
 				let bits_offset = 16;
 				element.items.forEach(subitem => {
@@ -866,7 +874,10 @@ function esi_generator(form, od, indexes)
 						addVariableType(subitem); // cannot add variable type now that record code is being generated
 						let subitem_dtype = ESI_DT[subitem.dtype];
 						let subitem_bitsize = subitem_dtype.bitsize
-						result += `\n                <SubItem>\n                  <SubIdx>${subindex}</SubIdx>\n                  <Name>${subitem.name}</Name>\n                  <Type>${subitem_dtype.name}</Type>\n                  <BitSize>${subitem_bitsize}</BitSize>\n                  <BitOffs>${bits_offset}</BitOffs>\n                  <Flags>\n                    <Access>ro</Access>\n                  </Flags>\n                </SubItem>`;
+						result += `\n                <SubItem>\n                  <SubIdx>${subindex}</SubIdx>\n                  <Name>${subitem.name}</Name>` 
+							+ `\n                  <Type>${subitem_dtype.name}</Type>\n                  <BitSize>${subitem_bitsize}</BitSize>\n                  <BitOffs>${bits_offset}</BitOffs>`
+							+ `\n                  <Flags>${flags}\n                  </Flags>`
+							+ `\n                </SubItem>`;
 						bits_offset += subitem_bitsize;
 					}
 					subindex++;
@@ -904,10 +915,15 @@ function esi_generator(form, od, indexes)
 		if (objd.items) {
 			result += addDictionaryObjectSubitems(objd.items);
 		}
-		const isMandatory = SDO_category[index];
-		var flags = isMandatory ? `\n                  <Category>${SDO_category[index]}</Category>` : '';
-		if (objd.pdo_mappings) { flags += `\n                  <PdoMapping>T</PdoMapping>`; }
-		result += `\n                </Info>\n                <Flags>\n                  <Access>ro</Access>${flags}\n                </Flags>\n              </Object>`;
+	
+		var flags = `\n                  <Access>ro</Access>`;
+		if (objd.otype == OTYPE.VAR) {
+			flags += getPdoMappingFlags(objd);
+		}
+		if (SDO_category[index]) { 
+			flags += `\n                  <Category>${SDO_category[index]}</Category>`; 
+		}
+		result += `\n                </Info>\n                <Flags>${flags}\n                </Flags>\n              </Object>`;
 		return result;
 
 		function addDictionaryObjectSubitems(element_items) {
@@ -933,8 +949,18 @@ function esi_generator(form, od, indexes)
 	esi += `        <Sm StartAddress="#x${indexToString(form.SM2Offset.value)}" ControlByte="#x24" Enable="1">Outputs</Sm>\n`;
 	//Add SM3
 	esi += `        <Sm StartAddress="#x${indexToString(form.SM3Offset.value)}" ControlByte="#x20" Enable="1">Inputs</Sm>\n`;
-	var hasTxPdo = isPdoWithVariables(od, indexes, txpdo);
-	if (hasTxPdo) {
+	if (isPdoWithVariables(od, indexes, rxpdo)) {
+		var memOffset = form.SM2Offset.value;
+		indexes.forEach(index => {
+			const objd = od[index];
+			
+			if (isInArray(objd.pdo_mappings, rxpdo)) {
+				esi += addEsiDevicePDO(objd, index, rxpdo, memOffset);
+				++memOffset;
+			}	
+		});
+	}
+	if (isPdoWithVariables(od, indexes, txpdo)) {
 		var memOffset = form.SM3Offset.value;
 		indexes.forEach(index => {
 			const objd = od[index];
@@ -944,18 +970,7 @@ function esi_generator(form, od, indexes)
 			}
 		});
 	}
-	var hasRxPdo = isPdoWithVariables(od, indexes, rxpdo);
-	if (hasRxPdo) {
-		var memOffset = form.SM2Offset.value;
-		indexes.forEach(index => {
-			const objd = od[index];
-			if (isInArray(objd.pdo_mappings, rxpdo)) {
-				addEsiDevicePDO(objd, index, rxpdo, memOffset);
-				++memOffset;
-			}	
-		});
-	}
-
+	
 	//Add Mailbox DLL
 	esi += `        <Mailbox DataLinkLayer="true">\n          <CoE ${getCoEString(form)}/>\n        </Mailbox>\n`;
 	//Add DC
@@ -1018,6 +1033,19 @@ function esi_generator(form, od, indexes)
 			value = `#x${value.slice(2)}`;
 		}
 		return value;
+	}
+
+	function getPdoMappingFlags(item) {
+		var flags = '';
+		if (item.pdo_mappings) {
+			if (item.pdo_mappings.length > 1) { 
+				alert(`Object ${index} "${objd.name}" has multiple PDO mappings, that is not supported by this version of tool`
+				+ `, only first ${pdoMappingFlag}XPDO will be used`);
+			}
+			const pdoMappingFlag = item.pdo_mappings[0].slice(0,1).toUpperCase();
+			flags += `\n                  <PdoMapping>${pdoMappingFlag}</PdoMapping>`; 	
+		}
+		return flags;
 	}
 }
 
