@@ -994,6 +994,7 @@ function esi_generator(form, od, indexes)
 			const esiType = esiVariableTypeName(objd);
 			const bitsize = esiDTbitsize(objd.dtype);
 			esi += `\n          <Entry>\n            <Index>#x${index}</Index>\n            <SubIndex>#x${subindex.toString(16)}</SubIndex>\n            <BitLen>${bitsize}</BitLen>\n            <Name>${objd.name}</Name>\n            <DataType>${esiType}</DataType>\n          </Entry>`;
+			esi += pdoBooleanPadding(objd);
 			break;
 		}
 		case OTYPE.ARRAY: {
@@ -1002,6 +1003,7 @@ function esi_generator(form, od, indexes)
 			subindex = 1;  // skip 'Max subindex'
 			objd.items.slice(subindex).forEach(subitem => {
 				esi += `\n          <Entry>\n            <Index>#x${index}</Index>\n            <SubIndex>#x${subindex.toString(16)}</SubIndex>\n            <BitLen>${bitsize}</BitLen>\n            <Name>${subitem.name}</Name>\n            <DataType>${esiType}</DataType>\n          </Entry>`;
+				// TODO handle padding for array of booleans
 				++subindex;
 			});
 			break;
@@ -1012,6 +1014,7 @@ function esi_generator(form, od, indexes)
 				const esiType = esiVariableTypeName(subitem);
 				const bitsize = esiDTbitsize(subitem.dtype);
 				esi += `\n          <Entry>\n            <Index>#x${index}</Index>\n            <SubIndex>#x${subindex.toString(16)}</SubIndex>\n            <BitLen>${bitsize}</BitLen>\n            <Name>${subitem.name}</Name>\n            <DataType>${esiType}</DataType>\n          </Entry>`;
+				esi += pdoBooleanPadding(subitem);
 				++subindex;
 			});
 			break;
@@ -1023,6 +1026,13 @@ function esi_generator(form, od, indexes)
 		esi += `\n        </${PdoName}xPdo>\n`;
 		
 		return esi;
+
+		function pdoBooleanPadding(item) {
+			if (item.dtype == DTYPE.BOOLEAN) {
+				return `\n          <Entry>\n            <Index>${0}</Index>\n            <SubIndex>${0}</SubIndex>\n            <BitLen>${7}</BitLen>\n          </Entry>`;
+			}
+			return ``;
+		}
 	}
 
 	function toEsiHexValue(value) {
