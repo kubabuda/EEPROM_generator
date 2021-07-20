@@ -492,8 +492,8 @@ function objectlist_generator(form, od, indexes)
 
 		switch (objd.otype) {
 			case OTYPE.VAR: {
-				const value = getItemValue(objd, objd.dtype);
-				objectlist += `\n  {0x0, DTYPE_${objd.dtype}, ${get_objdBitsize(objd)}, ${get_objdFlags(objd)}, acName${index}, ${value}, ${get_objdData(objd)}},`;
+				const value = objectlist_getItemValue(objd, objd.dtype);
+				objectlist += `\n  {0x0, DTYPE_${objd.dtype}, ${get_objdBitsize(objd)}, ${objectlist_objdFlags(objd)}, acName${index}, ${value}, ${objeclist_objdData(objd)}},`;
 				break;
 			}
 			case OTYPE.ARRAY: {
@@ -502,8 +502,8 @@ function objectlist_generator(form, od, indexes)
 				let subindex = 1;
 				objd.items.slice(subindex).forEach(subitem => {
 					var subi = subindex_padded(subindex);
-					const value = getItemValue(subitem, objd.dtype);
-					objectlist += `\n  {0x${subi}, DTYPE_${objd.dtype}, ${bitsize}, ${get_objdFlags(objd)}, acName${index}_${subi}, ${value}, ${subitem.data || 'NULL'}},`;
+					const value = objectlist_getItemValue(subitem, objd.dtype);
+					objectlist += `\n  {0x${subi}, DTYPE_${objd.dtype}, ${bitsize}, ${objectlist_objdFlags(objd)}, acName${index}_${subi}, ${value}, ${subitem.data || 'NULL'}},`;
 					subindex++;
 				});
 				break;
@@ -514,8 +514,8 @@ function objectlist_generator(form, od, indexes)
 				objd.items.slice(subindex).forEach(subitem => {
 					var subi = subindex_padded(subindex);
 					const bitsize = dtype_bitsize[subitem.dtype];
-					const value = getItemValue(subitem, subitem.dtype);
-					objectlist += `\n  {0x${subi}, DTYPE_${subitem.dtype}, ${bitsize}, ${get_objdFlags(objd)}, acName${index}_${subi}, ${value}, ${subitem.data || 'NULL'}},`;
+					const value = objectlist_getItemValue(subitem, subitem.dtype);
+					objectlist += `\n  {0x${subi}, DTYPE_${subitem.dtype}, ${bitsize}, ${objectlist_objdFlags(objd)}, acName${index}_${subi}, ${value}, ${subitem.data || 'NULL'}},`;
 					subindex++;
 				});
 
@@ -549,12 +549,20 @@ function objectlist_generator(form, od, indexes)
 		return objectlist;
 	}
 
-	function getItemValue(item, dtype) {
+	function float32ToHex(float32) {
+	// made by: Jozo132 (https://github.com/Jozo132)
+		const getHex = i => ('00' + i.toString(16)).slice(-2);
+		var view = new DataView(new ArrayBuffer(4))
+		view.setFloat32(0, float32);
+		return Array.apply(null, { length: 4 }).map((_, i) => getHex(view.getUint8(i))).join('');
+	}
+
+	function objectlist_getItemValue(item, dtype) {
 		let value = '0';
 		if (item.value) {
 			value = `${item.value}`;
 			if (dtype == DTYPE.REAL32) {
-				// TODO generate binary balue of float variable
+				return `0x${float32ToHex(value)}`;
 			}
 		}
 		return value;
@@ -568,7 +576,7 @@ function objectlist_generator(form, od, indexes)
 		return `0${subindex}`;
 	}
 	
-	function get_objdFlags(element) {
+	function objectlist_objdFlags(element) {
 		let flags = "ATYPE_RO";
 		if (element.pdo_mappings) {
 			element.pdo_mappings .forEach(mapping => {
@@ -578,7 +586,7 @@ function objectlist_generator(form, od, indexes)
 		return flags;
 	}
 	
-	function get_objdData(element) {
+	function objeclist_objdData(element) {
 		let el_data = 'NULL';
 	
 		if (element.data) {

@@ -56,9 +56,7 @@ https://www.sitepoint.com/mime-types-complete-list/
 
 
 # TODO
-- floating point default values in binary
 - objectlist.c : 0x1400 vs 0x1600 for SM2?
-
 - check generated XML for PDOs
 - check generated C, XML code
 - check .bin output
