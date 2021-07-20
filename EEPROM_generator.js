@@ -666,43 +666,33 @@ function objectlist_generator(form, od, indexes)
 		
 		switch (objd.otype) {
 			case OTYPE.VAR: {
-				let el_value = '0';
-				if (objd.value && objd.value != 0) {
-					el_value = `0x${objd.value.toString(16)}`;
-				}
-				const var_objd = `\n  {0x0, DTYPE_${objd.dtype}, ${get_objdBitsize(objd)}, ${get_objdFlags(objd)}, acName${index}, ${el_value}, ${get_objdData(objd)}},`;
-
-				objectlist += var_objd;
+				const value = getItemValue(objd, objd.dtype);
+				objectlist += `\n  {0x0, DTYPE_${objd.dtype}, ${get_objdBitsize(objd)}, ${get_objdFlags(objd)}, acName${index}, ${value}, ${get_objdData(objd)}},`;
 				break;
 			}
 			case OTYPE.ARRAY: {
-				let arr_objd = `\n  {0x00, DTYPE_${DTYPE.UNSIGNED8}, ${8}, ATYPE_RO, acName${index}_00, ${objd.items.length - 1}, NULL},`; // max subindex
-				let bitsize = dtype_bitsize[objd.dtype]; /* TODO what if it is array of strings? */
-				let subindex = 0;
-				objd.items.forEach(item => {
-					if (subindex > 0) { 	// skip max subindex, already done
-						var subi = subindex_padded(subindex);
-						arr_objd += `\n  {0x${subi}, DTYPE_${objd.dtype}, ${bitsize}, ${get_objdFlags(objd)}, acName${index}_${subi}, ${item.value || 0}, ${item.data || 'NULL'}},`;
-					}
+				objectlist += `\n  {0x00, DTYPE_${DTYPE.UNSIGNED8}, ${8}, ATYPE_RO, acName${index}_00, ${objd.items.length - 1}, NULL},`; // max subindex
+				const bitsize = dtype_bitsize[objd.dtype]; /* TODO what if it is array of strings? */
+				let subindex = 1;
+				objd.items.slice(subindex).forEach(subitem => { // skip max subindex
+					var subi = subindex_padded(subindex);
+					const value = getItemValue(subitem, objd.dtype);
+					objectlist += `\n  {0x${subi}, DTYPE_${objd.dtype}, ${bitsize}, ${get_objdFlags(objd)}, acName${index}_${subi}, ${value}, ${subitem.data || 'NULL'}},`;
 					subindex ++;
 				});
-
-				objectlist += arr_objd;
 				break;
 			}
 			case OTYPE.RECORD: {
-				let rec_objd = `\n  {0x00, DTYPE_${DTYPE.UNSIGNED8}, ${8}, ATYPE_RO, acName${index}_00, ${objd.items.length - 1}, NULL},`; // max subindex
-				let subindex = 0;
-				objd.items.forEach(item => {
-					if (subindex > 0) { 	// skip max subindex, already done
-						var subi = subindex_padded(subindex);
-						el_bitlength = dtype_bitsize[item.dtype];
-						rec_objd += `\n  {0x${subi}, DTYPE_${item.dtype}, ${el_bitlength}, ${get_objdFlags(objd)}, acName${index}_${subi}, ${item.value || 0}, ${item.data || 'NULL'}},`;
-					}
+				objectlist += `\n  {0x00, DTYPE_${DTYPE.UNSIGNED8}, ${8}, ATYPE_RO, acName${index}_00, ${objd.items.length - 1}, NULL},`; // max subindex
+				let subindex = 1;
+				objd.items.slice(subindex).forEach(subitem => { // skip max subindex
+					var subi = subindex_padded(subindex);
+					const bitsize = dtype_bitsize[subitem.dtype];
+					const value = getItemValue(subitem, subitem.dtype);
+					objectlist += `\n  {0x${subi}, DTYPE_${subitem.dtype}, ${bitsize}, ${get_objdFlags(objd)}, acName${index}_${subi}, ${value}, ${subitem.data || 'NULL'}},`;
 					subindex ++;
 				});
 
-				objectlist += rec_objd;
 				break;
 			}
 			default:
@@ -734,6 +724,17 @@ function objectlist_generator(form, od, indexes)
 	objectlist += '\n  {0xffff, 0xff, 0xff, 0xff, NULL, NULL}\n};\n';
 
 	return objectlist;
+
+	function getItemValue(item, dtype) {
+		let value = '0';
+		if (item.value) {
+			value = `${item.value}`;
+			if (dtype == DTYPE.REAL32) {
+				// TODO generate binary balue of float variable
+			}
+		}
+		return value;
+	}
 }
 
 // ####################### ESI.xml generating ####################### //
