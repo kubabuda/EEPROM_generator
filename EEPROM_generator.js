@@ -832,25 +832,25 @@ function esi_generator(form, od, indexes)
 		}
 	}
 	function addObjectDictionaryDataType(od, index) {
-		const element = od[index];
-		const dtName = esiDtName(element, index);
+		const objd = od[index];
+		const dtName = esiDtName(objd, index);
 		var result = '';
 
-		if (element.otype == OTYPE.VAR) {
-			addVariableType(element); // variable types will have to be be done later anyway, add to that queue
+		if (objd.otype == OTYPE.VAR) {
+			addVariableType(objd); // variable types will have to be be done later anyway, add to that queue
 		} else if (!customTypes[dtName]) {
 			// generate data types code for complex objects
-			const bitsize = esiBitsize(element);
+			const bitsize = esiBitsize(objd);
 			customTypes[dtName] = true;
 			result += `\n              <DataType>`;
 			
-			let flags = `\n                    <Access>ro</Access>`;
-			if (element.otype == OTYPE.ARRAY) {
-				addVariableType(element); // cannot add variable type now that array code is being generated, add to queue
-				let esi_type = ESI_DT[element.dtype];
-				let arr_bitsize = (element.items.length - 1) * esi_type.bitsize
+			let flags = `\n                    <Access>ro</Access>`; // PDO assign flags for variables are set in dictionary objects section
+			if (objd.otype == OTYPE.ARRAY) {
+				addVariableType(objd); // queue variable type to add after array code is generated
+				let esi_type = ESI_DT[objd.dtype];
+				let arr_bitsize = (objd.items.length - 1) * esi_type.bitsize
 				result += `\n                <Name>${dtName}ARR</Name>\n                <BaseType>${esi_type.name}</BaseType>\n                <BitSize>${arr_bitsize}</BitSize>`;
-				result += `\n                <ArrayInfo>\n                  <LBound>1</LBound>\n                  <Elements>${element.items.length - 1}</Elements>\n                </ArrayInfo>`;
+				result += `\n                <ArrayInfo>\n                  <LBound>1</LBound>\n                  <Elements>${objd.items.length - 1}</Elements>\n                </ArrayInfo>`;
 				result += `\n              </DataType>`;
 				result += `\n              <DataType>`;
 			}
@@ -858,18 +858,18 @@ function esi_generator(form, od, indexes)
 			result += `\n                <SubItem>\n                  <SubIdx>0</SubIdx>\n                  <Name>Max SubIndex</Name>\n                  <Type>USINT</Type>`
 				+ `\n                  <BitSize>8</BitSize>\n                  <BitOffs>0</BitOffs>\n                  <Flags>${flags}\n                  </Flags>\n                </SubItem>`;
 			
-			if (element.otype == OTYPE.ARRAY) {
-				let flags = `\n                    <Access>ro</Access>`;
-				let arr_bitsize = (element.items.length - 1) * esiDTbitsize(element.dtype);
+			flags += getPdoMappingFlags(objd); // PDO assign flags for composite type
+			
+			switch (objd.otype) {
+			case OTYPE.ARRAY: {
+				let arr_bitsize = (objd.items.length - 1) * esiDTbitsize(objd.dtype);
 				result += `\n                <SubItem>\n                  <Name>Elements</Name>\n                  <Type>${dtName}ARR</Type>\n                  <BitSize>${arr_bitsize}</BitSize>`
 						+`\n                  <BitOffs>16</BitOffs>\n                  <Flags>${flags}\n                  </Flags>\n                </SubItem>`;
-			} else if (element.otype == OTYPE.RECORD) {
-				let flags = `\n                    <Access>ro</Access>`;
-				// flags += getPdoMappingFlags(objd);
-				
+				break;
+			} case OTYPE.RECORD: {
 				let subindex = 0;
 				let bits_offset = 16;
-				element.items.forEach(subitem => {
+				objd.items.forEach(subitem => {
 					if (subindex > 0) { // skipped Max Subindex
 						addVariableType(subitem); // cannot add variable type now that record code is being generated
 						let subitem_dtype = ESI_DT[subitem.dtype];
@@ -882,7 +882,11 @@ function esi_generator(form, od, indexes)
 					}
 					subindex++;
 				});
-			}
+				break;
+			} default: {
+				alert(`Object ${index} "${objd.name}" has unexpected OTYPE ${objd.otype}`);
+				alert;
+			}}
 			result += `\n              </DataType>`;
 		}
 
