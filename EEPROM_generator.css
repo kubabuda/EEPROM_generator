@@ -15,7 +15,7 @@ tr td:nth-child(6) {
    display: none; /* Hidden by default */
    position: fixed; /* Stay in place */
    z-index: 1; /* Sit on top */
-   padding-top: 100px; /* Location of the box */
+   padding-top: 18%; /* Location of the box */
    left: 0;
    top: 0;
    width: 100%; /* Full width */
@@ -31,7 +31,11 @@ tr td:nth-child(6) {
    margin: auto;
    padding: 20px;
    border: 1px solid #888;
-   width: 80%;
+   width: 450px;
+}
+
+#editObjectTitle {
+   margin-bottom: 25px;
 }
 
 /* The Close Button */
@@ -49,16 +53,17 @@ tr td:nth-child(6) {
    cursor: pointer;
 }
 
-
 /* main content layout */
 
 body {
    font-family: Arial, Helvetica, sans-serif;
    font-size: large;
    margin: auto;
-   width: 60%;
-   min-width: 1000px;
-   /* width: 1000px; */
+   width: 1000px;
+}
+
+h2, h3 {
+   text-align: center;
 }
 
 table, textarea {
@@ -75,6 +80,10 @@ div.odItem, div.odSubitem {
    padding-bottom: 4px;
    width: 100%;
    border-top: 1px dotted;
+}
+
+h3.odSectionHeading {
+   text-align: left;
 }
 
 span.odItemContent, span.odSectionTitle {

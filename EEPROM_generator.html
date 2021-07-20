@@ -12,7 +12,7 @@
    <!-- Modal content -->
       <div class="modal-content">
          <span class="close" onClick="modalClose()">&times;</span>
-         <p><div id="editObjectTitle">Edit object</div></p>
+         <h3 id="editObjectTitle">Edit object</h3>
          <form name="EditObjectForm" id="EditObjectForm" action="" onsubmit="onEditObjectSubmit(this); return false;">
             <table border="0">
                <tr id="dialogRowIndex">
@@ -50,8 +50,9 @@
                   </select></td>
                </tr>
                <tr>
-                  <td colspan="6" align="center">
+                  <td align="center">
                      <input type="button" name="Cancel" value="✖️ &nbsp; Cancel &nbsp;" onClick='modalClose();'>
+                  </td><td>
                      <input type="submit" name="SaveChanges" value="✔️&nbsp; Save changes &nbsp;">
                   </td>
                </tr>
@@ -193,7 +194,7 @@
    </tr>
    <tr><td colspan="6"><hr></td</tr>
    <tr><td colspan="6">
-      <h3>
+      <h3 class="odSectionHeading">
          <span class="odSectionTitle"> SDO </span>
          <button onClick="editVAR_Click(sdo)">➕ Add variable</button>
          <button onClick="editARRAY_Click(sdo)">➕ Add Array</button>
@@ -204,7 +205,7 @@
    
    <tr><td colspan="6"><hr></td</tr>
    <tr><td colspan="6">
-      <h3>
+      <h3 class="odSectionHeading">
          <span class="odSectionTitle"> TXPDO  (slv to master) </span>
          <button onClick="editVAR_Click(txpdo)">➕ Add variable</button>
          <button onClick="editARRAY_Click(txpdo)">➕ Add Array</button>
@@ -215,7 +216,7 @@
    
    <tr><td colspan="6"><hr></td</tr>
    <tr><td colspan="6">
-      <h3>
+      <h3 class="odSectionHeading">
          <span class="odSectionTitle"> RXPDO  (master to slv) </span>
          <button onClick="editVAR_Click(rxpdo)">➕ Add variable</button>
          <button onClick="editARRAY_Click(rxpdo)">➕ Add Array</button>
@@ -226,11 +227,16 @@
 
    <tr><td colspan="6"><hr></td</tr>
    <tr><td colspan="6" align="center">
-      <input type="button" name="GenerateDownload" value="⏬ &nbsp; Download all files &nbsp;" onclick="onGenerateDownloadClick()">
-      <input type="button" id='GenerateFilesButton' name="Generate" value="&nbsp; Generate files &nbsp;" onClick="onGenerateClick();">
-      <input type="button" name="Save" value="⤵️ &nbsp; Save project &nbsp;" onClick='onSaveClick();'>
-      <input type="button" name="Restore" value="⤴️ &nbsp; Restore project &nbsp;" onClick='onRestoreClick();'> 
-      <input type="button" name="Reset" value="‼️ &nbsp; Reset project &nbsp;" onClick='onResetClick();'> 
+      <input type="button" name="GenerateDownload" value="⏬ &nbsp; Download all files &nbsp;" onclick="onGenerateDownloadClick()" 
+         title="Generate all files and download at once">
+      <input type="button" id='GenerateFilesButton' name="Generate" value="&nbsp; Generate files &nbsp;" onClick="onGenerateClick();"
+         title="Generate all files">
+      <input type="button" name="Save" value="⤵️ &nbsp; Save project &nbsp;" onClick='onSaveClick();'
+         title="Download current settings and Object Dictionary state as JSON file">
+      <input type="button" name="Restore" value="⤴️ &nbsp; Restore project &nbsp;" onClick='onRestoreClick();' 
+         title="Load settings and Object Dictionary state from previously saved JSON file"> 
+      <input type="button" name="Reset" value="‼️ &nbsp; Reset project &nbsp;" onClick='onResetClick();' 
+         title="Reset settings to default values and remove all Object Dictionary entries"> 
    </td></tr>
 </table>
 <br><br>
