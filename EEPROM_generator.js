@@ -42,6 +42,7 @@ const dtype_bitsize = {
 	'REAL32' : 32,
 	'VISIBLE_STRING' : 8,
 };
+const booleanPaddingBitsize = 7;
 const ESI_DT = {
 	'BOOLEAN': { name: 'BOOL', bitsize: 1, ctype: 'uint8_t' },
 	'INTEGER8': { name: 'SINT', bitsize: 8, ctype: 'int8_t' },
@@ -252,7 +253,7 @@ function addPdoObjectsSection(od, odSection, pdo){
 		});
 
 		function addBooleanPadding(mappingOjbItems, paddingCount) {
-			mappingOjbItems.push({ name: `Padding ${paddingCount}`, dtype: DTYPE.UNSIGNED32, value: '0x00000007' });
+			mappingOjbItems.push({ name: `Padding ${paddingCount}`, dtype: DTYPE.UNSIGNED32, value: `0x0000000${booleanPaddingBitsize}` });
 		}
 	}
 
@@ -785,6 +786,9 @@ function esiBitsize(element) {
 			for (let subindex = 1; subindex < element.items.length; subindex++) {
 				const subitem = element.items[subindex];
 				bitsize += esiDTbitsize(subitem.dtype);
+				if(subitem.dtype == DTYPE.BOOLEAN) {
+					bitsize += booleanPaddingBitsize;
+				}
 			}
 			return bitsize;
 		}
