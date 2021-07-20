@@ -3,8 +3,6 @@ const automaticCodegen = true; 		// code is regenerated on every form change.
 									// app is noticeably slower
 
 // ####################### Constants, lookup tables ####################### //
-var configdata = ""
-
 // Object Type
 const OTYPE = {
 	VAR : 'VAR',
@@ -150,6 +148,11 @@ function variableName(objectName) {
 	return variableName;
 }
 
+// ####################### Building Object Dictionary model ####################### //
+
+/** 
+ * takes OD entries from UI SDO section and adds to given OD
+ */
 function addSDOitems(od) {
 	const sdoSection = getObjDictSection(sdo);
 	const indexes = getUsedIndexes(sdoSection);
@@ -159,7 +162,22 @@ function addSDOitems(od) {
 		addObject(od, item, index);
 	});
 }
-
+/** 
+ * returns true if any object is mapped to given PDO
+ */
+function isPdoWithVariables(od, indexes, pdoName) {
+	for (let i = 0; i < indexes.length; i++) {
+		const index = indexes[i];
+		objd = od[index];
+		if (isInArray(objd.pdo_mappings, pdoName)) {
+			return true;
+		}
+	}
+	return false;
+}
+/** 
+ * takes OD entries from UI RXPDO section and adds to given OD
+ */
 function addRXPDOitems(od) {
 	const rxpdoSection = getObjDictSection(rxpdo);
 	const form = getForm();
@@ -170,7 +188,9 @@ function addRXPDOitems(od) {
 	};
 	addPdoObjectsSection(od, rxpdoSection, pdo);
 }
-
+/** 
+ * takes OD entries from UI TXPDO section and adds to given OD
+ */
 function addTXPDOitems(od) {
 	const txpdoSection = getObjDictSection(txpdo);
 	const form = getForm();
@@ -184,6 +204,11 @@ function addTXPDOitems(od) {
 
 var _booleanPaddingCount = 0;
 
+/** 
+ * takes OD entries from given UI SDO/PDO section and adds to given OD
+ * using provided SM offset, and SM assignment address
+ * available sections are 'sdo', 'txpdo', 'rxpdo'
+ */
 function addPdoObjectsSection(od, odSection, pdo){
 	var currentSMoffsetValue = pdo.smOffset;
 	const indexes = getUsedIndexes(odSection);
@@ -292,11 +317,8 @@ function addPdoObjectsSection(od, odSection, pdo){
 		return `0x${index}${toByte(subindex)}${toByte(bitsize)}`;
 	}	
 }
-
-// ####################### Building Object Dictionary model ####################### //
-
+/** populates mandatory objects with values from UI */
 function populateMandatoryObjectValues(form, od) {
-	// populate mandatory object values
 	od['1008'].data = form.TextDeviceName.value;
 	od['1009'].data = form.HWversion.value;
 	od['100A'].data = form.SWversion.value;
@@ -305,7 +327,7 @@ function populateMandatoryObjectValues(form, od) {
 	od['1018'].items[3].value = parseInt(form.RevisionNumber.value);
 	od['1018'].items[4].value = parseInt(form.SerialNumber.value);
 }
-
+/** builds complete object dictionary, with values from UI */
 function buildObjectDictionary(form) {
 	const od = getMandatoryObjects();
 	populateMandatoryObjectValues(form, od);
@@ -317,6 +339,30 @@ function buildObjectDictionary(form) {
 
 	return od;
 }
+
+// ####################### Object Dictionary index manipulation ####################### //
+
+function indexToString(index) {
+	var indexValue = parseInt(index);
+	return indexValue.toString(16).toUpperCase();
+}
+/** returns list of indexes that are used in given OD, as array of integer values */
+function getUsedIndexes(od) {
+	const index_min = 0x1000;
+	const index_max = 0xFFFF;
+	const usedIndexes = [];
+	// scan index address space for ones used  
+	for (let i = index_min; i <= index_max; i++) {
+		const index = indexToString(i);
+		const element = od[index];
+		if (element) {
+			usedIndexes.push(index);
+		}
+	}
+	return usedIndexes;
+}
+
+// ####################### Object Dictionary edition ####################### //
 
 function getFirstFreeIndex(odSectionName) {
 	var addressRangeStart = {
@@ -332,29 +378,7 @@ function getFirstFreeIndex(odSectionName) {
 
 	return indexToString(result);
 }
-
-function indexToString(index) {
-	var indexValue = parseInt(index);
-	
-	return indexValue.toString(16).toUpperCase();
-}
-
-function getUsedIndexes(od) {
-	// returns list of indexes that are used in given OD, as array of integer values
-	const index_min = 0x1000;
-	const index_max = 0xFFFF;
-	const usedIndexes = [];
-	// scan index address space for ones used  
-	for (let i = index_min; i <= index_max; i++) {
-		const index = indexToString(i);
-		const element = od[index];
-		if (element) {
-			usedIndexes.push(index);
-		}
-	}
-	return usedIndexes;
-}
-
+/** returns new object description for given PDO section  */
 function getNewObjd(odSectionName, otype) {
 	const readableNames = {
 		VAR: 'Variable',
@@ -407,226 +431,7 @@ function addRecordSubitem(objd) {
 	return newSubitem;
 }
 
-// ####################### File accessing ####################### //
-
-// saves file in local filesystem - downloads from browser
-function downloadFile(content, fileName, contentType) {
-    var a = document.createElement("a");
-    var file = new Blob([content], {type: contentType});
-    a.href = URL.createObjectURL(file);
-    a.download = fileName;
-    a.click();
-	// a element will be garbage collected, no need to cleanup
-}
-
-function getForm() {
-	return document.getElementById("SlaveForm");
-}
-
-function getOutputForm() {
-	return document.getElementById("outCodeForm");
-}
-
-function readFile(e) {
-	var file = e.target.files[0];
-	if (!file) return;
-	var reader = new FileReader();
-	reader.onload = function(e) {
-		restoreBackup(e.target.result);
-  	}
-	reader.readAsText(file);
-}
-
-// ####################### Backup serialization + deserialization ####################### //
-
-function isValidBackup(backup) {
-	if (!backup || !backup.form || !backup.od ) {
-		if (!confirm('Backup is incomplete or invalid, proceed anyway?')) {
-			return false;
-		}
-	}
-	return true;
-}
-
-function prepareBackupObject() {
-	const form = getForm();
-	const formValues = {};
-	Object.entries(form).forEach(formEntry => {
-		const formControl = formEntry[1]; // entry[0] is form control order number
-		if(formControl.value) {
-			formValues[formControl.name] = formControl.value;
-		};
-	});
-
-	const backup = {
-		form: formValues,
-		od: _odSections,
-	};
-
-	return backup;
-}
-
-function loadBackup(backupObject) {
-	if (backupObject.od) {
-		_odSections.sdo = backupObject.od.sdo;
-		_odSections.txpdo = backupObject.od.txpdo;
-		_odSections.rxpdo = backupObject.od.rxpdo;
-	}
-		
-	var form = getForm();
-	Object.entries(form).forEach(formEntry => {
-		const formControl = formEntry[1]; // entry[0] is index
-		const formControlValue = backupObject.form[formControl.name];
-		if(formControlValue) {
-			formControl.value = formControlValue;
-		};
-	});
-}
-
-function prepareBackupFileContent() {
-	var backupObject = prepareBackupObject();
-	var backupFileContent = JSON.stringify(backupObject, null, 2); // pretty print
-	return backupFileContent;
-}
-
-// ####################### Backup using JSON file from filesystem ####################### //
-
-// Localstorage limit is usually 5MB, super large object dictionaries on older browsers might be problematic
-
-function downloadBackupFile() {
-	const backupFileContent = prepareBackupFileContent(); // pretty print
-	downloadFile(backupFileContent, fileName = 'esi.json', contentType = 'text/json');
-}
-
-function restoreBackup(fileContent) {
-	var backup = JSON.parse(fileContent);
-	if (isValidBackup(backup)) {
-		loadBackup(backup);
-		reloadOD_Sections();
-	}
-}
-
-// ####################### Backup using browser localstorage ####################### //
-
-function saveLocalBackup() {
-	localStorage.etherCATeepromGeneratorBackup = prepareBackupFileContent();
-}
-
-function tryRestoreLocalBackup() {
-	if (localStorage.etherCATeepromGeneratorBackup) {
-		restoreBackup(localStorage.etherCATeepromGeneratorBackup);
-	}
-}
-
-function resetLocalBackup() {
-	if (localStorage.ethetruerCATeepromGeneratorBackup) {
-		delete localStorage.etherCATeepromGeneratorBackup;
-	}
-}
-
-// ####################### Button handlers ####################### //
-
-function processForm(form)
-{
-	const od = buildObjectDictionary(form);
-	const indexes = getUsedIndexes(od);
-	const useIntelHex = true; //form.HEX_Format.value == 'ihex';
-	var outputCtl = getOutputForm();
-
-	outputCtl.objectlist.value = objectlist_generator(form, od, indexes);
-	outputCtl.ecat_options.value = ecat_options_generator(form, od, indexes);
-	outputCtl.utypes.value = utypes_generator(form, od, indexes);
-	outputCtl.HEX.hexData = hex_generator(form); 			//HEX generator needs to be run before esi, it generates configdata
-	outputCtl.HEX.value = toIntelHex(outputCtl.HEX.hexData);
-	outputCtl.ESI.value = esi_generator(form, od, indexes);
-
-	const soemWriteFlag = useIntelHex ? "i" : "";
-	document.getElementById('hexInstallCmd').innerHTML = `sudo ./eepromtool 1 eth0 -w${soemWriteFlag} eeprom.hex`;
-
-	// saveLocalBackup();
-
-	return outputCtl;
-}
-
-function onGenerateDownloadClick()
-{
-	const form = getForm();
-	var result = processForm(form);
-	downloadFile(result.ESI.value, fileName = 'esi.xml', contentType = 'text/html');
-	// TODO this probably is wrong MIME type, check another one: https://www.sitepoint.com/mime-types-complete-list/
-	downloadFile(result.HEX.value, fileName = 'eeprom.hex', contentType = 'application/octet-stream');
-	downloadFile(result.ecat_options.value, fileName = 'ecat_options.h', contentType = 'text/plain');
-	downloadFile(result.objectlist.value, fileName = 'objectlist.c', contentType = 'text/plain');
-	downloadFile(result.utypes.value, fileName = 'utypes.h', contentType = 'text/plain');
-}
-
-function onGenerateClick() {
-	processForm(getForm());
-}
-
-function onSaveClick() {
-	downloadBackupFile();
-	saveLocalBackup();
-}
-
-document.onkeydown = function(e) {
-	if (e.ctrlKey && e.keyCode === 83) {
-		event.preventDefault();
-		onSaveClick();
-        return false;
-    }
-};
-
-function onRestoreClick() {
-	// trigger file input dialog window
-	document.getElementById('restoreFileInput').click();
-}
-
-function onResetClick() {
-	if (confirm("Are you sure you want to reset project to default values?")){
-		resetLocalBackup();
-		location.reload(true);
-	}
-}
-
-function onDownloadBinClick() {
-	const record = getOutputForm().HEX.hexData;
-	if (!record) { alert("Generate code before you can download it"); return; }
-	downloadFile(record, fileName = 'eeprom.bin', contentType = 'application/octet-stream');
-}
-
 // ####################### Objectlist.c generating ####################### //
-
-function subindex_padded(subindex) {
-	// pad with 0 if single digit
-	if (subindex > 9) {
-		return `${subindex}`;
-	}
-	return `0${subindex}`;
-}
-
-function get_objdFlags(element) {
-	let flags = "ATYPE_RO";
-	if (element.pdo_mappings) {
-		element.pdo_mappings .forEach(mapping => {
-			flags = `${flags} | ATYPE_${mapping.toUpperCase()}`;
-		});
-	}
-	return flags;
-}
-
-function get_objdData(element) {
-	let el_data = 'NULL';
-
-	if (element.data) {
-		el_data = element.data;
-		if (element.dtype == DTYPE.VISIBLE_STRING) {
-			el_data = `"${element.data}"`;
-		}
-	}
-	/* TODO el_data is assigned also for PDO mapped variables */
-	return el_data;
-}
 
 function get_objdBitsize(element) {
 	let bitsize = dtype_bitsize[element.dtype];
@@ -643,7 +448,28 @@ function objectlist_generator(form, od, indexes)
 	//Variable names
 	indexes.forEach(index => {
 		const objd = od[index];
-		objectlist += `\nstatic const char acName${index}[] = "${objd.name}";`;
+		objectlist += objectlist_variableName(index, objd);
+		
+	});
+	objectlist += '\n';
+	//SDO objects declaration
+	indexes.forEach(index => {
+		const objd = od[index];
+		objectlist += objectlist_SdoObjectDeclaration(index, objd);
+	})
+
+	objectlist += '\n\nconst _objectlist SDOobjects[] =\n{';
+	//SDO object dictionary declaration
+	indexes.forEach(index => {
+		const objd = od[index];
+		objectlist += objectlist_DictionaryDeclaration(index, objd);
+	})
+	objectlist += '\n  {0xffff, 0xff, 0xff, 0xff, NULL, NULL}\n};\n';
+
+	return objectlist;
+
+	function objectlist_variableName(index, objd) {
+		var objectlist = `\nstatic const char acName${index}[] = "${objd.name}";`;
 		switch (objd.otype) {
 			case OTYPE.VAR:
 				break;
@@ -658,13 +484,12 @@ function objectlist_generator(form, od, indexes)
 				alert("Unexpected object type in object dictionary: ", objd)
 				break;
 		};
-	});
-	objectlist += '\n';
-	//SDO objects declaration
-	indexes.forEach(index => {
-		const objd = od[index];
-		objectlist += `\nconst _objd SDO${index}[] =\n{`;
-		
+		return objectlist;
+	}
+
+	function objectlist_SdoObjectDeclaration(index, objd) {
+		var objectlist = `\nconst _objd SDO${index}[] =\n{`;
+
 		switch (objd.otype) {
 			case OTYPE.VAR: {
 				const value = getItemValue(objd, objd.dtype);
@@ -675,23 +500,23 @@ function objectlist_generator(form, od, indexes)
 				objectlist += `\n  {0x00, DTYPE_${DTYPE.UNSIGNED8}, ${8}, ATYPE_RO, acName${index}_00, ${objd.items.length - 1}, NULL},`; // max subindex
 				const bitsize = dtype_bitsize[objd.dtype]; /* TODO what if it is array of strings? */
 				let subindex = 1;
-				objd.items.slice(subindex).forEach(subitem => { // skip max subindex
+				objd.items.slice(subindex).forEach(subitem => {
 					var subi = subindex_padded(subindex);
 					const value = getItemValue(subitem, objd.dtype);
 					objectlist += `\n  {0x${subi}, DTYPE_${objd.dtype}, ${bitsize}, ${get_objdFlags(objd)}, acName${index}_${subi}, ${value}, ${subitem.data || 'NULL'}},`;
-					subindex ++;
+					subindex++;
 				});
 				break;
 			}
 			case OTYPE.RECORD: {
 				objectlist += `\n  {0x00, DTYPE_${DTYPE.UNSIGNED8}, ${8}, ATYPE_RO, acName${index}_00, ${objd.items.length - 1}, NULL},`; // max subindex
 				let subindex = 1;
-				objd.items.slice(subindex).forEach(subitem => { // skip max subindex
+				objd.items.slice(subindex).forEach(subitem => {
 					var subi = subindex_padded(subindex);
 					const bitsize = dtype_bitsize[subitem.dtype];
 					const value = getItemValue(subitem, subitem.dtype);
 					objectlist += `\n  {0x${subi}, DTYPE_${subitem.dtype}, ${bitsize}, ${get_objdFlags(objd)}, acName${index}_${subi}, ${value}, ${subitem.data || 'NULL'}},`;
-					subindex ++;
+					subindex++;
 				});
 
 				break;
@@ -701,30 +526,28 @@ function objectlist_generator(form, od, indexes)
 				break;
 		};
 		objectlist += '\n};';
-	})
 
-	objectlist += '\n\nconst _objectlist SDOobjects[] =\n{';
-	//SDO object dictionary declaration
-	indexes.forEach(index => {
-		const element = od[index];
-		switch (element.otype) {
+		return objectlist;
+	}
+
+	function objectlist_DictionaryDeclaration(index, objd) {
+		var objectlist = ``;
+		switch (objd.otype) {
 			case OTYPE.VAR:
 			case OTYPE.ARRAY:
 			case OTYPE.RECORD:
 				let maxsubindex = 0;
-				if (element.items) {
-					maxsubindex = element.items.length - 1;
+				if (objd.items) {
+					maxsubindex = objd.items.length - 1;
 				}
-				objectlist += `\n  {0x${index}, OTYPE_${element.otype}, ${maxsubindex}, ${element.pad1 || 0}, acName${index}, SDO${index}},`;
+				objectlist += `\n  {0x${index}, OTYPE_${objd.otype}, ${maxsubindex}, ${objd.pad1 || 0}, acName${index}, SDO${index}},`;
 				break;
 			default:
 				alert("Unexpected object type om object dictionary")
 				break;
 		};
-	})
-	objectlist += '\n  {0xffff, 0xff, 0xff, 0xff, NULL, NULL}\n};\n';
-
-	return objectlist;
+		return objectlist;
+	}
 
 	function getItemValue(item, dtype) {
 		let value = '0';
@@ -736,66 +559,43 @@ function objectlist_generator(form, od, indexes)
 		}
 		return value;
 	}
+
+	function subindex_padded(subindex) {
+		// pad with 0 if single digit
+		if (subindex > 9) {
+			return `${subindex}`;
+		}
+		return `0${subindex}`;
+	}
+	
+	function get_objdFlags(element) {
+		let flags = "ATYPE_RO";
+		if (element.pdo_mappings) {
+			element.pdo_mappings .forEach(mapping => {
+				flags = `${flags} | ATYPE_${mapping.toUpperCase()}`;
+			});
+		}
+		return flags;
+	}
+	
+	function get_objdData(element) {
+		let el_data = 'NULL';
+	
+		if (element.data) {
+			el_data = element.data;
+			if (element.dtype == DTYPE.VISIBLE_STRING) {
+				el_data = `"${element.data}"`;
+			}
+		}
+		/* TODO el_data is assigned also for PDO mapped variables */
+		return el_data;
+	}	
 }
 
 // ####################### ESI.xml generating ####################### //
 
-function esiVariableTypeName(element) {
-	let el_name = ESI_DT[element.dtype].name;
-	if (element.dtype == DTYPE.VISIBLE_STRING) {
-		return `${el_name}(${element.data.length})`;
-	}
-	return el_name;
-}
-
-function esiDtName(element, index) {
-	switch (element.otype) {
-		case OTYPE.VAR:
-			return esiVariableTypeName(element);
-		case OTYPE.ARRAY:
-		case OTYPE.RECORD:
-			return `DT${index}`;
-		default:
-			alert(`Element 0x${index} has unexpected OTYPE ${element.otype}`);
-			break;
-	}
-}
-
 function esiDTbitsize(dtype) {
 	return ESI_DT[dtype].bitsize;
-}
-
-function esiBitsize(element) {
-	switch (element.otype) {
-		case OTYPE.VAR: {
-			let bitsize = esiDTbitsize(element.dtype);
-			if (element.dtype == DTYPE.VISIBLE_STRING) {
-				return bitsize * element.data.length;
-			}
-			return bitsize;
-		}
-		case OTYPE.ARRAY: {
-			const maxsubindex_bitsize = esiDTbitsize(DTYPE.UNSIGNED8);
-			let bitsize = esiDTbitsize(element.dtype);
-			let elements = element.items.length - 1; // skip max subindex
-			return maxsubindex_bitsize * 2 + elements * bitsize;
-		}
-		case OTYPE.RECORD: {
-			const maxsubindex_bitsize = esiDTbitsize(DTYPE.UNSIGNED8);
-			let bitsize = maxsubindex_bitsize * 2;
-			for (let subindex = 1; subindex < element.items.length; subindex++) {
-				const subitem = element.items[subindex];
-				bitsize += esiDTbitsize(subitem.dtype);
-				if(subitem.dtype == DTYPE.BOOLEAN) {
-					bitsize += booleanPaddingBitsize;
-				}
-			}
-			return bitsize;
-		}
-		default:
-			alert(`Element ${element} has unexpected OTYPE ${element.otype}`);
-			break;
-	}
 }
 
 //See ETG2000 for ESI format
@@ -980,6 +780,8 @@ function esi_generator(form, od, indexes)
 	//Add DC
 	esi += `        <Dc>\n          <OpMode>\n            <Name>DcOff</Name>\n            <Desc>DC unused</Desc>\n          <AssignActivate>#x0000</AssignActivate>\n          </OpMode>\n        </Dc>\n`;
 	//Add EEPROM
+	const configdata_bytecount = (form.ESC.value == 'AX58100') ? 14 : 7; // for AX58100 configdata reaches 0x0A byte
+	const configdata = getConfigDataString(form, configdata_bytecount);
 	esi +=`        <Eeprom>\n          <ByteSize>${parseInt(form.EEPROMsize.value)}</ByteSize>\n          <ConfigData>${configdata}</ConfigData>\n        </Eeprom>\n`;
 	//Close all items
 	esi +=`      </Device>\n    </Devices>\n  </Descriptions>\n</EtherCATInfo>`;
@@ -1061,66 +863,99 @@ function esi_generator(form, od, indexes)
 		}
 		return flags;
 	}
+
+	//See Table 40 ETG2000
+	function getCoEString(form)
+	{
+		var result = ""
+	//	if(form.CoeDetails[0].checked) 
+	//		result += 'SdoInfo="true" ';
+	//	else
+	//		result += 'SdoInfo="false" ';
+		if(form.CoeDetails[1].checked) 
+			result += 'SdoInfo="true" ';
+		else
+			result += 'SdoInfo="false" ';
+		if(form.CoeDetails[2].checked) 
+			result += 'PdoAssign="true" ';	
+		else
+			result += 'PdoAssign="false" ';
+		if(form.CoeDetails[3].checked) 
+			result += 'PdoConfig="true" ';
+		else
+			result += 'PdoConfig="false" ';
+		if(form.CoeDetails[4].checked) 
+			result += 'PdoUpload="true" ';
+		else 
+			result += 'PdoUpload="false" ';
+		if(form.CoeDetails[5].checked) 
+			result += 'CompleteAccess="true" ';
+		else 
+			result +='CompleteAccess="false" ';
+		return result;										
+	}
+
+	function esiVariableTypeName(element) {
+		let el_name = ESI_DT[element.dtype].name;
+		if (element.dtype == DTYPE.VISIBLE_STRING) {
+			return `${el_name}(${element.data.length})`;
+		}
+		return el_name;
+	}	
+
+	function esiDtName(element, index) {
+		switch (element.otype) {
+			case OTYPE.VAR:
+				return esiVariableTypeName(element);
+			case OTYPE.ARRAY:
+			case OTYPE.RECORD:
+				return `DT${index}`;
+			default:
+				alert(`Element 0x${index} has unexpected OTYPE ${element.otype}`);
+				break;
+		}
+	}
+	
+	function esiBitsize(element) {
+		switch (element.otype) {
+			case OTYPE.VAR: {
+				let bitsize = esiDTbitsize(element.dtype);
+				if (element.dtype == DTYPE.VISIBLE_STRING) {
+					return bitsize * element.data.length;
+				}
+				return bitsize;
+			}
+			case OTYPE.ARRAY: {
+				const maxsubindex_bitsize = esiDTbitsize(DTYPE.UNSIGNED8);
+				let bitsize = esiDTbitsize(element.dtype);
+				let elements = element.items.length - 1; // skip max subindex
+				return maxsubindex_bitsize * 2 + elements * bitsize;
+			}
+			case OTYPE.RECORD: {
+				const maxsubindex_bitsize = esiDTbitsize(DTYPE.UNSIGNED8);
+				let bitsize = maxsubindex_bitsize * 2;
+				for (let subindex = 1; subindex < element.items.length; subindex++) {
+					const subitem = element.items[subindex];
+					bitsize += esiDTbitsize(subitem.dtype);
+					if(subitem.dtype == DTYPE.BOOLEAN) {
+						bitsize += booleanPaddingBitsize;
+					}
+				}
+				return bitsize;
+			}
+			default:
+				alert(`Element ${element} has unexpected OTYPE ${element.otype}`);
+				break;
+		}
+	}	
 }
 
-//See Table 40 ETG2000
-function getCoEString(form)
-{
-	var result = ""
-//	if(form.CoeDetails[0].checked) 
-//		result += 'SdoInfo="true" ';
-//	else
-//		result += 'SdoInfo="false" ';
-	if(form.CoeDetails[1].checked) 
-		result += 'SdoInfo="true" ';
-	else
-		result += 'SdoInfo="false" ';
-	if(form.CoeDetails[2].checked) 
-		result += 'PdoAssign="true" ';	
-	else
-		result += 'PdoAssign="false" ';
-	if(form.CoeDetails[3].checked) 
-		result += 'PdoConfig="true" ';
-	else
-		result += 'PdoConfig="false" ';
-	if(form.CoeDetails[4].checked) 
-		result += 'PdoUpload="true" ';
-	else 
-		result += 'PdoUpload="false" ';
-	if(form.CoeDetails[5].checked) 
-		result += 'CompleteAccess="true" ';
-	else 
-		result +='CompleteAccess="false" ';
-	return result;										
-}
+// ####################### EEPROM generating ####################### //
 
 function hex_generator(form)
 {
-	configdata = "";
-	var record = [0,0];
-	record.length = parseInt(form.EEPROMsize.value);
-	for(var count = 0 ; count < record.length ; count++) {//initialize array
-		record[count] = 0xFF;
-	}
-	//Start of EEPROM contents; A lot of information can be found in 5.4 of ETG1000.6
-	const pdiControl = (form.ESC.value == 'LAN9252') ? 0x80 : 0x05;
-	const spiMode = parseInt(form.SPImode.value);
-	const reserved_0x05 = (form.ESC.value == 'AX58100') ? 0x001A : 0x00; // enable IO for SPI driver on AX58100:
-	// Write 0x1A value (INT edge pulse length, 8 mA Control + IO 9:0 Drive Select) to 0x0A (Host Interface Extend Setting and Drive Strength
-	const configdata_bytecount = (form.ESC.value == 'AX58100') ? 14 : 7; // configdata needs to reach 0x0A
-
 	//WORD ADDRESS 0-7
-	writeEEPROMbyte_byteaddress(pdiControl,0,record); //PDI control: SPI slave (mapped to register 0x0140)
-	writeEEPROMbyte_byteaddress(0x06,1,record); //ESC configuration: Distributed clocks Sync Out and Latch In enabled (mapped register 0x0141)
-	writeEEPROMbyte_byteaddress(spiMode,2,record); //SPI mode (mapped to register 0x0150)
-	writeEEPROMbyte_byteaddress(0x44,3,record); //SYNC /LATCH configuration (mapped to 0x0151). Make both Syncs output
-	writeEEPROMword_wordaddress(0x0064,2,record);//Syncsignal Pulselenght in 10ns units(mapped to 0x0982:0x0983)
-	writeEEPROMword_wordaddress(0x00,3,record); //Extended PDI configuration (none for SPI slave)(0x0152:0x0153)
-	writeEEPROMword_wordaddress(0x00,4,record); //Configured Station Alias (0x0012:0x0013)
-	writeEEPROMword_wordaddress(reserved_0x05,5,record); //Reserved, 0 (when not AX58100)
-	writeEEPROMword_wordaddress(0x00,6,record); //Reserved, 0
-	writeEEPROMword_wordaddress(FindCRC(record,14),7,record); //CRC
-	configdata = getConfigData(record, configdata_bytecount);
+	var record = getConfigDataBytes(form); 
 	//WORD ADDRESS 8-15
 	writeEEPROMDword_wordaddress(parseInt(form.VendorID.value),8,record);		//CoE 0x1018:01
 	writeEEPROMDword_wordaddress(parseInt(form.ProductCode.value),10,record);	//CoE 0x1018:02
@@ -1141,7 +976,7 @@ function hex_generator(form)
 	writeEEPROMword_wordaddress(parseInt(form.TxMailboxOffset.value),26,record); //Standard Tx mailbox offset
 	writeEEPROMword_wordaddress(parseInt(form.MailboxSize.value),27,record); //Standard Tx mailbox size
 	writeEEPROMword_wordaddress(0x04,28,record); //CoE protocol, see Table18 in ETG1000.6
-	for(var count = 29; count <= 61; count++) {		//fill reserved area with zeroes
+	for (var count = 29; count <= 61; count++) {		//fill reserved area with zeroes
 		writeEEPROMword_wordaddress(0,count,record);
 	}
 	writeEEPROMword_wordaddress((Math.floor(parseInt(form.EEPROMsize.value)/128))-1,62,record); //EEPROM size
@@ -1168,15 +1003,6 @@ function hex_generator(form)
 
 	return binaryContent;
 
-	function getConfigData(record, configdata_bytecount) {
-		// takes bytes array and count, returns ConfigData string
-		var configdata = '';
-		for (var bytecount = 0; bytecount < configdata_bytecount; bytecount++) {
-			configdata += (record[bytecount] + 0x100).toString(16).slice(-2).toUpperCase();
-		}
-		return configdata;
-	}
-
 	function toBlobContent(record, eepromSize) {
 		// takes array and file size, returns Uint8Array, that can be feed into Blob constructor
 		if (record.length > eepromSize) { 
@@ -1188,186 +1014,166 @@ function hex_generator(form)
 		};
 		return result;
 	}
-}
-
-function toIntelHex(record) {
-	// takes bytes array, returns Intel Hex as string
-	var hex = "";
-	const bytes_per_rule = 32;
-	const rulesTotalCount = record.length/bytes_per_rule;
-
-	for (var rulenumber = 0 ; rulenumber < (rulesTotalCount); rulenumber++)
-	{
-		const sliceStart = rulenumber*bytes_per_rule;
-		const sliceEnd = bytes_per_rule + (rulenumber * bytes_per_rule);
-		const recordSlice = record.slice(sliceStart, sliceEnd);
-		hex += CreateiHexRule(bytes_per_rule, rulenumber, recordSlice);
+	
+	function writeSyncManagers(form, offset, record)
+	{//See Table 23 ETG1000.6
+		writeEEPROMword_wordaddress(0x29,offset/2,record); //SyncManager
+		offset += 2;
+		writeEEPROMword_wordaddress(0x10, offset/2, record); //size of structure category
+		offset += 2;
+		//SM0
+		writeEEPROMword_wordaddress(parseInt(form.RxMailboxOffset.value),offset/2, record); //Physical start address
+		offset += 2;
+		writeEEPROMword_wordaddress(parseInt(form.MailboxSize.value),offset/2, record); //Physical size
+		offset += 2;
+		writeEEPROMbyte_byteaddress(0x26,offset++, record); //Mode of operation
+		writeEEPROMbyte_byteaddress(0,offset++, record); //don't care
+		writeEEPROMbyte_byteaddress(1,offset++, record); //Enable Syncmanager; bit0: enable, bit 1: fixed content, bit 2: virtual SyncManager, bit 3: Op Only
+		writeEEPROMbyte_byteaddress(1,offset++, record); //SyncManagerType; 0: not used, 1: Mbx out, 2: Mbx In, 3: PDO, 4: PDI
+		//SM1
+		writeEEPROMword_wordaddress(parseInt(form.TxMailboxOffset.value),offset/2, record); //Physical start address
+		offset += 2;
+		writeEEPROMword_wordaddress(parseInt(form.MailboxSize.value),offset/2, record); //Physical size
+		offset += 2;
+		writeEEPROMbyte_byteaddress(0x22,offset++, record); //Mode of operation
+		writeEEPROMbyte_byteaddress(0,offset++, record); //don't care
+		writeEEPROMbyte_byteaddress(1,offset++, record); //Enable Syncmanager; bit0: enable, bit 1: fixed content, bit 2: virtual SyncManager, bit 3: Op Only
+		writeEEPROMbyte_byteaddress(2,offset++, record); //SyncManagerType; 0: not used, 1: Mbx out, 2: Mbx In, 3: PDO, 4: PDI
+		//SM2
+		writeEEPROMword_wordaddress(parseInt(form.SM2Offset.value),offset/2, record); //Physical start address
+		offset += 2;
+		writeEEPROMword_wordaddress(0,offset/2, record); //Physical size
+		offset += 2;
+		writeEEPROMbyte_byteaddress(0x24,offset++, record); //Mode of operation
+		writeEEPROMbyte_byteaddress(0,offset++, record); //don't care
+		writeEEPROMbyte_byteaddress(1,offset++, record); //Enable Syncmanager; bit0: enable, bit 1: fixed content, bit 2: virtual SyncManager, bit 3: Op Only
+		writeEEPROMbyte_byteaddress(3,offset++, record); //SyncManagerType; 0: not used, 1: Mbx out, 2: Mbx In, 3: PDO, 4: PDI
+		//SM3
+		writeEEPROMword_wordaddress(parseInt(form.SM3Offset.value),offset/2, record); //Physical start address
+		offset += 2;
+		writeEEPROMword_wordaddress(0,offset/2, record); //Physical size
+		offset += 2;
+		writeEEPROMbyte_byteaddress(0x20,offset++, record); //Mode of operation
+		writeEEPROMbyte_byteaddress(0,offset++, record); //don't care
+		writeEEPROMbyte_byteaddress(1,offset++, record); //Enable Syncmanager; bit0: enable, bit 1: fixed content, bit 2: virtual SyncManager, bit 3: Op Only
+		writeEEPROMbyte_byteaddress(4,offset++, record); //SyncManagerType; 0: not used, 1: Mbx out, 2: Mbx In, 3: PDO, 4: PDI
+		return offset;
 	}
-	//end of file marker
-	hex += ':00000001FF';
-	return hex.toUpperCase();
-}
 
-
-function writeSyncManagers(form, offset, record)
-{//See Table 23 ETG1000.6
-	writeEEPROMword_wordaddress(0x29,offset/2,record); //SyncManager
-	offset += 2;
-	writeEEPROMword_wordaddress(0x10, offset/2, record); //size of structure category
-	offset += 2;
-	//SM0
-	writeEEPROMword_wordaddress(parseInt(form.RxMailboxOffset.value),offset/2, record); //Physical start address
-	offset += 2;
-	writeEEPROMword_wordaddress(parseInt(form.MailboxSize.value),offset/2, record); //Physical size
-	offset += 2;
-	writeEEPROMbyte_byteaddress(0x26,offset++, record); //Mode of operation
-	writeEEPROMbyte_byteaddress(0,offset++, record); //don't care
-	writeEEPROMbyte_byteaddress(1,offset++, record); //Enable Syncmanager; bit0: enable, bit 1: fixed content, bit 2: virtual SyncManager, bit 3: Op Only
-	writeEEPROMbyte_byteaddress(1,offset++, record); //SyncManagerType; 0: not used, 1: Mbx out, 2: Mbx In, 3: PDO, 4: PDI
-	//SM1
-	writeEEPROMword_wordaddress(parseInt(form.TxMailboxOffset.value),offset/2, record); //Physical start address
-	offset += 2;
-	writeEEPROMword_wordaddress(parseInt(form.MailboxSize.value),offset/2, record); //Physical size
-	offset += 2;
-	writeEEPROMbyte_byteaddress(0x22,offset++, record); //Mode of operation
-	writeEEPROMbyte_byteaddress(0,offset++, record); //don't care
-	writeEEPROMbyte_byteaddress(1,offset++, record); //Enable Syncmanager; bit0: enable, bit 1: fixed content, bit 2: virtual SyncManager, bit 3: Op Only
-	writeEEPROMbyte_byteaddress(2,offset++, record); //SyncManagerType; 0: not used, 1: Mbx out, 2: Mbx In, 3: PDO, 4: PDI
-	//SM2
-	writeEEPROMword_wordaddress(parseInt(form.SM2Offset.value),offset/2, record); //Physical start address
-	offset += 2;
-	writeEEPROMword_wordaddress(0,offset/2, record); //Physical size
-	offset += 2;
-	writeEEPROMbyte_byteaddress(0x24,offset++, record); //Mode of operation
-	writeEEPROMbyte_byteaddress(0,offset++, record); //don't care
-	writeEEPROMbyte_byteaddress(1,offset++, record); //Enable Syncmanager; bit0: enable, bit 1: fixed content, bit 2: virtual SyncManager, bit 3: Op Only
-	writeEEPROMbyte_byteaddress(3,offset++, record); //SyncManagerType; 0: not used, 1: Mbx out, 2: Mbx In, 3: PDO, 4: PDI
-	//SM3
-	writeEEPROMword_wordaddress(parseInt(form.SM3Offset.value),offset/2, record); //Physical start address
-	offset += 2;
-	writeEEPROMword_wordaddress(0,offset/2, record); //Physical size
-	offset += 2;
-	writeEEPROMbyte_byteaddress(0x20,offset++, record); //Mode of operation
-	writeEEPROMbyte_byteaddress(0,offset++, record); //don't care
-	writeEEPROMbyte_byteaddress(1,offset++, record); //Enable Syncmanager; bit0: enable, bit 1: fixed content, bit 2: virtual SyncManager, bit 3: Op Only
-	writeEEPROMbyte_byteaddress(4,offset++, record); //SyncManagerType; 0: not used, 1: Mbx out, 2: Mbx In, 3: PDO, 4: PDI
-	return offset;
-}
-
-//see Table 22 ETG1000.6
-function writeFMMU(form,offset, record)
-{
-	writeEEPROMword_wordaddress(0x28,offset/2,record);
-	offset += 2;
-	writeEEPROMword_wordaddress(1, offset/2, record); //length = 1 word = 2bytes: 2 FMMU's.
-	offset += 2;
-	writeEEPROMbyte_byteaddress(1, offset++, record); //FMMU0 used for Outputs; see Table 22 ETG1000.6
-	writeEEPROMbyte_byteaddress(2, offset++, record); //FMMU1 used for Outputs; see Table 22 ETG1000.6
-	return offset;
-}
-//See ETG1000.6 Table21
-function writeEEPROMgeneral_settings(form,offset,record)
-{
-	categorysize = 0x10;
-	//Clear memory region
-	for(wordcount = 0; wordcount < categorysize+2 ; wordcount++)
-		writeEEPROMword_wordaddress(0,(offset/2) + wordcount, record);
-	//write code 30, 'General type'. See ETG1000.6, Table 19
-	writeEEPROMword_wordaddress(30,offset/2,record);
-	//write length of General Category data
-	writeEEPROMword_wordaddress(categorysize, 1+(offset/2), record);
-	offset +=4;
-	writeEEPROMbyte_byteaddress(2,offset++,record);//index to string for Group Info
-	writeEEPROMbyte_byteaddress(3,offset++,record);//index to string for Image Name
-	writeEEPROMbyte_byteaddress(1,offset++,record);//index to string for Device Order Number
-	writeEEPROMbyte_byteaddress(4,offset++,record);//index to string for Device Name Information
-	offset++; //byte 4 is reserved
-	writeEEPROMbyte_byteaddress(getCOEdetails(form),offset++,record);//CoE Details
-	writeEEPROMbyte_byteaddress(0,offset++,record); //Enable FoE
-	writeEEPROMbyte_byteaddress(0,offset++,record); //Enable EoE
-	writeEEPROMbyte_byteaddress(0,offset++,record); //reserved
-	writeEEPROMbyte_byteaddress(0,offset++,record); //reserved
-	writeEEPROMbyte_byteaddress(0,offset++,record); //reserved
-	writeEEPROMbyte_byteaddress(0,offset++,record); //flags (Bit0: Enable SafeOp, Bit1: Enable notLRW
-	writeEEPROMword_wordaddress(0x0000, offset/2, record); //current consumption in mA
-	offset += 2;
-	writeEEPROMword_wordaddress(0x0000, offset/2, record); //2 pad bytes
-	offset += 2;
-	writeEEPROMword_wordaddress(getPhysicalPort(form), offset/2, record);
-	offset += 2;
-	offset += 14; //14 pad bytes
-	return offset;
-}
-
-// ETG1000.6 Table 21
-function getPhysicalPort(form)
-{
-	portinfo = 0;
-	physicals = [form.Port3Physical.value, form.Port2Physical.value, form.Port1Physical.value, form.Port0Physical.value];
-	for (var physicalcounter = 0; physicalcounter < physicals.length ; physicalcounter++)
+	//see Table 22 ETG1000.6
+	function writeFMMU(form,offset, record)
 	{
-		portinfo = (portinfo << 4); //shift previous result
-		switch(physicals[physicalcounter])
+		writeEEPROMword_wordaddress(0x28,offset/2,record);
+		offset += 2;
+		writeEEPROMword_wordaddress(1, offset/2, record); //length = 1 word = 2bytes: 2 FMMU's.
+		offset += 2;
+		writeEEPROMbyte_byteaddress(1, offset++, record); //FMMU0 used for Outputs; see Table 22 ETG1000.6
+		writeEEPROMbyte_byteaddress(2, offset++, record); //FMMU1 used for Outputs; see Table 22 ETG1000.6
+		return offset;
+	}
+	//See ETG1000.6 Table21
+	function writeEEPROMgeneral_settings(form,offset,record)
+	{
+		categorysize = 0x10;
+		//Clear memory region
+		for(wordcount = 0; wordcount < categorysize+2 ; wordcount++)
+			writeEEPROMword_wordaddress(0,(offset/2) + wordcount, record);
+		//write code 30, 'General type'. See ETG1000.6, Table 19
+		writeEEPROMword_wordaddress(30,offset/2,record);
+		//write length of General Category data
+		writeEEPROMword_wordaddress(categorysize, 1+(offset/2), record);
+		offset +=4;
+		writeEEPROMbyte_byteaddress(2,offset++,record);//index to string for Group Info
+		writeEEPROMbyte_byteaddress(3,offset++,record);//index to string for Image Name
+		writeEEPROMbyte_byteaddress(1,offset++,record);//index to string for Device Order Number
+		writeEEPROMbyte_byteaddress(4,offset++,record);//index to string for Device Name Information
+		offset++; //byte 4 is reserved
+		writeEEPROMbyte_byteaddress(getCOEdetails(form),offset++,record);//CoE Details
+		writeEEPROMbyte_byteaddress(0,offset++,record); //Enable FoE
+		writeEEPROMbyte_byteaddress(0,offset++,record); //Enable EoE
+		writeEEPROMbyte_byteaddress(0,offset++,record); //reserved
+		writeEEPROMbyte_byteaddress(0,offset++,record); //reserved
+		writeEEPROMbyte_byteaddress(0,offset++,record); //reserved
+		writeEEPROMbyte_byteaddress(0,offset++,record); //flags (Bit0: Enable SafeOp, Bit1: Enable notLRW
+		writeEEPROMword_wordaddress(0x0000, offset/2, record); //current consumption in mA
+		offset += 2;
+		writeEEPROMword_wordaddress(0x0000, offset/2, record); //2 pad bytes
+		offset += 2;
+		writeEEPROMword_wordaddress(getPhysicalPort(form), offset/2, record);
+		offset += 2;
+		offset += 14; //14 pad bytes
+		return offset;
+	}
+
+	// ETG1000.6 Table 21
+	function getPhysicalPort(form)
+	{
+		portinfo = 0;
+		physicals = [form.Port3Physical.value, form.Port2Physical.value, form.Port1Physical.value, form.Port0Physical.value];
+		for (var physicalcounter = 0; physicalcounter < physicals.length ; physicalcounter++)
 		{
-		case 'Y':
-		case 'H':
-			portinfo |= 0x01; //MII
-			break;
-		case 'K':
-			portinfo |= 0x03; //EBUS
-			break;
-		default:
-			portinfo |= 0; 	//No connection
+			portinfo = (portinfo << 4); //shift previous result
+			switch(physicals[physicalcounter])
+			{
+			case 'Y':
+			case 'H':
+				portinfo |= 0x01; //MII
+				break;
+			case 'K':
+				portinfo |= 0x03; //EBUS
+				break;
+			default:
+				portinfo |= 0; 	//No connection
+			}
 		}
+		return portinfo;
 	}
-	return portinfo;
-}
 
-
-function getCOEdetails(form)
-{
-	coedetails = 0;
-	if(form.CoeDetails[0].checked) coedetails |= 0x01; 	//Enable SDO
-	if(form.CoeDetails[1].checked) coedetails |= 0x02;	//Enable SDO Info
-	if(form.CoeDetails[2].checked) coedetails |= 0x04;	//Enable PDO Assign
-	if(form.CoeDetails[3].checked) coedetails |= 0x08;	//Enable PDO Configuration
-	if(form.CoeDetails[4].checked) coedetails |= 0x10;	//Enable Upload at startup
-	if(form.CoeDetails[5].checked) coedetails |= 0x20;	//Enable SDO complete access
-	return coedetails;
-}
-//See ETG1000.6 Table20 for Category string
-function writeEEPROMstrings(record, offset, a_strings)
-{
-	var number_of_strings = a_strings.length;
-	var total_string_data_length = 0;
-	var length_is_even;
-	for(var strcounter = 0; strcounter < number_of_strings ; strcounter++)
+	function getCOEdetails(form)
 	{
-		total_string_data_length += a_strings[strcounter].length //add length of strings
+		coedetails = 0;
+		if(form.CoeDetails[0].checked) coedetails |= 0x01; 	//Enable SDO
+		if(form.CoeDetails[1].checked) coedetails |= 0x02;	//Enable SDO Info
+		if(form.CoeDetails[2].checked) coedetails |= 0x04;	//Enable PDO Assign
+		if(form.CoeDetails[3].checked) coedetails |= 0x08;	//Enable PDO Configuration
+		if(form.CoeDetails[4].checked) coedetails |= 0x10;	//Enable Upload at startup
+		if(form.CoeDetails[5].checked) coedetails |= 0x20;	//Enable SDO complete access
+		return coedetails;
 	}
-	total_string_data_length += number_of_strings; //for each string a byte is needed to indicate the length
-	total_string_data_length += 1; //for byte to give 'number of strings'
-	if(total_string_data_length %2) //if length is even (ends at word boundary)
-		length_is_even = false;
-	else
-		length_is_even = true;
-	writeEEPROMword_wordaddress(0x000A,offset/2,record); //Type: STRING
-	writeEEPROMword_wordaddress(Math.ceil(total_string_data_length/2),(offset/2)+1, record); //write length of complete package
-	offset += 4; //2 words written
-	writeEEPROMbyte_byteaddress(number_of_strings, offset++, record);
-	for(var strcounter = 0; strcounter < number_of_strings ; strcounter++)
+	//See ETG1000.6 Table20 for Category string
+	function writeEEPROMstrings(record, offset, a_strings)
 	{
-		writeEEPROMbyte_byteaddress(a_strings[strcounter].length, offset++, record);
-		for(var charcounter = 0 ; charcounter < a_strings[strcounter].length ; charcounter++)
+		var number_of_strings = a_strings.length;
+		var total_string_data_length = 0;
+		var length_is_even;
+		for(var strcounter = 0; strcounter < number_of_strings ; strcounter++)
 		{
-			writeEEPROMbyte_byteaddress(a_strings[strcounter].charCodeAt(charcounter), offset++, record);
-		}	
+			total_string_data_length += a_strings[strcounter].length //add length of strings
+		}
+		total_string_data_length += number_of_strings; //for each string a byte is needed to indicate the length
+		total_string_data_length += 1; //for byte to give 'number of strings'
+		if(total_string_data_length %2) //if length is even (ends at word boundary)
+			length_is_even = false;
+		else
+			length_is_even = true;
+		writeEEPROMword_wordaddress(0x000A,offset/2,record); //Type: STRING
+		writeEEPROMword_wordaddress(Math.ceil(total_string_data_length/2),(offset/2)+1, record); //write length of complete package
+		offset += 4; //2 words written
+		writeEEPROMbyte_byteaddress(number_of_strings, offset++, record);
+		for(var strcounter = 0; strcounter < number_of_strings ; strcounter++)
+		{
+			writeEEPROMbyte_byteaddress(a_strings[strcounter].length, offset++, record);
+			for(var charcounter = 0 ; charcounter < a_strings[strcounter].length ; charcounter++)
+			{
+				writeEEPROMbyte_byteaddress(a_strings[strcounter].charCodeAt(charcounter), offset++, record);
+			}	
+		}
+		if(length_is_even == false)
+		{
+			writeEEPROMbyte_byteaddress(0, offset++, record);
+		}
+		return offset;
 	}
-	if(length_is_even == false)
-	{
-		writeEEPROMbyte_byteaddress(0, offset++, record);
-	}
-	return offset;
 }
 
 function writeEEPROMbyte_byteaddress(byte, address, record)
@@ -1394,29 +1200,6 @@ function writeEEPROMDword_wordaddress(word, address, record)
 	record[3 + (address*2)] = (word>>24) & 0xFF;
 }
 
-function CreateiHexRule(bytes_per_rule, rulenumber, record)
-{
-	var record_type_datarecord  = '00';
-	var rule = ':'+ bytes_per_rule.toString(16).slice(-2) + generate_hex_address(rulenumber*bytes_per_rule) + record_type_datarecord;
-	for(var byteposition = 0; byteposition < bytes_per_rule ; byteposition++)
-	{
-		var byte = record[byteposition].toString(16).slice(-2); // convert to hexadecimal, crop to last 2 digits
-		if(byte.length < 2)
-			byte = '0' + byte; //minimal field width  = 2 characters.
-		rule += byte;
-	}
-	var checksum  = 0;
-	for(var rule_pos = 0 ; rule_pos < (rule.length-1)/2 ; rule_pos++)
-	{
-		var byte = parseInt(rule.slice(1+(2*rule_pos), 3+(2*rule_pos)),16);
-		checksum  += byte;
-	}
-	checksum %= 0x100; //leave last byte
-	checksum = 0x100-checksum; //two's complement
-    rule += checksum.toString(16).slice(-2) + '\n';
-    return rule;
-}
-
 function generate_hex_address(number)
 {
 	//convert to hexadecimal string
@@ -1430,24 +1213,61 @@ function generate_hex_address(number)
 	return output.slice(-4);
 }
 
-function FindCRC(data,datalen)         // computes crc value
-{
-  var i,j;
-  var c;
-  var CRC=0xFF;
-  var genPoly = 0x07;
-  for (j=0; j<datalen; j++)
-  {
-    c = data[j];
-    CRC ^= c;
-    for(i = 0; i<8; i++)
-        if(CRC & 0x80 )
-          CRC = (CRC << 1) ^ genPoly;
-        else
-          CRC <<= 1;
-    CRC &= 0xff;
-  }
-  return CRC;
+function getConfigDataBytes(form) {
+	var record = [0, 0];
+	const recordLength = parseInt(form.EEPROMsize.value);
+	for (var count = 0; count < recordLength; count++) { //initialize array
+		record[count] = 0xFF;
+	}
+	//Start of EEPROM contents; A lot of information can be found in 5.4 of ETG1000.6
+	const pdiControl = (form.ESC.value == 'LAN9252') ? 0x80 : 0x05;
+	const spiMode = parseInt(form.SPImode.value);
+	const reserved_0x05 = (form.ESC.value == 'AX58100') ? 0x001A : 0x00; // enable IO for SPI driver on AX58100:
+	// Write 0x1A value (INT edge pulse length, 8 mA Control + IO 9:0 Drive Select) to 0x0A (Host Interface Extend Setting and Drive Strength
+	
+	//WORD ADDRESS 0-7
+	writeEEPROMbyte_byteaddress(pdiControl, 0, record); //PDI control: SPI slave (mapped to register 0x0140)
+	writeEEPROMbyte_byteaddress(0x06, 1, record); //ESC configuration: Distributed clocks Sync Out and Latch In enabled (mapped register 0x0141)
+	writeEEPROMbyte_byteaddress(spiMode, 2, record); //SPI mode (mapped to register 0x0150)
+	writeEEPROMbyte_byteaddress(0x44, 3, record); //SYNC /LATCH configuration (mapped to 0x0151). Make both Syncs output
+	writeEEPROMword_wordaddress(0x0064, 2, record); //Syncsignal Pulselenght in 10ns units(mapped to 0x0982:0x0983)
+	writeEEPROMword_wordaddress(0x00, 3, record); //Extended PDI configuration (none for SPI slave)(0x0152:0x0153)
+	writeEEPROMword_wordaddress(0x00, 4, record); //Configured Station Alias (0x0012:0x0013)
+	writeEEPROMword_wordaddress(reserved_0x05, 5, record); //Reserved, 0 (when not AX58100)
+	writeEEPROMword_wordaddress(0x00, 6, record); //Reserved, 0
+	writeEEPROMword_wordaddress(FindCRC(record, 14), 7, record); //CRC
+	
+	return record;
+
+	function FindCRC(data,datalen)         // computes crc value
+	{
+	var i,j;
+	var c;
+	var CRC=0xFF;
+	var genPoly = 0x07;
+	for (j=0; j<datalen; j++)
+	{
+		c = data[j];
+		CRC ^= c;
+		for(i = 0; i<8; i++)
+			if(CRC & 0x80 )
+			CRC = (CRC << 1) ^ genPoly;
+			else
+			CRC <<= 1;
+		CRC &= 0xff;
+	}
+	return CRC;
+	}
+}
+
+function getConfigDataString(form, configdata_bytecount) {
+	// takes bytes array and count, returns ConfigData string
+	record = getConfigDataBytes(form);
+	var configdata = '';
+	for (var bytecount = 0; bytecount < configdata_bytecount; bytecount++) {
+		configdata += (record[bytecount] + 0x100).toString(16).slice(-2).toUpperCase();
+	}
+	return configdata;
 }
 
 // ####################### ecat_options.h generation ####################### //
@@ -1535,17 +1355,6 @@ function ecat_options_generator(form, od, indexes)
 
 // ####################### utypes.h generation ####################### //
 
-function isPdoWithVariables(od, indexes, pdoName) {
-	for (let i = 0; i < indexes.length; i++) {
-		const index = indexes[i];
-		objd = od[index];
-		if (isInArray(objd.pdo_mappings, pdoName)) {
-			return true;
-		}
-	}
-	return false;
-}
-
 function utypes_generator(form, od, indexes) {
 	var utypes = '#ifndef __UTYPES_H__\n#define __UTYPES_H__\n\n#include "cc.h"\n\n/* Object dictionary storage */\n\ntypedef struct\n{\n   /* Identity */\n'
 	utypes += '\n   uint32_t serial;\n';
@@ -1607,25 +1416,90 @@ function utypes_generator(form, od, indexes) {
 	}
 }
 
-// ####################### Handle modal dialog ####################### //
+// ####################### File operations ####################### //
 
-var modal = {};
+/** save file in local filesystem, by downloading from browser */
+function downloadFile(content, fileName, contentType) {
+    var a = document.createElement("a");
+    var file = new Blob([content], {type: contentType});
+    a.href = URL.createObjectURL(file);
+    a.download = fileName;
+    a.click();
+	// a element will be garbage collected, no need to cleanup
+}
+/** reads saved project from file user opened */
+function readFile(e) {
+	var file = e.target.files[0];
+	if (!file) return;
+	var reader = new FileReader();
+	reader.onload = function(e) {
+		restoreBackup(e.target.result);
+  	}
+	reader.readAsText(file);
+}
+/** takes bytes array, returns Intel Hex as string */
+function toIntelHex(record) {
+	var hex = "";
+	const bytes_per_rule = 32;
+	const rulesTotalCount = record.length/bytes_per_rule;
 
-function modalSetup() {
-	// Get the modal
-	modal = document.getElementById("editObjectModal");
-	modal.form = getDialogForm();
+	for (var rulenumber = 0 ; rulenumber < (rulesTotalCount); rulenumber++)
+	{
+		const sliceStart = rulenumber*bytes_per_rule;
+		const sliceEnd = bytes_per_rule + (rulenumber * bytes_per_rule);
+		const recordSlice = record.slice(sliceStart, sliceEnd);
+		hex += CreateiHexRule(bytes_per_rule, rulenumber, recordSlice);
+	}
+	//end of file marker
+	hex += ':00000001FF';
+	return hex.toUpperCase();
+
+	function CreateiHexRule(bytes_per_rule, rulenumber, record)
+	{
+		var record_type_datarecord  = '00';
+		var rule = ':'+ bytes_per_rule.toString(16).slice(-2) + generate_hex_address(rulenumber*bytes_per_rule) + record_type_datarecord;
+		for(var byteposition = 0; byteposition < bytes_per_rule ; byteposition++)
+		{
+			var byte = record[byteposition].toString(16).slice(-2); // convert to hexadecimal, crop to last 2 digits
+			if(byte.length < 2)
+				byte = '0' + byte; //minimal field width  = 2 characters.
+			rule += byte;
+		}
+		var checksum  = 0;
+		for(var rule_pos = 0 ; rule_pos < (rule.length-1)/2 ; rule_pos++)
+		{
+			var byte = parseInt(rule.slice(1+(2*rule_pos), 3+(2*rule_pos)),16);
+			checksum  += byte;
+		}
+		checksum %= 0x100; //leave last byte
+		checksum = 0x100-checksum; //two's complement
+		rule += checksum.toString(16).slice(-2) + '\n';
+		return rule;
+	}
 }
 
-// When the user clicks the button, open the modal 
-function modalOpen() {
-	modal.style.display = "block";
+// ####################### UI changes handlers ####################### //
+
+function getForm() {
+	return document.getElementById("SlaveForm");
 }
 
-function modalClose() {
-	modal.style.display = "none";
+function getOutputForm() {
+	return document.getElementById("outCodeForm");
 }
 
+function onFormChanged() {
+	processForm(getForm());
+	saveLocalBackup();  // persist OD changes over page reload
+}
+
+document.onkeydown = function(e) {
+	if (e.ctrlKey && e.keyCode === 83) {
+		event.preventDefault();
+		onSaveClick();
+        return false;
+    }
+};
 
 // When the user clicks anywhere outside of the modal, close it
 window.onclick = function(event) {
@@ -1633,7 +1507,6 @@ window.onclick = function(event) {
 		modalClose();
 	}
 }
-
 
 window.onload = (event) => {
 	modalSetup();
@@ -1658,6 +1531,87 @@ window.onload = (event) => {
 	}
 }
 
+function processForm(form)
+{
+	const od = buildObjectDictionary(form);
+	const indexes = getUsedIndexes(od);
+	const useIntelHex = true; //form.HEX_Format.value == 'ihex';
+	var outputCtl = getOutputForm();
+
+	outputCtl.objectlist.value = objectlist_generator(form, od, indexes);
+	outputCtl.ecat_options.value = ecat_options_generator(form, od, indexes);
+	outputCtl.utypes.value = utypes_generator(form, od, indexes);
+	outputCtl.HEX.hexData = hex_generator(form);
+	outputCtl.HEX.value = toIntelHex(outputCtl.HEX.hexData);
+	outputCtl.ESI.value = esi_generator(form, od, indexes);
+
+	const soemWriteFlag = useIntelHex ? "i" : "";
+	document.getElementById('hexInstallCmd').innerHTML = `sudo ./eepromtool 1 eth0 -w${soemWriteFlag} eeprom.hex`;
+
+	// saveLocalBackup();
+
+	return outputCtl;
+}
+
+// ####################### Button handlers ####################### //
+
+function onGenerateDownloadClick()
+{
+	const form = getForm();
+	var result = processForm(form);
+	downloadFile(result.ESI.value, fileName = 'esi.xml', contentType = 'text/html');
+	// TODO this probably is wrong MIME type, check another one: https://www.sitepoint.com/mime-types-complete-list/
+	downloadFile(result.HEX.value, fileName = 'eeprom.hex', contentType = 'application/octet-stream');
+	downloadFile(result.ecat_options.value, fileName = 'ecat_options.h', contentType = 'text/plain');
+	downloadFile(result.objectlist.value, fileName = 'objectlist.c', contentType = 'text/plain');
+	downloadFile(result.utypes.value, fileName = 'utypes.h', contentType = 'text/plain');
+}
+
+function onGenerateClick() {
+	processForm(getForm());
+}
+
+function onSaveClick() {
+	downloadBackupFile();
+	saveLocalBackup();
+}
+
+function onRestoreClick() {
+	// trigger file input dialog window
+	document.getElementById('restoreFileInput').click();
+}
+
+function onResetClick() {
+	if (confirm("Are you sure you want to reset project to default values?")){
+		resetLocalBackup();
+		location.reload(true);
+	}
+}
+
+function onDownloadBinClick() {
+	const record = getOutputForm().HEX.hexData;
+	if (!record) { alert("Generate code before you can download it"); return; }
+	downloadFile(record, fileName = 'eeprom.bin', contentType = 'application/octet-stream');
+}
+
+// ####################### Handle modal dialog ####################### //
+
+var modal = {};
+
+function modalSetup() {
+	// Get the modal
+	modal = document.getElementById("editObjectModal");
+	modal.form = getDialogForm();
+}
+
+// When the user clicks the button, open the modal 
+function modalOpen() {
+	modal.style.display = "block";
+}
+
+function modalClose() {
+	modal.style.display = "none";
+}
 
 function getDialogForm() {
 	return document.getElementById('EditObjectForm');
@@ -1670,6 +1624,13 @@ function modalUpdate(index, objd) {
 	modal.form.DTYPE.value = objd.dtype || DTYPE.UNSIGNED8;
 	modal.form.Access.value = objd.access || 'RO';
 	modal.objd = objd;
+}
+
+function modalHideControls() {
+	document.getElementById('dialogRowIndex').style.display = 'none';
+	document.getElementById('dialogRowDtype').style.display = 'none';
+	document.getElementById('dialogRowValue').style.display = 'none';
+	document.getElementById('dialogRowAccess').style.display = 'none';
 }
 
 // ####################### Modal dialogs for OD edition ####################### //
@@ -1687,13 +1648,6 @@ function addNewOD_ObjectDialog(odSectionName, otype) {
 	var index = getFirstFreeIndex(odSectionName);
 	delete modal.index_initial_value; // add new object, not replace edited one 
 	modalUpdate(index, objd);
-}
-
-function modalHideControls() {
-	document.getElementById('dialogRowIndex').style.display = 'none';
-	document.getElementById('dialogRowDtype').style.display = 'none';
-	document.getElementById('dialogRowValue').style.display = 'none';
-	document.getElementById('dialogRowAccess').style.display = 'none';
 }
 
 function modalOpenForObject(otype) {
@@ -1725,6 +1679,8 @@ function modalOpenForObject(otype) {
 function modalSetTitle(message) {
 	document.getElementById('editObjectTitle').innerHTML = message;
 }
+
+// ####################### Edit Object Dictionary UI logic ####################### //
 
 function editVAR_Click(odSectionName, indexValue = null) {
 	const otype = OTYPE.VAR;
@@ -1917,12 +1873,7 @@ function onEditSubitemSubmit(modalSubitem) {
 	reloadOD_Section(modalSubitem.odSectionName);
 }
 
-function onFormChanged() {
-	processForm(getForm());
-	saveLocalBackup();  // persist OD changes over page reload
-}
-
-// ####################### Display Object Dictionary in building ####################### //
+// ####################### Display Object Dictionary state ####################### //
 
 function reloadOD_Sections() {
 	reloadOD_Section(sdo);
@@ -1956,4 +1907,92 @@ function reloadOD_Section(odSectionName) {
 		}
 	});
 	document.getElementById(`tr_${odSectionName}`).innerHTML = section;
+}
+
+
+// ####################### Backup serialization + deserialization ####################### //
+
+function isValidBackup(backup) {
+	if (!backup || !backup.form || !backup.od ) {
+		if (!confirm('Backup is incomplete or invalid, proceed anyway?')) {
+			return false;
+		}
+	}
+	return true;
+}
+
+function prepareBackupObject() {
+	const form = getForm();
+	const formValues = {};
+	Object.entries(form).forEach(formEntry => {
+		const formControl = formEntry[1]; // entry[0] is form control order number
+		if(formControl.value) {
+			formValues[formControl.name] = formControl.value;
+		};
+	});
+
+	const backup = {
+		form: formValues,
+		od: _odSections,
+	};
+
+	return backup;
+}
+
+function loadBackup(backupObject) {
+	if (backupObject.od) {
+		_odSections.sdo = backupObject.od.sdo;
+		_odSections.txpdo = backupObject.od.txpdo;
+		_odSections.rxpdo = backupObject.od.rxpdo;
+	}
+		
+	var form = getForm();
+	Object.entries(form).forEach(formEntry => {
+		const formControl = formEntry[1]; // entry[0] is index
+		const formControlValue = backupObject.form[formControl.name];
+		if(formControlValue) {
+			formControl.value = formControlValue;
+		};
+	});
+}
+
+function prepareBackupFileContent() {
+	var backupObject = prepareBackupObject();
+	var backupFileContent = JSON.stringify(backupObject, null, 2); // pretty print
+	return backupFileContent;
+}
+
+// ####################### Backup using JSON file from filesystem ####################### //
+
+// Localstorage limit is usually 5MB, super large object dictionaries on older browsers might be problematic
+
+function downloadBackupFile() {
+	const backupFileContent = prepareBackupFileContent(); // pretty print
+	downloadFile(backupFileContent, fileName = 'esi.json', contentType = 'text/json');
+}
+
+function restoreBackup(fileContent) {
+	var backup = JSON.parse(fileContent);
+	if (isValidBackup(backup)) {
+		loadBackup(backup);
+		reloadOD_Sections();
+	}
+}
+
+// ####################### Backup using browser localstorage ####################### //
+
+function saveLocalBackup() {
+	localStorage.etherCATeepromGeneratorBackup = prepareBackupFileContent();
+}
+
+function tryRestoreLocalBackup() {
+	if (localStorage.etherCATeepromGeneratorBackup) {
+		restoreBackup(localStorage.etherCATeepromGeneratorBackup);
+	}
+}
+
+function resetLocalBackup() {
+	if (localStorage.ethetruerCATeepromGeneratorBackup) {
+		delete localStorage.etherCATeepromGeneratorBackup;
+	}
 }
