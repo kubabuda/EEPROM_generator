@@ -77,7 +77,7 @@ https://www.sitepoint.com/mime-types-complete-list/
 - test on real HW
 - DC configuration
 ### non critical / known issues
-- dark mode switch
+- nicer dark mode switch 
 - test reset project 
 - use [XML parsing](https://www.w3schools.com/xml/xml_parser.asp) for ESI output
 - add option to switch between .bin and Intel HEX for EEPROM file output

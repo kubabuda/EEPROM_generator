@@ -1517,13 +1517,6 @@ window.onclick = function(event) {
 	}
 }
 
-var _isDarkMode = false;
-function toggleDarkMode() {
-	var newMode = _isDarkMode ? "light" : "dark"
-	document.documentElement.setAttribute("data-theme", newMode);
-	_isDarkMode = !_isDarkMode;
-}
-
 window.onload = (event) => {
 	modalSetup();
 	tryRestoreLocalBackup();
@@ -1545,9 +1538,28 @@ window.onload = (event) => {
 			onFormChanged();
 		});
 	}
-	toggleDarkMode();
+	setupDarkMode();
 }
 
+
+// ####################### Button handlers ####################### //
+function setupDarkMode() {
+	if (!localStorage.darkMode) {
+		localStorage.darkMode = 'dark'; // dark mode by default
+	}
+	document.documentElement.setAttribute("data-theme", localStorage.darkMode);
+}
+
+function toggleDarkMode() {
+	debugger;
+	var newMode = (localStorage.darkMode == 'dark') ? "light" : "dark"
+	localStorage.darkMode = newMode;
+	document.documentElement.setAttribute("data-theme", localStorage.darkMode);
+}
+
+// ####################### code generation  UI logic  ####################### //
+
+/** Code generation method, triggered by UI */
 function processForm(form)
 {
 	const od = buildObjectDictionary(form);
