@@ -56,23 +56,13 @@ https://www.sitepoint.com/mime-types-complete-list/
 
 
 # TODO
+- floating point default values in binary
+- ecat_options: 0x1400 vs 0x1600 for SM2?
+- MAX_MAPPINGS_SM2, MAX_MAPPINGS_SM3
+
 - check generated XML for PDOs
 - check generated C, XML code
 - check .bin output
-
-- missing `<PdoMapping>T</PdoMapping>` on complex types: should be on DT, not dictionary object
-- floating point default values in binary
-- enable and connect default value input in subitem edit dialog
-- padding entry in PDO after bool:
-```xml
-        <Entry>
-            <Index>0</Index>
-            <SubIndex>0</SubIndex>
-            <BitLen>7</BitLen>
-          </Entry>
-```
-- where is rxpdo in ESI xml?
-
 - test if code compilation works
 - test on real HW
 - DC configuration

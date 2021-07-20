@@ -1488,9 +1488,10 @@ function ecat_options_generator(form, od, indexes)
 				+ '\n#define SM3_smc          0x20'
 				+ '\n#define SM3_act          1\n\n';
 	// Mappings config
-	const MAX_MAPPINGS = getMaxMappings(od, indexes);
-	ecat_options += `#define MAX_MAPPINGS_SM2 ${MAX_MAPPINGS.SM2}`
-				+ `\n#define MAX_MAPPINGS_SM3 ${MAX_MAPPINGS.SM3}\n\n`
+	const MAX_MAPPINGS_SM2 = getMaxMappings(od, indexes, rxpdo);
+	const MAX_MAPPINGS_SM3 = getMaxMappings(od, indexes, txpdo);
+	ecat_options += `#define MAX_MAPPINGS_SM2 ${MAX_MAPPINGS_SM2}`
+				+ `\n#define MAX_MAPPINGS_SM3 ${MAX_MAPPINGS_SM3}\n\n`
 	// PDO buffer config
 	ecat_options += '#define MAX_RXPDO_SIZE   512'
 				+ '\n#define MAX_TXPDO_SIZE   512\n\n'
@@ -1498,29 +1499,37 @@ function ecat_options_generator(form, od, indexes)
 
 	return ecat_options;
 
-	function getMaxMappings(od, indexes) {
-		let MAX_MAPPINGS_SM2 = 0;
-		let MAX_MAPPINGS_SM3 = 0;
+	function getMaxMappings(od, indexes, pdoName) {
+		let result = 0;
+
 		indexes.forEach(index => {
-			const element = od[index];
-			if(element.pdo_mappings) {
-				element.pdo_mappings.forEach(mapping => {
-					if (mapping == rxpdo) { ++MAX_MAPPINGS_SM2 }
-					if (mapping == txpdo) { ++MAX_MAPPINGS_SM3 }
-				});
-			};
-			if(element.items) {
-				element.items.forEach(subitem => {
-					if(subitem.pdo_mappings) {
-						subitem.pdo_mappings.forEach(mapping => {
-							if (mapping == rxpdo) { ++MAX_MAPPINGS_SM2 }
-							if (mapping == txpdo) { ++MAX_MAPPINGS_SM3 }
+			const objd = od[index];
+			if(objd.pdo_mappings) {
+				if(objd.items) {
+					objd.items.slice(1).forEach(subitem => {
+						objd.pdo_mappings.forEach(mapping => {
+							if (mapping == pdoName) {
+								++result;
+								if (subitem.dtype == DTYPE.BOOLEAN) {
+									++result; // boolean padding is mapping too
+									// TODO handle array of booleans
+								}
+							}
 						});
-					};		
-				});
-			}
+					});
+				} else if(objd.pdo_mappings) {
+					objd.pdo_mappings.forEach(mapping => {
+						if (mapping == pdoName) { 
+							++result;
+							if (objd.dtype == DTYPE.BOOLEAN) {
+								++result; // boolean padding is mapping too
+							}
+						}
+					});
+				};		
+			};
 		});
-		return { SM2: MAX_MAPPINGS_SM2, SM3: MAX_MAPPINGS_SM3 };
+		return result;
 	}
 }
 
