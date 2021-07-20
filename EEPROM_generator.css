@@ -1,3 +1,17 @@
+:root {
+   --background-color: #fff;
+   --text-color: #000;
+   --input-color: #ffffff;
+}
+ 
+/* dark mode */
+[data-theme="dark"] {
+/* body, .modal-content { */
+   --background-color: #2D2D2D; /* #4D4D4D; */
+   --text-color: white;
+   --input-color: #3D3D3D;
+}
+
 tr td:nth-child(3) { 
    text-align: center;
 }
@@ -27,7 +41,7 @@ tr td:nth-child(6) {
 
 /* Modal Content */
 .modal-content {
-   background-color: #fefefe;
+   background-color: var(--background-color);
    margin: auto;
    padding: 20px;
    border: 1px solid #888;
@@ -103,19 +117,17 @@ span.odSubitemContent {
    display: inline-block;
 }
 
-/* dark mode */
-
-body, .modal-content {
-   background-color: #2D2D2D; /* #4D4D4D; */
-   color: white;
+body {
+   background-color: var(--background-color);
+   color: var(--text-color);
 }
 
 input, textarea, select, button {
-   background-color: #3D3D3D;
-   color: white;
+   background-color: var(--input-color);
+   color: var(--text-color);
 }
 
 a {
-   color: whitesmoke;
+   color: var(--text-color);
    font-weight: 600;
 }

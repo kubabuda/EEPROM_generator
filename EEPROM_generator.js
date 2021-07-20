@@ -1517,6 +1517,13 @@ window.onclick = function(event) {
 	}
 }
 
+var _isDarkMode = false;
+function toggleDarkMode() {
+	var newMode = _isDarkMode ? "light" : "dark"
+	document.documentElement.setAttribute("data-theme", newMode);
+	_isDarkMode = !_isDarkMode;
+}
+
 window.onload = (event) => {
 	modalSetup();
 	tryRestoreLocalBackup();
@@ -1538,6 +1545,7 @@ window.onload = (event) => {
 			onFormChanged();
 		});
 	}
+	toggleDarkMode();
 }
 
 function processForm(form)
