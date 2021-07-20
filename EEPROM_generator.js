@@ -1677,7 +1677,7 @@ function modalOpenForObject(otype) {
 }
 
 function modalSetTitle(message) {
-	document.getElementById('editObjectTitle').innerHTML = message;
+	document.getElementById('editObjectTitle').innerHTML = `<strong>${message}</strong>`;
 }
 
 // ####################### Edit Object Dictionary UI logic ####################### //
