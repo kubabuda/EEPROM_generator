@@ -184,7 +184,8 @@ function addRXPDOitems(od) {
 	const pdo = {
 		mappingValue : rxpdo,
 		SMassignmentIndex : '1C12',
-		smOffset : parseInt(form.SM2Offset.value), // usually 0x1400 or 0x1600
+		smOffset : 0x1600, // parseInt(form.SM2Offset.value), // usually 0x1400 or 0x1600
+		// TODO: test if it will work with PDO mappings elsewhere
 	};
 	addPdoObjectsSection(od, rxpdoSection, pdo);
 }

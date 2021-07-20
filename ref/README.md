@@ -56,7 +56,12 @@ https://www.sitepoint.com/mime-types-complete-list/
 
 
 # TODO
-- objectlist.c : 0x1400 vs 0x1600 for SM2?
+- SM2 offset: regardles of value set, SDK generates RXPDO mappings as SDO1600. SM2 offset chanfe affects
+     `ecat_options.h` #define SM2_sma, MAX_TXPDO_SIZE and MAX_RXPDO_SIZE
+     and `esi.xml` `<Sm ControlByte="#x24" Enable="1" StartAddress="#x1600">Outputs</Sm>`
+- check boolean[] ARRAY
+- check VISIBLE_STRING ARRAY
+- check VISIBLE_STRING RECORD subitem
 - check generated XML for PDOs
 - check generated C, XML code
 - check .bin output
