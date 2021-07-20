@@ -69,6 +69,7 @@ https://www.sitepoint.com/mime-types-complete-list/
 - test on real HW
 - DC configuration
 ### non critical / known issues
+- dark mode
 - use [XML parsing](https://www.w3schools.com/xml/xml_parser.asp) for ESI output
 - add option to switch between .bin and Intel HEX for EEPROM file output
 - add indexes list to OD model, to decrease parametes count in methods

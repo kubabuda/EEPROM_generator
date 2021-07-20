@@ -49,11 +49,20 @@ tr td:nth-child(6) {
    cursor: pointer;
 }
 
+
+/* main content layout */
+
 body {
    font-family: Arial, Helvetica, sans-serif;
+   font-size: large;
    margin: auto;
    width: 60%;
-   min-width: 1280px;
+   min-width: 1000px;
+   /* width: 1000px; */
+}
+
+table, textarea {
+   width: 100%;
 }
 
 button {
@@ -74,6 +83,7 @@ span.odItemContent, span.odSectionTitle {
 }
 
 span.odSectionTitle {
+   font-weight: 800;
    margin-top: 10px;
    margin-right: -5px;
 }
@@ -82,4 +92,21 @@ span.odSubitemContent {
    margin-left: 15px;
    min-width: 600px;
    display: inline-block;
+}
+
+/* dark mode */
+
+body, .modal-content {
+   background-color: #2D2D2D; /* #4D4D4D; */
+   color: white;
+}
+
+input, textarea, select, button {
+   background-color: #3D3D3D;
+   color: white;
+}
+
+a {
+   color: whitesmoke;
+   font-weight: 600;
 }
