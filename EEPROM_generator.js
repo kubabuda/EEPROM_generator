@@ -233,7 +233,7 @@ function addPdoObjectsSection(od, odSection, pdo){
 						addBooleanPadding(pdoMappingObj.items, ++_booleanPaddingCount);
 					}
 					// link to OD variable declared on OD struct
-					subitem.data = `&Obj.${variableName(objd.name)}.${variableName(subitem.name)}]`;
+					subitem.data = `&Obj.${variableName(objd.name)}.${variableName(subitem.name)}`;
 					++subindex;
 				});
 				break;
