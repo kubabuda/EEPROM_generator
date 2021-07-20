@@ -32,7 +32,7 @@ const DTYPE = {
 	// PDO_MAPPING : 'PDO_MAPPING',
 };
 const dtype_bitsize = {
-	'BOOLEAN' : 8,
+	'BOOLEAN' : 1,
 	'INTEGER8' : 8,
 	'INTEGER16' : 16,
 	'INTEGER32' : 32,
@@ -50,7 +50,7 @@ const ESI_DT = {
 	'UNSIGNED8': { name: 'USINT', bitsize: 8, ctype: 'uint8_t' },
 	'UNSIGNED16': { name: 'UINT', bitsize: 16, ctype: 'uint16_t' },
 	'UNSIGNED32': { name: 'UDINT', bitsize: 32, ctype: 'uint32_t' },
-	'REAL32': { name: 'REAL', bitsize: 32, ctype: 'double' }, // TODO check C type name
+	'REAL32': { name: 'REAL', bitsize: 32, ctype: 'float' }, // TODO check C type name
 	'VISIBLE_STRING': { name: 'STRING', bitsize: 8, ctype: 'char *' }, // TODO check C type name
 };
 
@@ -165,7 +165,7 @@ function addRXPDOitems(od) {
 	const pdo = {
 		mappingValue : rxpdo,
 		SMassignmentIndex : '1C12',
-		smOffset : parseInt(form.SM2Offset.value), // usually 0x1400
+		smOffset : parseInt(form.SM2Offset.value), // usually 0x1400 or 0x1600
 	};
 	addPdoObjectsSection(od, rxpdoSection, pdo);
 }
@@ -186,7 +186,8 @@ function addPdoObjectsSection(od, odSection, pdo){
 	const indexes = getUsedIndexes(odSection);
 
 	if (indexes.length) {
-		const pdoAssignments = ensurePDOAssignmentExists(od, pdo.SMassignmentIndex);	
+		const pdoAssignments = ensurePDOAssignmentExists(od, pdo.SMassignmentIndex);
+		var paddingCount = 1;
 
 		indexes.forEach(index => {
 			const objd = odSection[index];
@@ -203,15 +204,19 @@ function addPdoObjectsSection(od, odSection, pdo){
 			case  OTYPE.VAR: {
 				// create PDO mapping
 				pdoMappingObj.items.push({ name: objd.name, dtype: DTYPE.UNSIGNED32, value: getPdoMappingValue(index, 0, objd.dtype) });
+				if (objd.dtype == DTYPE.BOOLEAN) { 
+					addBooleanPadding(pdoMappingObj.items);
+				}
 				// link to OD variable declared on OD struct
 				objd.data = `&Obj.${variableName(objd.name)}`;
 				break;
 			} 
 			case OTYPE.ARRAY: {
 				var subindex = 1;
-				objd.items.slice(subindex).forEach(subitem => {
+				objd.items.slice(subindex).forEach(subitem => { 
 					// create PDO mappings
 					pdoMappingObj.items.push({ name: subitem.name, dtype: DTYPE.UNSIGNED32, value: getPdoMappingValue(index, subindex , objd.dtype) });
+					// TODO handle padding on array of booleans
 					// link to OD variable declared on OD struct
 					subitem.data = `&Obj.${variableName(objd.name)}[${subindex - 1}]`;
 					++subindex;
@@ -223,6 +228,9 @@ function addPdoObjectsSection(od, odSection, pdo){
 				objd.items.slice(subindex).forEach(subitem => {
 					// create PDO mappings
 					pdoMappingObj.items.push({ name: subitem.name, dtype: DTYPE.UNSIGNED32, value: getPdoMappingValue(index, subindex , subitem.dtype) });
+					if (subitem.dtype == DTYPE.BOOLEAN) { 
+						addBooleanPadding(pdoMappingObj.items);
+					}
 					// link to OD variable declared on OD struct
 					subitem.data = `&Obj.${variableName(objd.name)}.${variableName(subitem.name)}]`;
 					++subindex;
@@ -241,6 +249,10 @@ function addPdoObjectsSection(od, odSection, pdo){
 
 			++currentSMoffsetValue;
 		});
+
+		function addBooleanPadding(mappingOjbItems) {
+			mappingOjbItems.push({ name: `Padding ${paddingCount++}`, dtype: DTYPE.UNSIGNED32, value: '0x00000007' });
+		}
 	}
 
 	function addPdoMapping(objd, mappingValue) {
