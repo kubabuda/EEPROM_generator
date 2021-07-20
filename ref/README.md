@@ -56,14 +56,22 @@ https://www.sitepoint.com/mime-types-complete-list/
 
 
 # TODO
-- SM2 offset: regardles of value set, SDK generates RXPDO mappings as SDO1600. SM2 offset chanfe affects
-     `ecat_options.h` #define SM2_sma, MAX_TXPDO_SIZE and MAX_RXPDO_SIZE
-     and `esi.xml` `<Sm ControlByte="#x24" Enable="1" StartAddress="#x1600">Outputs</Sm>`
+- SM2 offset: regardles of value set, SDK generates RXPDO mappings as SDO1600. SM2 offset change affects
+    - `ecat_options.h` #define SM2_sma, MAX_TXPDO_SIZE and MAX_RXPDO_SIZE
+    - `esi.xml` `<Sm ControlByte="#x24" Enable="1" StartAddress="#x1600">Outputs</Sm>`
+    currently this tool mirrors SDK behavior, check if this hack is needed or just duplicated SDK bug
+
 - check boolean[] ARRAY
 - check VISIBLE_STRING ARRAY
 - check VISIBLE_STRING RECORD subitem
-- check generated XML for PDOs
-- check generated C, XML code
+
+- check generated XML for PDOs:
+    - <RXDPO><Index> set 0x1600 not 1400
+    - <CoE> settings
+    - enable <Sm ControlByte="#x24" Enable="1" StartAddress="#x1400">Outputs</Sm>
+             <Sm ControlByte="#x20" Enable="1" StartAddress="#x1A00">Inputs</Sm>
+        only if any variables for given PDO
+    - configdata
 - check .bin output
 - test if code compilation works
 - test on real HW
