@@ -1926,7 +1926,7 @@ function prepareBackupObject() {
 	const formValues = {};
 	Object.entries(form).forEach(formEntry => {
 		const formControl = formEntry[1]; // entry[0] is form control order number
-		if(formControl.value) {
+		if(isBackedUp(formControl) && formControl.value) {
 			formValues[formControl.name] = formControl.value;
 		};
 	});
@@ -1937,6 +1937,10 @@ function prepareBackupObject() {
 	};
 
 	return backup;
+}
+
+function isBackedUp(formControl) {
+	return formControl.type != "button";
 }
 
 function loadBackup(backupObject) {
@@ -1950,7 +1954,7 @@ function loadBackup(backupObject) {
 	Object.entries(form).forEach(formEntry => {
 		const formControl = formEntry[1]; // entry[0] is index
 		const formControlValue = backupObject.form[formControl.name];
-		if(formControlValue) {
+		if(isBackedUp(formControl) && formControlValue) {
 			formControl.value = formControlValue;
 		};
 	});
