@@ -1916,12 +1916,12 @@ function reloadOD_Section(odSectionName) {
 	var section = '';
 	indexes.forEach(index => {
 		const objd = odSection[index];
-		section += `<div class="odItem"><span class="odItemContent"><strong>0x${index}</strong>&nbsp;&nbsp; "${objd.name}" ${objd.otype} ${objd.dtype ?? ''}</span>`;
-		section += `<span><button onClick='onRemoveClick(${odSectionName}, 0x${index})'>&nbsp; ❌ Remove &nbsp;</button>`;
-		section += `<button onClick='edit${objd.otype}_Click(${odSectionName}, 0x${index})'>&nbsp; 🛠️ &nbsp; Edit &nbsp;</button>`;
+		section += `<div class="odItem"><span class="odItemContent"><strong>0x${index}</strong>&nbsp;&nbsp; "${objd.name}" ${objd.otype} ${objd.dtype ?? ''}</span><span>`;
 		if (objd.otype == OTYPE.ARRAY || objd.otype == OTYPE.RECORD) {
 			section += `<button onClick='addSubitemClick(${odSectionName}, 0x${index})'>&nbsp; ➕ Add subitem &nbsp;</button>`;
 		}
+		section += `<button onClick='onRemoveClick(${odSectionName}, 0x${index})'>&nbsp; ❌ Remove &nbsp;</button>`;
+		section += `<button onClick='edit${objd.otype}_Click(${odSectionName}, 0x${index})'>&nbsp; 🛠️ &nbsp; Edit &nbsp;</button>`;
 		section += `</span></div>`;
 		if (objd.items) {
 			var subindex = 1; // skip Max Subindex

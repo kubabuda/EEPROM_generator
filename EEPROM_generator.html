@@ -3,7 +3,6 @@
    <meta charset="UTF-8">
    <script src="EEPROM_generator.js"></script>
    <link rel="stylesheet" href="EEPROM_generator.css">
-   <!--<script src="saveRestore.js"></script>-->
 </head>
 
 <body>
@@ -51,7 +50,7 @@
                </tr>
                <tr>
                   <td align="center">
-                     <input type="button" name="Cancel" value="✖️ &nbsp; Cancel &nbsp;" onClick='modalClose();'>
+                     <button name="Cancel" onClick='modalClose();'>✖️ &nbsp; Cancel &nbsp;</button>
                   </td><td>
                      <input type="submit" name="SaveChanges" value="✔️&nbsp; Save changes &nbsp;">
                   </td>
@@ -63,8 +62,9 @@
 
    <div class="dark-mode-toggle-container">
       <span></span>
-      <input type="button" name="DarkMode" value="⚙️ &nbsp; ToggleDarkMode &nbsp;" onClick='toggleDarkMode();' 
-         title="Toggle dark mode">
+      <button name="DarkMode"onClick='toggleDarkMode();' title="Toggle dark mode">
+         ⚙️ &nbsp; ToggleDarkMode &nbsp;
+      </button>
    </div>
 
    <div class="main-wrapper">
@@ -81,7 +81,7 @@
       </div>
       <br>
          
-      <form  name="SlaveForm" id="SlaveForm" action="" onsubmit="return false;">
+      <form name="SlaveForm" id="SlaveForm" action="" onsubmit="return false;">
          <table border="0">
             <tr>
                <td><strong>Item:</strong></td><td><strong>Value</strong></td><td width="12%"><strong>ESI</strong></td><td width="12%"><strong>EEPROM</strong></td><td width="12%"><strong>objectlist.c</strong></td><td width="12%"><strong>ecat_options.h</strong></td>
@@ -247,37 +247,66 @@
 
             <tr><td colspan="6"><hr></td</tr>
             <tr><td colspan="6" align="center">
-               <input type="button" name="GenerateDownload" value="⏬ &nbsp; Download all files &nbsp;" onclick="onGenerateDownloadClick()" 
-                  title="Generate all files and download at once">
-               <input type="button" id='GenerateFilesButton' name="Generate" value="&nbsp; Generate files &nbsp;" onClick="onGenerateClick();"
-                  title="Generate all files">
-               <input type="button" name="Save" value="⤵️ &nbsp; Save project &nbsp;" onClick='onSaveClick();'
-                  title="Download current settings and Object Dictionary state as JSON file">
-               <input type="button" name="Restore" value="⤴️ &nbsp; Restore project &nbsp;" onClick='onRestoreClick();' 
-                  title="Load settings and Object Dictionary state from previously saved JSON file"> 
-               <input type="button" name="Reset" value="‼️ &nbsp; Reset project &nbsp;" onClick='onResetClick();' 
-                  title="Reset settings to default values and remove all Object Dictionary entries">  
+               <button name="GenerateDownload" onclick="onGenerateDownloadClick()" title="Generate all files and download at once">
+                  ⏬ &nbsp; Download all files &nbsp;
+               </button>
+               <button id='GenerateFilesButton' name="Generate" onClick="onGenerateClick();" title="Generate all files">
+                  &nbsp; Generate files &nbsp;
+               </button>
+               <button name="Save" onClick='onSaveClick();' title="Download current settings and Object Dictionary state as JSON file">
+                  ⤵️ &nbsp; Save project &nbsp;
+               </button>
+               <button name="Restore" onClick='onRestoreClick();' title="Load settings and Object Dictionary state from previously saved JSON file">
+                  ⤴️ &nbsp; Restore project &nbsp;
+               </button>
+               <button name="Reset" onClick='onResetClick();' title="Reset settings to default values and remove all Object Dictionary entries">
+                  ‼️ &nbsp; Reset project &nbsp;
+               </button>
             </td></tr>
          </table>
       </form>
 
       <br><br>
       <form name="outCodeForm" id="outCodeForm" action="" onsubmit="return false;">
-         ESI file:<input type="button" name="DownloadESI" value="🔽 &nbsp; Download &nbsp;" onClick="downloadFile(getOutputForm().ESI.value, fileName = 'esi.xml', contentType = 'text/html');"><br>
+         ESI file:
+         <button name="DownloadESI" onClick="downloadFile(getOutputForm().ESI.value, fileName = 'esi.xml', contentType = 'text/html');">
+            🔽 &nbsp; Download &nbsp;
+         </button>   
+         <br>
          <textarea cols = "150" rows = "12" name="ESI">ESI File</textarea><br><br>
          EEPROM HEX file:
-         <input type="button" name="Download_HEX" value="🔽 &nbsp; Download &nbsp;" onClick="downloadFile(getOutputForm().HEX.value, fileName = 'eeprom.hex', contentType = 'application/octet-stream');">
-         <input type="button" name="Download_BIN" value="🔽 &nbsp; Download .bin &nbsp;" onClick="onDownloadBinClick();">
+         <button name="Download_HEX" 
+            onClick="downloadFile(getOutputForm().HEX.value, fileName = 'eeprom.hex', contentType = 'application/octet-stream');">
+            🔽 &nbsp; Download &nbsp;
+         </button>
+         <button name="Download_BIN" onClick="onDownloadBinClick();">
+            🔽 &nbsp; Download .bin &nbsp;
+         </button>
          <br>
          <!-- TODO this probably is wrong MIME type, check another one: https://www.sitepoint.com/mime-types-complete-list/ -->
          To flash generated binary, install SOEM and run 
          <br><br><i id="hexInstallCmd">sudo ./eepromtool 1 eth0 -wi eeprom.hex</i><br><br>
          <textarea cols = "150" rows = "12" name="HEX">Hex File</textarea><br><br>
-         ecat_options.h: <input type="button" name="Download_ecat_options" value="🔽 &nbsp; Download &nbsp;" onClick="downloadFile(getOutputForm().ecat_options.value, fileName = 'ecat_options.h', contentType = 'text/plain');"><br>
+         ecat_options.h: 
+         <button name="Download_ecat_options" 
+            onClick="downloadFile(getOutputForm().ecat_options.value, fileName = 'ecat_options.h', contentType = 'text/plain');">
+            🔽 &nbsp; Download &nbsp;
+         </button>
+         <br>
          <textarea cols = "150" rows = "12" name="ecat_options">ecat_options.h</textarea><br><br>
-         objectlist.c: <input type="button" name="Download_objectlist" value="🔽 &nbsp; Download &nbsp;" onClick="downloadFile(getOutputForm().objectlist.value, fileName = 'objectlist.c', contentType = 'text/plain');"><br>
+         objectlist.c: 
+         <button name="Download_objectlist" 
+            onClick="downloadFile(getOutputForm().objectlist.value, fileName = 'objectlist.c', contentType = 'text/plain');">
+            🔽 &nbsp; Download &nbsp;
+         </button>
+         <br>
          <textarea cols = "150" rows = "12" name="objectlist">objectlist.c</textarea><br><br>
-         utypes.h: <input type="button" name="Download_utypes" value="🔽 &nbsp; Download &nbsp;" onClick="downloadFile(getOutputForm().utypes.value, fileName = 'utypes.h', contentType = 'text/plain');"><br>
+         utypes.h: 
+         <button name="Download_utypes"
+            onClick="downloadFile(getOutputForm().utypes.value, fileName = 'utypes.h', contentType = 'text/plain');">
+            🔽 &nbsp; Download &nbsp;
+         </button>
+         <br>
          <textarea cols = "150" rows = "12" name="utypes">utypes.h</textarea><br><br>
          <input id="restoreFileInput" type='file' style="visibility:hidden;" onchange="readFile(event)" />
       </form>
