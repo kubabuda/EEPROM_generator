@@ -72,8 +72,11 @@ tr td:nth-child(6) {
 body {
    font-family: Arial, Helvetica, sans-serif;
    font-size: large;
+}
+
+div.main-wrapper {
    margin: auto;
-   width: 1000px;
+   max-width: 960px;
 }
 
 h2, h3 {
@@ -89,6 +92,19 @@ button {
    margin-right: 5px;
 }
 
+div.dark-mode-toggle-container {
+   display: flex;
+   justify-content: space-between;
+   /* align-items: right; */
+   /* background-color: red; */
+}
+
+.odSectionHeading, .odItem, .odSubitem {
+   display: flex;
+   align-items: center;
+   justify-content: space-between;
+}
+
 div.odItem, div.odSubitem {
    padding-top: 4px;
    padding-bottom: 4px;
@@ -100,11 +116,6 @@ h3.odSectionHeading {
    text-align: left;
 }
 
-span.odItemContent, span.odSectionTitle {
-   min-width: 600px;
-   display: inline-block;
-}
-
 span.odSectionTitle {
    font-weight: 800;
    margin-top: 10px;
@@ -113,8 +124,6 @@ span.odSectionTitle {
 
 span.odSubitemContent {
    margin-left: 15px;
-   min-width: 600px;
-   display: inline-block;
 }
 
 body {
