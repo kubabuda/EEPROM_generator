@@ -962,7 +962,9 @@ function esi_generator(form, od, indexes)
 
 function hex_generator(form, stringOnly=false)
 {
-	if (stringOnly) { return getConfigDataString(form); }
+	//WORD ADDRESS 0-7
+	var record = getConfigDataBytes(form);
+	if (stringOnly) { return getConfigDataString(record, form.ESC.value); }
 
 	/** Takes form, returns config data: 
 	 * first 16 bytes (8 words) with check sum */
@@ -991,8 +993,6 @@ function hex_generator(form, stringOnly=false)
 		return record;
 	}
 
-	//WORD ADDRESS 0-7
-	var record = getConfigDataBytes(form);
 	//WORD ADDRESS 8-15
 	writeEEPROMDword_wordaddress(parseInt(form.VendorID.value),8,record);		//CoE 0x1018:01
 	writeEEPROMDword_wordaddress(parseInt(form.ProductCode.value),10,record);	//CoE 0x1018:02
@@ -1037,7 +1037,7 @@ function hex_generator(form, stringOnly=false)
 	
 	return record;
 	
-	//See ETG1000.6 Table20 for Category string
+	/** See ETG1000.6 Table20 for Category string */
 	function writeEEPROMstrings(record, offset, a_strings)
 	{
 		var number_of_strings = a_strings.length;
@@ -1053,8 +1053,8 @@ function hex_generator(form, stringOnly=false)
 			length_is_even = false;
 		else
 			length_is_even = true;
-		writeEEPROMword_wordaddress(0x000A,offset/2,record); //Type: STRING
-		writeEEPROMword_wordaddress(Math.ceil(total_string_data_length/2),(offset/2)+1, record); //write length of complete package
+		writeEEPROMword_wordaddress(0x000A, offset/2, record); //Type: STRING
+		writeEEPROMword_wordaddress(Math.ceil(total_string_data_length/2), (offset/2) + 1, record); //write length of complete package
 		offset += 4; //2 words written
 		writeEEPROMbyte_byteaddress(number_of_strings, offset++, record);
 		for(var strcounter = 0; strcounter < number_of_strings ; strcounter++)
@@ -1071,16 +1071,17 @@ function hex_generator(form, stringOnly=false)
 		}
 		return offset;
 	}
-	//See ETG1000.6 Table21
+	/** See ETG1000.6 Table21 */
 	function writeEEPROMgeneral_settings(form,offset,record)
 	{
-		categorysize = 0x10;
+		const generalType = 0x1E; // category value: 30
+		const categorysize = 0x10;
 		//Clear memory region
-		for(wordcount = 0; wordcount < categorysize+2 ; wordcount++) {
-			writeEEPROMword_wordaddress(0,(offset/2) + wordcount, record);
+		for(wordcount = 0; wordcount < categorysize + 2; wordcount++) {
+			writeEEPROMword_wordaddress(0, (offset/2) + wordcount, record);
 		}
 		//write code 30, 'General type'. See ETG1000.6, Table 19
-		writeEEPROMword_wordaddress(30,offset/2,record);
+		writeEEPROMword_wordaddress(generalType, offset/2, record);
 		//write length of General Category data
 		writeEEPROMword_wordaddress(categorysize, 1+(offset/2), record);
 		offset +=4;
@@ -1105,7 +1106,7 @@ function hex_generator(form, stringOnly=false)
 		offset += 14; //14 pad bytes
 		return offset;
 	}
-	//see Table 22 ETG1000.6
+	/** See ETG1000.6 Table 22 */
 	function writeFMMU(form,offset, record)
 	{
 		writeEEPROMword_wordaddress(0x28,offset/2,record);
@@ -1116,8 +1117,9 @@ function hex_generator(form, stringOnly=false)
 		writeEEPROMbyte_byteaddress(2, offset++, record); //FMMU1 used for Outputs; see Table 22 ETG1000.6
 		return offset;
 	}
+	/** See Table 23 ETG1000.6 */
 	function writeSyncManagers(form, offset, record)
-	{//See Table 23 ETG1000.6
+	{
 		writeEEPROMword_wordaddress(0x29,offset/2,record); //SyncManager
 		offset += 2;
 		writeEEPROMword_wordaddress(0x10, offset/2, record); //size of structure category
@@ -1160,8 +1162,7 @@ function hex_generator(form, stringOnly=false)
 		writeEEPROMbyte_byteaddress(4,offset++, record); //SyncManagerType; 0: not used, 1: Mbx out, 2: Mbx In, 3: PDO, 4: PDI
 		return offset;
 	}
-
-	// ETG1000.6 Table 21
+	/** ETG1000.6 Table 21 */
 	function getPhysicalPort(form)
 	{
 		portinfo = 0;
@@ -1242,9 +1243,8 @@ function hex_generator(form, stringOnly=false)
 	}
 	
 	/** takes bytes array and count, returns ConfigData string */
-	function getConfigDataString(form) {
-		const configdata_bytecount = (form.ESC.value == 'AX58100') ? 14 : 7; // for AX58100 configdata reaches 0x0A byte
-		record = getConfigDataBytes(form);
+	function getConfigDataString(record, esc) {
+		const configdata_bytecount = (esc == 'AX58100') ? 14 : 7; // for AX58100 configdata reaches 0x0A byte
 		var configdata = '';
 		for (var bytecount = 0; bytecount < configdata_bytecount; bytecount++) {
 			configdata += (record[bytecount] + 0x100).toString(16).slice(-2).toUpperCase();
