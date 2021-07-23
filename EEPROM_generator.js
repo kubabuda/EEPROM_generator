@@ -789,8 +789,7 @@ function esi_generator(form, od, indexes)
 	//Add DC
 	esi += `        <Dc>\n          <OpMode>\n            <Name>DcOff</Name>\n            <Desc>DC unused</Desc>\n          <AssignActivate>#x0000</AssignActivate>\n          </OpMode>\n        </Dc>\n`;
 	//Add EEPROM
-	const configdata_bytecount = (form.ESC.value == 'AX58100') ? 14 : 7; // for AX58100 configdata reaches 0x0A byte
-	const configdata = getConfigDataString(form, configdata_bytecount);
+	const configdata = hex_generator(form, true);
 	esi +=`        <Eeprom>\n          <ByteSize>${parseInt(form.EEPROMsize.value)}</ByteSize>\n          <ConfigData>${configdata}</ConfigData>\n        </Eeprom>\n`;
 	//Close all items
 	esi +=`      </Device>\n    </Devices>\n  </Descriptions>\n</EtherCATInfo>`;
@@ -961,10 +960,39 @@ function esi_generator(form, od, indexes)
 
 // ####################### EEPROM generating ####################### //
 
-function hex_generator(form)
+function hex_generator(form, stringOnly=false)
 {
+	if (stringOnly) { return getConfigDataString(form); }
+
+	/** Takes form, returns config data: 
+	 * first 16 bytes (8 words) with check sum */
+	function getConfigDataBytes(form) {
+		const recordLength = parseInt(form.EEPROMsize.value);
+		var record = new Uint8Array(recordLength);
+		record.fill(0xFF);
+		//Start of EEPROM contents; A lot of information can be found in 5.4 of ETG1000.6
+		const pdiControl = (form.ESC.value == 'LAN9252') ? 0x80 : 0x05;
+		const spiMode = parseInt(form.SPImode.value);
+		const reserved_0x05 = (form.ESC.value == 'AX58100') ? 0x001A : 0x00; // enable IO for SPI driver on AX58100:
+		// Write 0x1A value (INT edge pulse length, 8 mA Control + IO 9:0 Drive Select) to 0x0A (Host Interface Extend Setting and Drive Strength
+		
+		//WORD ADDRESS 0-7
+		writeEEPROMbyte_byteaddress(pdiControl, 0, record); //PDI control: SPI slave (mapped to register 0x0140)
+		writeEEPROMbyte_byteaddress(0x06, 1, record); //ESC configuration: Distributed clocks Sync Out and Latch In enabled (mapped register 0x0141)
+		writeEEPROMbyte_byteaddress(spiMode, 2, record); //SPI mode (mapped to register 0x0150)
+		writeEEPROMbyte_byteaddress(0x44, 3, record); //SYNC /LATCH configuration (mapped to 0x0151). Make both Syncs output
+		writeEEPROMword_wordaddress(0x0064, 2, record); //Syncsignal Pulselenght in 10ns units(mapped to 0x0982:0x0983)
+		writeEEPROMword_wordaddress(0x00, 3, record); //Extended PDI configuration (none for SPI slave)(0x0152:0x0153)
+		writeEEPROMword_wordaddress(0x00, 4, record); //Configured Station Alias (0x0012:0x0013)
+		writeEEPROMword_wordaddress(reserved_0x05, 5, record); //Reserved, 0 (when not AX58100)
+		writeEEPROMword_wordaddress(0x00, 6, record); //Reserved, 0
+		writeEEPROMword_wordaddress(FindCRC(record, 14), 7, record); //CRC
+		
+		return record;
+	}
+
 	//WORD ADDRESS 0-7
-	var record = getConfigDataBytes(form); 
+	var record = getConfigDataBytes(form);
 	//WORD ADDRESS 8-15
 	writeEEPROMDword_wordaddress(parseInt(form.VendorID.value),8,record);		//CoE 0x1018:01
 	writeEEPROMDword_wordaddress(parseInt(form.ProductCode.value),10,record);	//CoE 0x1018:02
@@ -1005,25 +1033,89 @@ function hex_generator(form)
 	//SyncManagers
 	offset = writeSyncManagers(form, offset, record); //See Table 23 ETG1000.6
 	//End of EEPROM contents
-
-	
 	const eepromSize = getForm().EEPROMsize.value;
-	const binaryContent = toBlobContent(record, eepromSize);
-
-	return binaryContent;
-
-	function toBlobContent(record, eepromSize) {
-		// takes array and file size, returns Uint8Array, that can be feed into Blob constructor
-		if (record.length > eepromSize) { 
-			alert(`Configuration will not fit on EEPROM with configured size! ${record.length} bytes used, but only ${eepromSize} available`);
-		}
-		var result = new Uint8Array(eepromSize);
-		for (let i = 0; i <= eepromSize; i++) {
-			result[i] = parseInt(record[i]);
-		};
-		return result;
-	}
 	
+	return record;
+	
+	//See ETG1000.6 Table20 for Category string
+	function writeEEPROMstrings(record, offset, a_strings)
+	{
+		var number_of_strings = a_strings.length;
+		var total_string_data_length = 0;
+		var length_is_even;
+		for(var strcounter = 0; strcounter < number_of_strings ; strcounter++)
+		{
+			total_string_data_length += a_strings[strcounter].length //add length of strings
+		}
+		total_string_data_length += number_of_strings; //for each string a byte is needed to indicate the length
+		total_string_data_length += 1; //for byte to give 'number of strings'
+		if(total_string_data_length %2) //if length is even (ends at word boundary)
+			length_is_even = false;
+		else
+			length_is_even = true;
+		writeEEPROMword_wordaddress(0x000A,offset/2,record); //Type: STRING
+		writeEEPROMword_wordaddress(Math.ceil(total_string_data_length/2),(offset/2)+1, record); //write length of complete package
+		offset += 4; //2 words written
+		writeEEPROMbyte_byteaddress(number_of_strings, offset++, record);
+		for(var strcounter = 0; strcounter < number_of_strings ; strcounter++)
+		{
+			writeEEPROMbyte_byteaddress(a_strings[strcounter].length, offset++, record);
+			for(var charcounter = 0 ; charcounter < a_strings[strcounter].length ; charcounter++)
+			{
+				writeEEPROMbyte_byteaddress(a_strings[strcounter].charCodeAt(charcounter), offset++, record);
+			}	
+		}
+		if(length_is_even == false)
+		{
+			writeEEPROMbyte_byteaddress(0, offset++, record);
+		}
+		return offset;
+	}
+	//See ETG1000.6 Table21
+	function writeEEPROMgeneral_settings(form,offset,record)
+	{
+		categorysize = 0x10;
+		//Clear memory region
+		for(wordcount = 0; wordcount < categorysize+2 ; wordcount++) {
+			writeEEPROMword_wordaddress(0,(offset/2) + wordcount, record);
+		}
+		//write code 30, 'General type'. See ETG1000.6, Table 19
+		writeEEPROMword_wordaddress(30,offset/2,record);
+		//write length of General Category data
+		writeEEPROMword_wordaddress(categorysize, 1+(offset/2), record);
+		offset +=4;
+		writeEEPROMbyte_byteaddress(2,offset++,record);//index to string for Group Info
+		writeEEPROMbyte_byteaddress(3,offset++,record);//index to string for Image Name
+		writeEEPROMbyte_byteaddress(1,offset++,record);//index to string for Device Order Number
+		writeEEPROMbyte_byteaddress(4,offset++,record);//index to string for Device Name Information
+		offset++; //byte 4 is reserved
+		writeEEPROMbyte_byteaddress(getCOEdetails(form),offset++,record);//CoE Details
+		writeEEPROMbyte_byteaddress(0,offset++,record); //Enable FoE
+		writeEEPROMbyte_byteaddress(0,offset++,record); //Enable EoE
+		writeEEPROMbyte_byteaddress(0,offset++,record); //reserved
+		writeEEPROMbyte_byteaddress(0,offset++,record); //reserved
+		writeEEPROMbyte_byteaddress(0,offset++,record); //reserved
+		writeEEPROMbyte_byteaddress(0,offset++,record); //flags (Bit0: Enable SafeOp, Bit1: Enable notLRW
+		writeEEPROMword_wordaddress(0x0000, offset/2, record); //current consumption in mA
+		offset += 2;
+		writeEEPROMword_wordaddress(0x0000, offset/2, record); //2 pad bytes
+		offset += 2;
+		writeEEPROMword_wordaddress(getPhysicalPort(form), offset/2, record);
+		offset += 2;
+		offset += 14; //14 pad bytes
+		return offset;
+	}
+	//see Table 22 ETG1000.6
+	function writeFMMU(form,offset, record)
+	{
+		writeEEPROMword_wordaddress(0x28,offset/2,record);
+		offset += 2;
+		writeEEPROMword_wordaddress(1, offset/2, record); //length = 1 word = 2bytes: 2 FMMU's.
+		offset += 2;
+		writeEEPROMbyte_byteaddress(1, offset++, record); //FMMU0 used for Outputs; see Table 22 ETG1000.6
+		writeEEPROMbyte_byteaddress(2, offset++, record); //FMMU1 used for Outputs; see Table 22 ETG1000.6
+		return offset;
+	}
 	function writeSyncManagers(form, offset, record)
 	{//See Table 23 ETG1000.6
 		writeEEPROMword_wordaddress(0x29,offset/2,record); //SyncManager
@@ -1069,51 +1161,6 @@ function hex_generator(form)
 		return offset;
 	}
 
-	//see Table 22 ETG1000.6
-	function writeFMMU(form,offset, record)
-	{
-		writeEEPROMword_wordaddress(0x28,offset/2,record);
-		offset += 2;
-		writeEEPROMword_wordaddress(1, offset/2, record); //length = 1 word = 2bytes: 2 FMMU's.
-		offset += 2;
-		writeEEPROMbyte_byteaddress(1, offset++, record); //FMMU0 used for Outputs; see Table 22 ETG1000.6
-		writeEEPROMbyte_byteaddress(2, offset++, record); //FMMU1 used for Outputs; see Table 22 ETG1000.6
-		return offset;
-	}
-	//See ETG1000.6 Table21
-	function writeEEPROMgeneral_settings(form,offset,record)
-	{
-		categorysize = 0x10;
-		//Clear memory region
-		for(wordcount = 0; wordcount < categorysize+2 ; wordcount++)
-			writeEEPROMword_wordaddress(0,(offset/2) + wordcount, record);
-		//write code 30, 'General type'. See ETG1000.6, Table 19
-		writeEEPROMword_wordaddress(30,offset/2,record);
-		//write length of General Category data
-		writeEEPROMword_wordaddress(categorysize, 1+(offset/2), record);
-		offset +=4;
-		writeEEPROMbyte_byteaddress(2,offset++,record);//index to string for Group Info
-		writeEEPROMbyte_byteaddress(3,offset++,record);//index to string for Image Name
-		writeEEPROMbyte_byteaddress(1,offset++,record);//index to string for Device Order Number
-		writeEEPROMbyte_byteaddress(4,offset++,record);//index to string for Device Name Information
-		offset++; //byte 4 is reserved
-		writeEEPROMbyte_byteaddress(getCOEdetails(form),offset++,record);//CoE Details
-		writeEEPROMbyte_byteaddress(0,offset++,record); //Enable FoE
-		writeEEPROMbyte_byteaddress(0,offset++,record); //Enable EoE
-		writeEEPROMbyte_byteaddress(0,offset++,record); //reserved
-		writeEEPROMbyte_byteaddress(0,offset++,record); //reserved
-		writeEEPROMbyte_byteaddress(0,offset++,record); //reserved
-		writeEEPROMbyte_byteaddress(0,offset++,record); //flags (Bit0: Enable SafeOp, Bit1: Enable notLRW
-		writeEEPROMword_wordaddress(0x0000, offset/2, record); //current consumption in mA
-		offset += 2;
-		writeEEPROMword_wordaddress(0x0000, offset/2, record); //2 pad bytes
-		offset += 2;
-		writeEEPROMword_wordaddress(getPhysicalPort(form), offset/2, record);
-		offset += 2;
-		offset += 14; //14 pad bytes
-		return offset;
-	}
-
 	// ETG1000.6 Table 21
 	function getPhysicalPort(form)
 	{
@@ -1149,134 +1196,61 @@ function hex_generator(form)
 		if(form.CoeDetails[5].checked) coedetails |= 0x20;	//Enable SDO complete access
 		return coedetails;
 	}
-	//See ETG1000.6 Table20 for Category string
-	function writeEEPROMstrings(record, offset, a_strings)
-	{
-		var number_of_strings = a_strings.length;
-		var total_string_data_length = 0;
-		var length_is_even;
-		for(var strcounter = 0; strcounter < number_of_strings ; strcounter++)
+
+	/** computes crc value */
+	function FindCRC(data,datalen) {
+		var i,j;
+		var c;
+		var CRC=0xFF;
+		var genPoly = 0x07;
+		for (j=0; j<datalen; j++)
 		{
-			total_string_data_length += a_strings[strcounter].length //add length of strings
+			c = data[j];
+			CRC ^= c;
+			for(i = 0; i<8; i++)
+				if(CRC & 0x80 )
+				CRC = (CRC << 1) ^ genPoly;
+				else
+				CRC <<= 1;
+			CRC &= 0xff;
 		}
-		total_string_data_length += number_of_strings; //for each string a byte is needed to indicate the length
-		total_string_data_length += 1; //for byte to give 'number of strings'
-		if(total_string_data_length %2) //if length is even (ends at word boundary)
-			length_is_even = false;
-		else
-			length_is_even = true;
-		writeEEPROMword_wordaddress(0x000A,offset/2,record); //Type: STRING
-		writeEEPROMword_wordaddress(Math.ceil(total_string_data_length/2),(offset/2)+1, record); //write length of complete package
-		offset += 4; //2 words written
-		writeEEPROMbyte_byteaddress(number_of_strings, offset++, record);
-		for(var strcounter = 0; strcounter < number_of_strings ; strcounter++)
-		{
-			writeEEPROMbyte_byteaddress(a_strings[strcounter].length, offset++, record);
-			for(var charcounter = 0 ; charcounter < a_strings[strcounter].length ; charcounter++)
-			{
-				writeEEPROMbyte_byteaddress(a_strings[strcounter].charCodeAt(charcounter), offset++, record);
-			}	
-		}
-		if(length_is_even == false)
-		{
-			writeEEPROMbyte_byteaddress(0, offset++, record);
-		}
-		return offset;
+		return CRC;
 	}
-}
-
-function writeEEPROMbyte_byteaddress(byte, address, record)
-{
-	record[address] = byte;
-}
-
-function writeEEPROMbyte_wordaddress(byte, address, record)
-{
-	record[address*2] = byte;
-}
-
-function writeEEPROMword_wordaddress(word, address, record)
-{//little endian word storage!
-	record[     address*2 ] = word&0xFF;
-	record[1 + (address*2)] = (word>>8) & 0xFF;
-}
-
-function writeEEPROMDword_wordaddress(word, address, record)
-{//little endian word storage!
-	record[     address*2 ] = word&0xFF;
-	record[1 + (address*2)] = (word>>8) & 0xFF;
-	record[2 + (address*2)] = (word>>16) & 0xFF;
-	record[3 + (address*2)] = (word>>24) & 0xFF;
-}
-
-function generate_hex_address(number)
-{
-	//convert to hexadecimal string
-	var output = number.toString(16);
-	//take care that 4 characters are present
-	while(output.length<4)
-	{
-		output ='0' + output;
-	}
-	//return 4 characters, prevents overflow
-	return output.slice(-4);
-}
-
-function getConfigDataBytes(form) {
-	var record = [0, 0];
-	const recordLength = parseInt(form.EEPROMsize.value);
-	for (var count = 0; count < recordLength; count++) { //initialize array
-		record[count] = 0xFF;
-	}
-	//Start of EEPROM contents; A lot of information can be found in 5.4 of ETG1000.6
-	const pdiControl = (form.ESC.value == 'LAN9252') ? 0x80 : 0x05;
-	const spiMode = parseInt(form.SPImode.value);
-	const reserved_0x05 = (form.ESC.value == 'AX58100') ? 0x001A : 0x00; // enable IO for SPI driver on AX58100:
-	// Write 0x1A value (INT edge pulse length, 8 mA Control + IO 9:0 Drive Select) to 0x0A (Host Interface Extend Setting and Drive Strength
 	
-	//WORD ADDRESS 0-7
-	writeEEPROMbyte_byteaddress(pdiControl, 0, record); //PDI control: SPI slave (mapped to register 0x0140)
-	writeEEPROMbyte_byteaddress(0x06, 1, record); //ESC configuration: Distributed clocks Sync Out and Latch In enabled (mapped register 0x0141)
-	writeEEPROMbyte_byteaddress(spiMode, 2, record); //SPI mode (mapped to register 0x0150)
-	writeEEPROMbyte_byteaddress(0x44, 3, record); //SYNC /LATCH configuration (mapped to 0x0151). Make both Syncs output
-	writeEEPROMword_wordaddress(0x0064, 2, record); //Syncsignal Pulselenght in 10ns units(mapped to 0x0982:0x0983)
-	writeEEPROMword_wordaddress(0x00, 3, record); //Extended PDI configuration (none for SPI slave)(0x0152:0x0153)
-	writeEEPROMword_wordaddress(0x00, 4, record); //Configured Station Alias (0x0012:0x0013)
-	writeEEPROMword_wordaddress(reserved_0x05, 5, record); //Reserved, 0 (when not AX58100)
-	writeEEPROMword_wordaddress(0x00, 6, record); //Reserved, 0
-	writeEEPROMword_wordaddress(FindCRC(record, 14), 7, record); //CRC
+	function writeEEPROMbyte_byteaddress(byte, address, record)
+	{
+		record[address] = byte;
+	}
 	
-	return record;
-
-	function FindCRC(data,datalen)         // computes crc value
+	function writeEEPROMbyte_wordaddress(byte, address, record)
 	{
-	var i,j;
-	var c;
-	var CRC=0xFF;
-	var genPoly = 0x07;
-	for (j=0; j<datalen; j++)
-	{
-		c = data[j];
-		CRC ^= c;
-		for(i = 0; i<8; i++)
-			if(CRC & 0x80 )
-			CRC = (CRC << 1) ^ genPoly;
-			else
-			CRC <<= 1;
-		CRC &= 0xff;
+		record[address*2] = byte;
 	}
-	return CRC;
+	
+	function writeEEPROMword_wordaddress(word, address, record)
+	{//little endian word storage!
+		record[     address*2 ] = word&0xFF;
+		record[1 + (address*2)] = (word>>8) & 0xFF;
 	}
-}
-
-function getConfigDataString(form, configdata_bytecount) {
-	// takes bytes array and count, returns ConfigData string
-	record = getConfigDataBytes(form);
-	var configdata = '';
-	for (var bytecount = 0; bytecount < configdata_bytecount; bytecount++) {
-		configdata += (record[bytecount] + 0x100).toString(16).slice(-2).toUpperCase();
+	
+	function writeEEPROMDword_wordaddress(word, address, record)
+	{//little endian word storage!
+		record[     address*2 ] = word&0xFF;
+		record[1 + (address*2)] = (word>>8) & 0xFF;
+		record[2 + (address*2)] = (word>>16) & 0xFF;
+		record[3 + (address*2)] = (word>>24) & 0xFF;
 	}
-	return configdata;
+	
+	/** takes bytes array and count, returns ConfigData string */
+	function getConfigDataString(form) {
+		const configdata_bytecount = (form.ESC.value == 'AX58100') ? 14 : 7; // for AX58100 configdata reaches 0x0A byte
+		record = getConfigDataBytes(form);
+		var configdata = '';
+		for (var bytecount = 0; bytecount < configdata_bytecount; bytecount++) {
+			configdata += (record[bytecount] + 0x100).toString(16).slice(-2).toUpperCase();
+		}
+		return configdata;
+	}
 }
 
 // ####################### ecat_options.h generation ####################### //
@@ -1446,6 +1420,7 @@ function readFile(e) {
   	}
 	reader.readAsText(file);
 }
+
 /** takes bytes array, returns Intel Hex as string */
 function toIntelHex(record) {
 	var hex = "";
@@ -1484,6 +1459,19 @@ function toIntelHex(record) {
 		checksum = 0x100-checksum; //two's complement
 		rule += checksum.toString(16).slice(-2) + '\n';
 		return rule;
+	}
+	/** takex number, returns its hexadecimal value padded/trimmed to 4 digits */
+	function generate_hex_address(number)
+	{
+		//convert to hexadecimal string
+		var output = number.toString(16);
+		//take care that 4 characters are present
+		while(output.length<4)
+		{
+			output ='0' + output;
+		}
+		//return 4 characters, prevents overflow
+		return output.slice(-4);
 	}
 }
 
