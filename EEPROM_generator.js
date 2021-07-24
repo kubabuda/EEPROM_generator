@@ -1,14 +1,28 @@
+/**
+ * This tool serves as:
+- EtherCAT Slave Information XML + EEPROM binary generator
+- SOES code generator
+ 
+Source code is intentionally keept in single Javascript file so that no build system or web server is needed.
+The only dependecny is web browser, that should simplify usage and minimize tool maintenance work in years to come.
+ 
+ * Victor Sluitter 2013-2018
+ * Kuba Buda 2020-2021
+ */
+
+
 const automaticCodegen = true; 		// code is regenerated on every form change. 
 									// no need to remember to generate before copying or downloading
 									// app is noticeably slower
 
 // ####################### Constants, lookup tables ####################### //
-// Object Type
+/** CoE Object Types */
 const OTYPE = {
 	VAR : 'VAR',
 	ARRAY : 'ARRAY',
 	RECORD: 'RECORD',
 };
+/** CoE Data Types */
 const DTYPE = {
 	BOOLEAN : 'BOOLEAN',
 	INTEGER8 : 'INTEGER8',
@@ -29,6 +43,7 @@ const DTYPE = {
 	// REAL64 : 'REAL64',
 	// PDO_MAPPING : 'PDO_MAPPING',
 };
+/** Data types bitsize as used in objectlist.c  */
 const dtype_bitsize = {
 	'BOOLEAN' : 1,
 	'INTEGER8' : 8,
@@ -41,6 +56,7 @@ const dtype_bitsize = {
 	'VISIBLE_STRING' : 8,
 };
 const booleanPaddingBitsize = 7;
+/** ESI XML data type */
 const ESI_DT = {
 	'BOOLEAN': { name: 'BOOL', bitsize: 1, ctype: 'uint8_t' },
 	'INTEGER8': { name: 'SINT', bitsize: 8, ctype: 'int8_t' },
@@ -53,17 +69,18 @@ const ESI_DT = {
 	'VISIBLE_STRING': { name: 'STRING', bitsize: 8, ctype: 'char *' }, // TODO check C type name
 };
 
-var sdo = 'sdo';
-var txpdo = 'txpdo';
-var rxpdo = 'rxpdo';
-
-const SDO_category = {  // these are required by minimal CiA 301 device
+/** These are required by minimal CiA 301 device */
+const SDO_category = {
 	'1000': 'm',
 	'1009': 'o',
 };
 
+// ####################### Object Dictionary building ####################### //
+/** 
+ * Returns Object Dictionaty stub with mandatory objects.
+ * OD index is hexadecimal value without '0x' prefix
+ */ 
 function getMandatoryObjects() {
-	// OD index is hexadecimal value without '0x' prefix
 	const OD = {
 		'1000': { otype: OTYPE.VAR, dtype: DTYPE.UNSIGNED32, name: 'Device Type', value: 0x1389 },
 		'1008': { otype: OTYPE.VAR, dtype: DTYPE.VISIBLE_STRING, name: 'Device Name', data: '' },
@@ -87,8 +104,12 @@ function getMandatoryObjects() {
 	return OD;
 }
 
-// ####################### Object Dictionary building ####################### //
+const sdo = 'sdo';
+const txpdo = 'txpdo';
+const rxpdo = 'rxpdo';
 
+/** Object Dictionary sections edited by UI
+ * Assumption: single non dynamic PDO */
 const _odSections = {
 	sdo : {},
 	txpdo : {}, // addding PDO requires matching SDO in Sync Manager, and PDO mapping
@@ -150,9 +171,7 @@ function variableName(objectName) {
 
 // ####################### Building Object Dictionary model ####################### //
 
-/** 
- * takes OD entries from UI SDO section and adds to given OD
- */
+/** Takes OD entries from UI SDO section and adds to given OD */
 function addSDOitems(od) {
 	const sdoSection = getObjDictSection(sdo);
 	const indexes = getUsedIndexes(sdoSection);
@@ -162,9 +181,7 @@ function addSDOitems(od) {
 		addObject(od, item, index);
 	});
 }
-/** 
- * returns true if any object is mapped to given PDO
- */
+/** Returns true if any object in given Object Dictionary has mapping to PDO with given name */
 function isPdoWithVariables(od, indexes, pdoName) {
 	for (let i = 0; i < indexes.length; i++) {
 		const index = indexes[i];
@@ -181,27 +198,23 @@ function isPdoWithVariables(od, indexes, pdoName) {
 function getSM2_MappingOffset(form){
 	return	0x1600; // parseInt(form.SM2Offset.value);
 }
-/** 
- * takes OD entries from UI RXPDO section and adds to given OD
- */
+/** Takes OD entries from UI RXPDO section and adds to given OD */
 function addRXPDOitems(od) {
 	const rxpdoSection = getObjDictSection(rxpdo);
 	const form = getForm();
 	const pdo = {
-		mappingValue : rxpdo,
+		name : rxpdo,
 		SMassignmentIndex : '1C12',
 		smOffset : getSM2_MappingOffset(form), // usually 0x1400 or 0x1600
 	};
 	addPdoObjectsSection(od, rxpdoSection, pdo);
 }
-/** 
- * takes OD entries from UI TXPDO section and adds to given OD
- */
+/** Takes OD entries from UI TXPDO section and adds to given OD */
 function addTXPDOitems(od) {
 	const txpdoSection = getObjDictSection(txpdo);
 	const form = getForm();
 	const pdo = {
-		mappingValue : txpdo,
+		name : txpdo,
 		SMassignmentIndex : '1C13',
 		smOffset : parseInt(form.SM3Offset.value), // usually 0x1A00
 	};
@@ -211,9 +224,10 @@ function addTXPDOitems(od) {
 var _booleanPaddingCount = 0;
 
 /** 
- * takes OD entries from given UI SDO/PDO section and adds to given OD
- * using provided SM offset, and SM assignment address
- * available sections are 'sdo', 'txpdo', 'rxpdo'
+ * Takes OD entries from given UI SDO/PDO section and adds to given OD
+ * using provided SM offset, and SM assignment address.
+ 
+ * Available sections are 'sdo', 'txpdo', 'rxpdo'
  */
 function addPdoObjectsSection(od, odSection, pdo){
 	var currentSMoffsetValue = pdo.smOffset;
@@ -231,7 +245,7 @@ function addPdoObjectsSection(od, odSection, pdo){
 			]};
 			// create PDO assignment to SM
 			const pdoAssignment = { name: "PDO Mapping", value: `0x${currentOffset}` };
-			addPdoMapping(objd, pdo.mappingValue);
+			addPdoMapping(objd, pdo.name);
 			
 			switch (objd.otype) {
 			case  OTYPE.VAR: {
@@ -288,14 +302,14 @@ function addPdoObjectsSection(od, odSection, pdo){
 		}
 	}
 
-	function addPdoMapping(objd, mappingValue) {
+	function addPdoMapping(objd, pdoName) {
 		// make sure there is space
 		if (!objd.pdo_mappings) {
 			objd.pdo_mappings = [];
 		}
 		// mark object as PDO mapped, if it is not already
-		if(!isInArray(objd.pdo_mappings, mappingValue)) {
-			objd.pdo_mappings.push(mappingValue);
+		if(!isInArray(objd.pdo_mappings, pdoName)) {
+			objd.pdo_mappings.push(pdoName);
 		}
 	}
 	
@@ -1309,7 +1323,7 @@ function ecat_options_generator(form, od, indexes)
 	ecat_options += `#define MAX_MAPPINGS_SM2 ${MAX_MAPPINGS_SM2}`
 				+ `\n#define MAX_MAPPINGS_SM3 ${MAX_MAPPINGS_SM3}\n\n`
 	// PDO buffer config
-	ecat_options += '#define MAX_RXPDO_SIZE   512'
+	ecat_options += '#define MAX_RXPDO_SIZE   512' 	// TODO calculate based on offset, size 
 				+ '\n#define MAX_TXPDO_SIZE   512\n\n'
 				+ '#endif /* __ECAT_OPTIONS_H__ */\n';
 
