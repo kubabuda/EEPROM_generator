@@ -1503,12 +1503,26 @@ function onFormChanged() {
 	saveLocalBackup();  // persist OD changes over page reload
 }
 
+/** Shortcuts:
+ * Ctrl + S to save project
+ * Ctrl + O to load save file
+ * Shortcuts start to work after user clicked on page
+ */
 document.onkeydown = function(e) {
-	if (e.ctrlKey && e.keyCode === 83) {
-		event.preventDefault();
-		onSaveClick();
-        return false;
-    }
+	const S_keyCode = 83;
+	const O_keyCode = 79;
+	if (e.ctrlKey){
+		if (e.keyCode === S_keyCode) {
+			event.preventDefault();
+			onSaveClick();
+			return false;
+		}
+		else if (e.keyCode == O_keyCode) {
+			event.preventDefault();
+			onRestoreClick();
+			return false;
+		}
+	}
 };
 
 // When the user clicks anywhere outside of the modal, close it
