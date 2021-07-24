@@ -72,7 +72,7 @@ https://www.sitepoint.com/mime-types-complete-list/
              <Sm ControlByte="#x20" Enable="1" StartAddress="#x1A00">Inputs</Sm>
         only if any variables for given PDO
     - configdata
-- check .bin output
+
 - test if code compilation works
 - test on real HW
 - DC configuration

@@ -1169,6 +1169,17 @@ function hex_generator(form, stringOnly=false)
 		writeEEPROMbyte_byteaddress(4,offset++, record); //SyncManagerType; 0: not used, 1: Mbx out, 2: Mbx In, 3: PDO, 4: PDI
 		return offset;
 	}
+	function getCOEdetails(form)
+	{
+		coedetails = 0;
+		if(form.CoeDetails[0].checked) coedetails |= 0x01; 	//Enable SDO
+		if(form.CoeDetails[1].checked) coedetails |= 0x02;	//Enable SDO Info
+		if(form.CoeDetails[2].checked) coedetails |= 0x04;	//Enable PDO Assign
+		if(form.CoeDetails[3].checked) coedetails |= 0x08;	//Enable PDO Configuration
+		if(form.CoeDetails[4].checked) coedetails |= 0x10;	//Enable Upload at startup
+		if(form.CoeDetails[5].checked) coedetails |= 0x20;	//Enable SDO complete access
+		return coedetails;
+	}
 	/** ETG1000.6 Table 21 */
 	function getPhysicalPort(form)
 	{
@@ -1191,18 +1202,6 @@ function hex_generator(form, stringOnly=false)
 			}
 		}
 		return portinfo;
-	}
-
-	function getCOEdetails(form)
-	{
-		coedetails = 0;
-		if(form.CoeDetails[0].checked) coedetails |= 0x01; 	//Enable SDO
-		if(form.CoeDetails[1].checked) coedetails |= 0x02;	//Enable SDO Info
-		if(form.CoeDetails[2].checked) coedetails |= 0x04;	//Enable PDO Assign
-		if(form.CoeDetails[3].checked) coedetails |= 0x08;	//Enable PDO Configuration
-		if(form.CoeDetails[4].checked) coedetails |= 0x10;	//Enable Upload at startup
-		if(form.CoeDetails[5].checked) coedetails |= 0x20;	//Enable SDO complete access
-		return coedetails;
 	}
 
 	/** computes crc value */
