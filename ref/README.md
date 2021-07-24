@@ -54,12 +54,7 @@ HEX .bin file was not yet tested.
 Not sure about mime type
 https://www.sitepoint.com/mime-types-complete-list/
 
-
 # TODO
-- SM2 offset: regardles of value set, SDK generates RXPDO mappings as SDO1600. SM2 offset change affects
-    - `ecat_options.h` #define SM2_sma, MAX_TXPDO_SIZE and MAX_RXPDO_SIZE
-    - `esi.xml` `<Sm ControlByte="#x24" Enable="1" StartAddress="#x1600">Outputs</Sm>`
-    currently this tool mirrors SDK behavior, check if this hack is needed or just duplicated SDK bug
 
 - check boolean[] ARRAY
 - check VISIBLE_STRING ARRAY
@@ -70,9 +65,12 @@ https://www.sitepoint.com/mime-types-complete-list/
 
 - test if code compilation works
 - test on real HW
+### non critical, known issues
+- SM2 offset: regardles of value set, SDK generates RXPDO mappings as SDO1600. SM2 offset change affects
+    - `ecat_options.h` #define SM2_sma, MAX_TXPDO_SIZE and MAX_RXPDO_SIZE
+    - `esi.xml` `<Sm ControlByte="#x24" Enable="1" StartAddress="#x1600">Outputs</Sm>`
+    currently this tool mirrors SDK behavior, check if this hack is needed or just duplicated SDK bug
 - DC configuration GUI
-### non critical / known issues
-- test reset project 
 - modular device profile 
 - use [XML parsing](https://www.w3schools.com/xml/xml_parser.asp) for cleaner builiding ESI XML output
 - add option to switch between .bin and Intel HEX for EEPROM file output
