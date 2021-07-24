@@ -752,6 +752,8 @@ function esi_generator(form, od, indexes)
 		}
 	}
 	indexes.forEach(index => { esi += addDictionaryObject(od, index); });
+	const is_rxpdo = isPdoWithVariables(od, indexes, rxpdo);
+	const is_txpdo = isPdoWithVariables(od, indexes, txpdo);
 
 	esi += `\n            </Objects>\n          </Dictionary>\n        </Profile>\n        <Fmmu>Outputs</Fmmu>\n        <Fmmu>Inputs</Fmmu>\n        <Fmmu>MBoxState</Fmmu>\n`;
 	//Add Rxmailbox sizes
@@ -759,10 +761,10 @@ function esi_generator(form, od, indexes)
 	//Add Txmailbox sizes
 	esi += `        <Sm DefaultSize="${parseInt(form.MailboxSize.value).toString(10)}" StartAddress="#x${indexToString(form.TxMailboxOffset.value)}" ControlByte="#x22" Enable="1">MBoxIn</Sm>\n`;
 	//Add SM2
-	esi += `        <Sm StartAddress="#x${indexToString(form.SM2Offset.value)}" ControlByte="#x24" Enable="1">Outputs</Sm>\n`;
+	esi += `        <Sm StartAddress="#x${indexToString(form.SM2Offset.value)}" ControlByte="#x24" Enable="${is_rxpdo ? 1 : 0}">Outputs</Sm>\n`;
 	//Add SM3
-	esi += `        <Sm StartAddress="#x${indexToString(form.SM3Offset.value)}" ControlByte="#x20" Enable="1">Inputs</Sm>\n`;
-	if (isPdoWithVariables(od, indexes, rxpdo)) {
+	esi += `        <Sm StartAddress="#x${indexToString(form.SM3Offset.value)}" ControlByte="#x20" Enable="${is_txpdo ? 1 : 0}">Inputs</Sm>\n`;
+	if (is_rxpdo) {
 		var memOffset = form.SM2Offset.value;
 		indexes.forEach(index => {
 			const objd = od[index];
@@ -773,7 +775,7 @@ function esi_generator(form, od, indexes)
 			}	
 		});
 	}
-	if (isPdoWithVariables(od, indexes, txpdo)) {
+	if (is_txpdo) {
 		var memOffset = form.SM3Offset.value;
 		indexes.forEach(index => {
 			const objd = od[index];
