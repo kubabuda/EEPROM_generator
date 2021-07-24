@@ -175,6 +175,12 @@ function isPdoWithVariables(od, indexes, pdoName) {
 	}
 	return false;
 }
+/** regardles of value set, SDK generates RXPDO mappings as SDO1600
+ * TODO test: bug or feature?
+ */
+function getSM2_MappingOffset(form){
+	return	0x1600; // parseInt(form.SM2Offset.value);
+}
 /** 
  * takes OD entries from UI RXPDO section and adds to given OD
  */
@@ -184,8 +190,7 @@ function addRXPDOitems(od) {
 	const pdo = {
 		mappingValue : rxpdo,
 		SMassignmentIndex : '1C12',
-		smOffset : 0x1600, // parseInt(form.SM2Offset.value), // usually 0x1400 or 0x1600
-		// TODO: test if it will work with PDO mappings elsewhere
+		smOffset : getSM2_MappingOffset(form), // usually 0x1400 or 0x1600
 	};
 	addPdoObjectsSection(od, rxpdoSection, pdo);
 }
@@ -765,7 +770,7 @@ function esi_generator(form, od, indexes)
 	//Add SM3
 	esi += `        <Sm StartAddress="#x${indexToString(form.SM3Offset.value)}" ControlByte="#x20" Enable="${is_txpdo ? 1 : 0}">Inputs</Sm>\n`;
 	if (is_rxpdo) {
-		var memOffset = form.SM2Offset.value;
+		var memOffset = getSM2_MappingOffset(form);
 		indexes.forEach(index => {
 			const objd = od[index];
 			

@@ -66,24 +66,20 @@ https://www.sitepoint.com/mime-types-complete-list/
 - check VISIBLE_STRING RECORD subitem
 
 - check generated XML for PDOs:
-    - <RXDPO><Index> set 0x1600 not 1400
     - <CoE> settings
-    - enable <Sm ControlByte="#x24" Enable="1" StartAddress="#x1400">Outputs</Sm>
-             <Sm ControlByte="#x20" Enable="1" StartAddress="#x1A00">Inputs</Sm>
-        only if any variables for given PDO
-    - configdata
 
 - test if code compilation works
 - test on real HW
-- DC configuration
+- DC configuration GUI
 ### non critical / known issues
-- nicer dark mode switch 
 - test reset project 
-- use [XML parsing](https://www.w3schools.com/xml/xml_parser.asp) for ESI output
+- modular device profile 
+- use [XML parsing](https://www.w3schools.com/xml/xml_parser.asp) for cleaner builiding ESI XML output
 - add option to switch between .bin and Intel HEX for EEPROM file output
 - add indexes list to OD model, to decrease parametes count in methods
 - save backup before form processing (now even valid OD changes can be erased by error in code generation logic)
 - make GUI look more nice & modern
+- nicer dark mode switch
 - add favicon
 ### Code optimization
 - reuse repeated string constants in objlist.c names, test if does any good or compiler does that for you anyway
