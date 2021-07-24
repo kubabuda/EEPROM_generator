@@ -1074,14 +1074,14 @@ function hex_generator(form, stringOnly=false)
 	/** See ETG1000.6 Table21 */
 	function writeEEPROMgeneral_settings(form,offset,record)
 	{
-		const generalType = 0x1E; // category value: 30
+		const General_category = 0x1E; // value: 30d
 		const categorysize = 0x10;
 		//Clear memory region
 		for(wordcount = 0; wordcount < categorysize + 2; wordcount++) {
 			writeEEPROMword_wordaddress(0, (offset/2) + wordcount, record);
 		}
 		//write code 30, 'General type'. See ETG1000.6, Table 19
-		writeEEPROMword_wordaddress(generalType, offset/2, record);
+		writeEEPROMword_wordaddress(General_category, offset/2, record);
 		//write length of General Category data
 		writeEEPROMword_wordaddress(categorysize, 1+(offset/2), record);
 		offset +=4;
@@ -1107,20 +1107,27 @@ function hex_generator(form, stringOnly=false)
 		return offset;
 	}
 	/** See ETG1000.6 Table 22 */
-	function writeFMMU(form,offset, record)
+	function writeFMMU(form, offset, record)
 	{
-		writeEEPROMword_wordaddress(0x28,offset/2,record);
+		const FMMU_category = 0x28 // 40d
+		writeEEPROMword_wordaddress(FMMU_category,offset/2,record);
 		offset += 2;
-		writeEEPROMword_wordaddress(1, offset/2, record); //length = 1 word = 2bytes: 2 FMMU's.
+		const length = 2                                 //length = 2 word = 4bytes: 3 FMMU's + padding
+														 //length = 1 word = 2bytes: 2 FMMU's.
+		writeEEPROMword_wordaddress(length, offset/2, record);
 		offset += 2;
 		writeEEPROMbyte_byteaddress(1, offset++, record); //FMMU0 used for Outputs; see Table 22 ETG1000.6
-		writeEEPROMbyte_byteaddress(2, offset++, record); //FMMU1 used for Outputs; see Table 22 ETG1000.6
+		writeEEPROMbyte_byteaddress(2, offset++, record); //FMMU1 used for Inputs;  see Table 22 ETG1000.6
+		writeEEPROMbyte_byteaddress(3, offset++, record); //FMMU2 used for Mailbox State
+		writeEEPROMbyte_byteaddress(0, offset++, record); //padding, disable FMMU4 if exists
+		
 		return offset;
 	}
 	/** See Table 23 ETG1000.6 */
 	function writeSyncManagers(form, offset, record)
 	{
-		writeEEPROMword_wordaddress(0x29,offset/2,record); //SyncManager
+		const SyncManager_category = 0x29 // 41d
+		writeEEPROMword_wordaddress(SyncManager_category, offset/2, record); //SyncManager
 		offset += 2;
 		writeEEPROMword_wordaddress(0x10, offset/2, record); //size of structure category
 		offset += 2;
