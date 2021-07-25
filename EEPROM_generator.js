@@ -1617,12 +1617,12 @@ function onGenerateDownloadClick()
 {
 	const form = getForm();
 	var result = processForm(form);
-	downloadFile(result.ESI.value, fileName = 'esi.xml', contentType = 'text/html');
+	downloadFile(result.ESI.value, 'esi.xml', 'text/html');
 	// TODO this probably is wrong MIME type, check another one: https://www.sitepoint.com/mime-types-complete-list/
-	downloadFile(result.HEX.value, fileName = 'eeprom.hex', contentType = 'application/octet-stream');
-	downloadFile(result.ecat_options.value, fileName = 'ecat_options.h', contentType = 'text/plain');
-	downloadFile(result.objectlist.value, fileName = 'objectlist.c', contentType = 'text/plain');
-	downloadFile(result.utypes.value, fileName = 'utypes.h', contentType = 'text/plain');
+	downloadFile(result.HEX.value, 'eeprom.hex', 'application/octet-stream');
+	downloadFile(result.ecat_options.value, 'ecat_options.h', 'text/plain');
+	downloadFile(result.objectlist.value, 'objectlist.c', 'text/plain');
+	downloadFile(result.utypes.value, 'utypes.h', 'text/plain');
 }
 
 function onGenerateClick() {
@@ -1649,7 +1649,7 @@ function onResetClick() {
 function onDownloadBinClick() {
 	const record = getOutputForm().HEX.hexData;
 	if (!record) { alert("Generate code before you can download it"); return; }
-	downloadFile(record, fileName = 'eeprom.bin', contentType = 'application/octet-stream');
+	downloadFile(record, 'eeprom.bin', 'application/octet-stream');
 }
 
 // ####################### Handle modal dialog ####################### //
@@ -2030,7 +2030,7 @@ function prepareBackupFileContent() {
 
 function downloadBackupFile() {
 	const backupFileContent = prepareBackupFileContent(); // pretty print
-	downloadFile(backupFileContent, fileName = 'esi.json', contentType = 'text/json');
+	downloadFile(backupFileContent, 'esi.json', 'text/json');
 }
 
 function restoreBackup(fileContent) {
