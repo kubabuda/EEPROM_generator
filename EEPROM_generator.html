@@ -63,7 +63,7 @@
    <div class="dark-mode-toggle-container">
       <span></span>
       <button name="DarkMode"onClick='toggleDarkMode();' title="Toggle dark mode">
-         ⚙️ &nbsp; ToggleDarkMode &nbsp;
+         ⚙️ &nbsp; Toggle dark mode &nbsp;
       </button>
    </div>
 
@@ -284,8 +284,10 @@
          </button>
          <br>
          <!-- TODO this probably is wrong MIME type, check another one: https://www.sitepoint.com/mime-types-complete-list/ -->
-         To flash generated binary, install SOEM and run 
-         <br><br><i id="hexInstallCmd">sudo ./eepromtool 1 eth0 -wi eeprom.hex</i><br><br>
+         To flash slave device with generated EEPROM content, you can <a href="https://github.com/OpenEtherCATsociety/SOEM/">install SOEM</a> 
+         and run command (for Intel Hex):
+         <br><br><i title="For binary, use flag -w instead of -wi" id="hexInstallCmd">sudo ./eepromtool 1 eth0 -wi eeprom.hex</i><br><br>
+      
          <textarea cols = "150" rows = "12" name="HEX">Hex File</textarea><br><br>
          ecat_options.h: 
          <button name="Download_ecat_options" 

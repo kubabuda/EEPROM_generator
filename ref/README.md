@@ -55,14 +55,11 @@ Not sure about mime type
 https://www.sitepoint.com/mime-types-complete-list/
 
 # TODO
-
-- check boolean[] ARRAY
-- check VISIBLE_STRING ARRAY
-- check VISIBLE_STRING RECORD subitem
-
-- test if code compilation works
 - test on real HW
-### non critical, known issues
+
+- check output for boolean ARRAY
+- check output for VISIBLE_STRING ARRAY
+- check output for VISIBLE_STRING RECORD subitem
 - SM2 offset: regardles of value set, SDK generates RXPDO mappings as SDO1600. SM2 offset change affects
     - `ecat_options.h` #define SM2_sma, MAX_TXPDO_SIZE and MAX_RXPDO_SIZE
     - `esi.xml` `<Sm ControlByte="#x24" Enable="1" StartAddress="#x1600">Outputs</Sm>`
@@ -70,14 +67,14 @@ https://www.sitepoint.com/mime-types-complete-list/
 - DC configuration GUI
 - calculate `MAX_RXPDO_SIZE`, `MAX_TXPDO_SIZE` based on selected SM2 offset
 - check generated XML for PDOs: - <CoE> settings
-- modular device profile 
+- modular device profile
+- dynamic PDOs
 - use [XML parsing](https://www.w3schools.com/xml/xml_parser.asp) for cleaner builiding ESI XML output
 - add option to switch between .bin and Intel HEX for EEPROM file output
 - add indexes list to OD model, to decrease parametes count in methods
 - save backup before form processing (now even valid OD changes can be erased by error in code generation logic)
-- make GUI look more nice & modern
-- nicer dark mode switch
-- add favicon
+- output multiple files in .zip
+
 ### Code optimization
 - reuse repeated string constants in objlist.c names, test if does any good or compiler does that for you anyway
 - shrink to fit on AVR ATmega
