@@ -9,7 +9,7 @@ The only dependecny is web browser, that should simplify usage and minimize tool
  * Victor Sluitter 2013-2018
  * Kuba Buda 2020-2021
  */
-
+'use strict'
 
 const automaticCodegen = true; 		// code is regenerated on every form change. 
 									// no need to remember to generate before copying or downloading
@@ -185,7 +185,7 @@ function addSDOitems(od) {
 function isPdoWithVariables(od, indexes, pdoName) {
 	for (let i = 0; i < indexes.length; i++) {
 		const index = indexes[i];
-		objd = od[index];
+		const objd = od[index];
 		if (isInArray(objd.pdo_mappings, pdoName)) {
 			return true;
 		}
@@ -734,7 +734,7 @@ function esi_generator(form, od, indexes)
 		const objd = od[index];
 		const el_dtype = esiDtName(objd, index);
 		const bitsize = esiBitsize(objd);
-		result = `\n              <Object>\n                <Index>#x${index}</Index>\n                <Name>${objd.name}</Name>\n                <Type>${el_dtype}</Type>\n                <BitSize>${bitsize}</BitSize>\n                <Info>`;
+		let result = `\n              <Object>\n                <Index>#x${index}</Index>\n                <Name>${objd.name}</Name>\n                <Type>${el_dtype}</Type>\n                <BitSize>${bitsize}</BitSize>\n                <Info>`;
 		if (objd.data) {
 			if (objd.dtype == DTYPE.VISIBLE_STRING) {
 				result += `\n                  <DefaultString>${objd.data}</DefaultString>`;	
@@ -1098,7 +1098,7 @@ function hex_generator(form, stringOnly=false)
 		const General_category = 0x1E; // value: 30d
 		const categorysize = 0x10;
 		//Clear memory region
-		for(wordcount = 0; wordcount < categorysize + 2; wordcount++) {
+		for(let wordcount = 0; wordcount < categorysize + 2; wordcount++) {
 			writeEEPROMword_wordaddress(0, (offset/2) + wordcount, record);
 		}
 		//write code 30, 'General type'. See ETG1000.6, Table 19
@@ -1192,7 +1192,7 @@ function hex_generator(form, stringOnly=false)
 	}
 	function getCOEdetails(form)
 	{
-		coedetails = 0;
+		let coedetails = 0;
 		if(form.CoeDetails[0].checked) coedetails |= 0x01; 	//Enable SDO
 		if(form.CoeDetails[1].checked) coedetails |= 0x02;	//Enable SDO Info
 		if(form.CoeDetails[2].checked) coedetails |= 0x04;	//Enable PDO Assign
@@ -1204,8 +1204,8 @@ function hex_generator(form, stringOnly=false)
 	/** ETG1000.6 Table 21 */
 	function getPhysicalPort(form)
 	{
-		portinfo = 0;
-		physicals = [form.Port3Physical.value, form.Port2Physical.value, form.Port1Physical.value, form.Port0Physical.value];
+		let portinfo = 0;
+		let physicals = [form.Port3Physical.value, form.Port2Physical.value, form.Port1Physical.value, form.Port0Physical.value];
 		for (var physicalcounter = 0; physicalcounter < physicals.length ; physicalcounter++)
 		{
 			portinfo = (portinfo << 4); //shift previous result
@@ -1284,7 +1284,7 @@ function hex_generator(form, stringOnly=false)
 
 function ecat_options_generator(form, od, indexes)
 {
-	ecat_options = '#ifndef __ECAT_OPTIONS_H__\n#define __ECAT_OPTIONS_H__\n\n#define USE_FOE          0\n#define USE_EOE          0\n\n';
+	let ecat_options = '#ifndef __ECAT_OPTIONS_H__\n#define __ECAT_OPTIONS_H__\n\n#define USE_FOE          0\n#define USE_EOE          0\n\n';
 
 	//Mailbox size
 	ecat_options += '#define MBXSIZE          ' + parseInt(form.MailboxSize.value).toString()
@@ -1375,7 +1375,7 @@ function utypes_generator(form, od, indexes) {
 	var hasOutputs = isPdoWithVariables(od, indexes, rxpdo);
 
 	indexes.forEach(index => {
-		objd = od[index];
+		const objd = od[index];
 		if (objd.pdo_mappings) {
 			if(objd.pdo_mappings.length > 1) { alert(`${index} ${objd.name} Generating utypes.h for objects with multiple PDO mappings is not yet supported`); }
 			
@@ -1549,7 +1549,7 @@ window.onclick = function(event) {
 window.onload = (event) => {
 	modalSetup();
 	tryRestoreLocalBackup();
-	form = getForm();
+	const form = getForm();
 	// for convinience during tool development, trigger codegen on page refresh
 	processForm(form);
 	

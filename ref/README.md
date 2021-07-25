@@ -60,9 +60,6 @@ https://www.sitepoint.com/mime-types-complete-list/
 - check VISIBLE_STRING ARRAY
 - check VISIBLE_STRING RECORD subitem
 
-- check generated XML for PDOs:
-    - <CoE> settings
-
 - test if code compilation works
 - test on real HW
 ### non critical, known issues
@@ -71,6 +68,8 @@ https://www.sitepoint.com/mime-types-complete-list/
     - `esi.xml` `<Sm ControlByte="#x24" Enable="1" StartAddress="#x1600">Outputs</Sm>`
     currently this tool mirrors SDK behavior, check if this hack is needed or just duplicated SDK bug
 - DC configuration GUI
+- calculate `MAX_RXPDO_SIZE`, `MAX_TXPDO_SIZE` based on selected SM2 offset
+- check generated XML for PDOs: - <CoE> settings
 - modular device profile 
 - use [XML parsing](https://www.w3schools.com/xml/xml_parser.asp) for cleaner builiding ESI XML output
 - add option to switch between .bin and Intel HEX for EEPROM file output
