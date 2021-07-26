@@ -1593,16 +1593,16 @@ function processForm(form)
 {
 	const od = buildObjectDictionary(form);
 	const indexes = getUsedIndexes(od);
-	const useIntelHex = true; //form.HEX_Format.value == 'ihex';
 	var outputCtl = getOutputForm();
-
+	
 	outputCtl.objectlist.value = objectlist_generator(form, od, indexes);
 	outputCtl.ecat_options.value = ecat_options_generator(form, od, indexes);
 	outputCtl.utypes.value = utypes_generator(form, od, indexes);
 	outputCtl.HEX.hexData = hex_generator(form);
 	outputCtl.HEX.value = toIntelHex(outputCtl.HEX.hexData);
 	outputCtl.ESI.value = esi_generator(form, od, indexes);
-
+	
+	const useIntelHex = true;
 	const soemWriteFlag = useIntelHex ? "i" : "";
 	document.getElementById('hexInstallCmd').innerHTML = `sudo ./eepromtool 1 eth0 -w${soemWriteFlag} eeprom.hex`;
 
@@ -1617,12 +1617,32 @@ function onGenerateDownloadClick()
 {
 	const form = getForm();
 	var result = processForm(form);
-	downloadFile(result.ESI.value, 'esi.xml', 'text/html');
-	// TODO this probably is wrong MIME type, check another one: https://www.sitepoint.com/mime-types-complete-list/
-	downloadFile(result.HEX.value, 'eeprom.hex', 'application/octet-stream');
-	downloadFile(result.ecat_options.value, 'ecat_options.h', 'text/plain');
-	downloadFile(result.objectlist.value, 'objectlist.c', 'text/plain');
-	downloadFile(result.utypes.value, 'utypes.h', 'text/plain');
+	downloadGeneratedFilesZipped();
+
+	function downloadGeneratedFilesZipped() {
+		var zip = new JSZip();
+		zip.file("esi.xml", result.ESI.value);
+		zip.file('eeprom.hex', result.HEX.value);
+		zip.file('eeprom.bin', result.HEX.hexData);
+		zip.file('ecat_options.h', result.ecat_options.value);
+		zip.file('objectlist.c', result.objectlist.value);
+		zip.file('utypes.h', result.utypes.value);
+
+		zip.generateAsync({type:"blob"}).then(function (blob) { // generate the zip file
+			downloadFile(blob, "esi.zip", "application/zip"); // trigger the download
+		}, function (err) {
+			console.log(err);
+		});
+	}
+
+	function downloadGeneratedFiles() {
+		downloadFile(result.ESI.value, 'esi.xml', 'text/html');
+		// TODO this probably is wrong MIME type, check another one: https://www.sitepoint.com/mime-types-complete-list/
+		downloadFile(result.HEX.value, 'eeprom.hex', 'application/octet-stream');
+		downloadFile(result.ecat_options.value, 'ecat_options.h', 'text/plain');
+		downloadFile(result.objectlist.value, 'objectlist.c', 'text/plain');
+		downloadFile(result.utypes.value, 'utypes.h', 'text/plain');
+	}
 }
 
 function onGenerateClick() {

@@ -70,10 +70,8 @@ https://www.sitepoint.com/mime-types-complete-list/
 - modular device profile
 - dynamic PDOs
 - use [XML parsing](https://www.w3schools.com/xml/xml_parser.asp) for cleaner builiding ESI XML output
-- add option to switch between .bin and Intel HEX for EEPROM file output
 - add indexes list to OD model, to decrease parametes count in methods
 - save backup before form processing (now even valid OD changes can be erased by error in code generation logic)
-- output multiple files in .zip
 
 ### Code optimization
 - reuse repeated string constants in objlist.c names, test if does any good or compiler does that for you anyway
