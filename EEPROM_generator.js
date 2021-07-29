@@ -1627,6 +1627,7 @@ function onGenerateDownloadClick()
 		zip.file('ecat_options.h', result.ecat_options.value);
 		zip.file('objectlist.c', result.objectlist.value);
 		zip.file('utypes.h', result.utypes.value);
+		zip.file('esi.json', prepareBackupFileContent());
 
 		zip.generateAsync({type:"blob"}).then(function (blob) { // generate the zip file
 			downloadFile(blob, "esi.zip", "application/zip"); // trigger the download
@@ -1642,6 +1643,8 @@ function onGenerateDownloadClick()
 		downloadFile(result.ecat_options.value, 'ecat_options.h', 'text/plain');
 		downloadFile(result.objectlist.value, 'objectlist.c', 'text/plain');
 		downloadFile(result.utypes.value, 'utypes.h', 'text/plain');
+		downloadBackupFile();
+	
 	}
 }
 
