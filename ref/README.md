@@ -55,7 +55,6 @@ Not sure about mime type
 https://www.sitepoint.com/mime-types-complete-list/
 
 # TODO
-- test on real HW
 
 - check output for boolean ARRAY
 - check output for VISIBLE_STRING ARRAY
@@ -72,6 +71,7 @@ https://www.sitepoint.com/mime-types-complete-list/
 - use [XML parsing](https://www.w3schools.com/xml/xml_parser.asp) for cleaner builiding ESI XML output
 - add indexes list to OD model, to decrease parametes count in methods
 - save backup before form processing (now even valid OD changes can be erased by error in code generation logic)
+- what about mailbox bootstrap: words `0x14` - `0x17`?
 
 ### Code optimization
 - reuse repeated string constants in objlist.c names, test if does any good or compiler does that for you anyway
