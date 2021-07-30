@@ -192,11 +192,11 @@ function isPdoWithVariables(od, indexes, pdoName) {
 	}
 	return false;
 }
-/** regardles of value set, SDK generates RXPDO mappings as SDO1600
- * TODO test: bug or feature?
+/** Regardles of value set, SDK was generating RXPDO mappings as SDO1600
+ * This offset _can_ be changed, not sure why one would need it
  */
 function getSM2_MappingOffset(form) {
-	return	0x1600; // parseInt(form.SM2Offset.value);
+	return	parseInt(form.SM2Offset.value);
 }
 /** Takes OD entries from UI RXPDO section and adds to given OD */
 function addRXPDOitems(od) {
@@ -205,7 +205,7 @@ function addRXPDOitems(od) {
 	const pdo = {
 		name : rxpdo,
 		SMassignmentIndex : '1C12',
-		smOffset : getSM2_MappingOffset(form), // usually 0x1400 or 0x1600
+		smOffset : getSM2_MappingOffset(form), // usually 0x1600
 	};
 	addPdoObjectsSection(od, rxpdoSection, pdo);
 }
