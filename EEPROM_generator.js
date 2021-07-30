@@ -195,7 +195,7 @@ function isPdoWithVariables(od, indexes, pdoName) {
 /** regardles of value set, SDK generates RXPDO mappings as SDO1600
  * TODO test: bug or feature?
  */
-function getSM2_MappingOffset(form){
+function getSM2_MappingOffset(form) {
 	return	0x1600; // parseInt(form.SM2Offset.value);
 }
 /** Takes OD entries from UI RXPDO section and adds to given OD */
@@ -1638,7 +1638,6 @@ function onGenerateDownloadClick()
 
 	function downloadGeneratedFiles() {
 		downloadFile(result.ESI.value, 'esi.xml', 'text/html');
-		// TODO this probably is wrong MIME type, check another one: https://www.sitepoint.com/mime-types-complete-list/
 		downloadFile(result.HEX.value, 'eeprom.hex', 'application/octet-stream');
 		downloadFile(result.ecat_options.value, 'ecat_options.h', 'text/plain');
 		downloadFile(result.objectlist.value, 'objectlist.c', 'text/plain');
