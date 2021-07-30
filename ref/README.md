@@ -50,9 +50,8 @@ VBinDiff ref/et1100.bin  ref/lan9252.bin
 
 # MIME types
 
-HEX .bin file was not yet tested. 
-Not sure about mime type
-https://www.sitepoint.com/mime-types-complete-list/
+Good reference: https://www.sitepoint.com/mime-types-complete-list/
+but so far looks that selected types are all right
 
 # TODO
 

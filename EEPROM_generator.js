@@ -1443,7 +1443,7 @@ function readFile(e) {
 	if (!file) return;
 	var reader = new FileReader();
 	reader.onload = function(e) {
-		restoreBackup(e.target.result);
+		onRestoreComplete(e.target.result);
   	}
 	reader.readAsText(file);
 }
@@ -1660,6 +1660,12 @@ function onSaveClick() {
 function onRestoreClick() {
 	// trigger file input dialog window
 	document.getElementById('restoreFileInput').click();
+}
+
+function onRestoreComplete(fileContent) {
+	restoreBackup(fileContent);
+	const form = getForm();
+	processForm(form);
 }
 
 function onResetClick() {
