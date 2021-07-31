@@ -535,7 +535,8 @@ function objectlist_generator(form, od, indexes)
 					var subi = subindex_padded(subindex);
 					const bitsize = dtype_bitsize[subitem.dtype];
 					const value = objectlist_getItemValue(subitem, subitem.dtype);
-					objectlist += `\n  {0x${subi}, DTYPE_${subitem.dtype}, ${bitsize}, ${objectlist_objdFlags(objd)}, acName${index}_${subi}, ${value}, ${subitem.data || 'NULL'}},`;
+					const atypeflag = objectlist_objdFlags(subitem);
+					objectlist += `\n  {0x${subi}, DTYPE_${subitem.dtype}, ${bitsize}, ${atypeflag}, acName${index}_${subi}, ${value}, ${subitem.data || 'NULL'}},`;
 					subindex++;
 				});
 
@@ -596,8 +597,17 @@ function objectlist_generator(form, od, indexes)
 		return `0${subindex}`;
 	}
 	
+	/** Gets flags for objectlist item: 
+	 * 
+	 * ATYPE: access type (RO/RW/WO/RWpre) 
+	 * 
+	 * PDO mappings */
 	function objectlist_objdFlags(element) {
-		let flags = "ATYPE_RO";
+		let flags = "ATYPE_RO"; // RO by default
+		if (element.access) {
+			flags = `ATYPE_${element.access}`; 
+		} 
+		
 		if (element.pdo_mappings) {
 			element.pdo_mappings .forEach(mapping => {
 				flags = `${flags} | ATYPE_${mapping.toUpperCase()}`;
@@ -1580,7 +1590,6 @@ function setupDarkMode() {
 }
 
 function toggleDarkMode() {
-	debugger;
 	var newMode = (localStorage.darkMode == 'dark') ? "light" : "dark"
 	localStorage.darkMode = newMode;
 	document.documentElement.setAttribute("data-theme", localStorage.darkMode);
@@ -1790,6 +1799,7 @@ function editARRAY_Click(odSectionName, indexValue = null) {
 	const index = indexToString(indexValue);
 	var actionName = "Edit";
 	modal.odSectionName = odSectionName;
+	modal.form.Access
 
 	if (objectExists(odSectionName, index)) {
 		editExistingOD_ObjectDialog(odSectionName, index, otype);
@@ -1928,20 +1938,25 @@ function editSubitemClick(odSectionName, indexValue, subindex, actionName = "Edi
 	const objd = odSection[index];
 
 	if(!objd.items || objd.items.length <= subindex ) { alert(`Object ${index} "${objd.name}" does not have ${subindex} subitems!`); return; }
+	
+	modalSetTitle(`${actionName} ${odSectionName.toUpperCase()} object 0x${index} "${objd.name}" subitem 0x${indexToString(subindex)}`);
+	
 	const subitem = objd.items[subindex];
 	
 	modalHideControls();
-	modalSetTitle(`${actionName} ${odSectionName.toUpperCase()} object 0x${index} "${objd.name}" subitem 0x${indexToString(subindex)}`);
 	
 	document.getElementById('dialogRowValue').style.display = "";
 	modal.form.InitalValue.value = subitem.value ?? 0;
+	
 	if (objd.otype == OTYPE.RECORD) {
 		document.getElementById('dialogRowDtype').style.display = "";
 		modal.form.DTYPE.value = subitem.dtype;
+		document.getElementById('dialogRowAccess').style.display = ''; // access for record subitems can differ
+		modal.form.Access.value = subitem.access || 'RO';
 	}
 	modal.form.ObjectName.value = subitem.name;
 	modal.subitem = { odSectionName: odSectionName, index: index, subindex: subindex };
-	modalOpen();	
+	modalOpen();
 }
 
 function onEditSubitemSubmit(modalSubitem) {
@@ -1953,6 +1968,7 @@ function onEditSubitemSubmit(modalSubitem) {
 	subitem.value = modal.form.InitalValue.value;
 	if (objd.otype == OTYPE.RECORD) {
 		subitem.dtype = modal.form.DTYPE.value;
+		subitem.access = modal.form.Access.value;
 	}
 	modalClose();
 	onFormChanged();
