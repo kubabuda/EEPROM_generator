@@ -712,9 +712,10 @@ function esi_generator(form, od, indexes)
 						addVariableType(subitem); // cannot add variable type now that record code is being generated
 						let subitem_dtype = ESI_DT[subitem.dtype];
 						let subitem_bitsize = subitem_dtype.bitsize
+						const subitemFlags = getSubitemFlags(objd, subitem);
 						result += `\n                <SubItem>\n                  <SubIdx>${subindex}</SubIdx>\n                  <Name>${subitem.name}</Name>` 
 							+ `\n                  <Type>${subitem_dtype.name}</Type>\n                  <BitSize>${subitem_bitsize}</BitSize>\n                  <BitOffs>${bits_offset}</BitOffs>`
-							+ `\n                  <Flags>${flags}\n                  </Flags>`
+							+ `\n                  <Flags>${subitemFlags}\n                  </Flags>`
 							+ `\n                </SubItem>`;
 						bits_offset += subitem_bitsize;
 					}
@@ -729,6 +730,18 @@ function esi_generator(form, od, indexes)
 		}
 
 		return result;
+
+		function getSubitemFlags(objd, subitem) {
+			let access = 'ro';
+			let modifier = '';
+			if (subitem.access) {
+				access = subitem.access.slice(0,2).toLowerCase();
+				modifier = ' WriteRestrictions="PreOP"';
+			}
+			let flags = `\n                    <Access${modifier}>${access}</Access>`; // PDO assign flags for variables are set in dictionary objects section
+			flags += getPdoMappingFlags(objd); // PDO assign flags for composite type
+			return flags;
+		}
 	}
 	// Add objects dictionary data types
 	indexes.forEach(index => { esi += addObjectDictionaryDataType(od, index); });
