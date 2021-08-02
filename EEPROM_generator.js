@@ -1402,7 +1402,7 @@ function utypes_generator(form, od, indexes) {
 		if (objd.pdo_mappings) {
 			if(objd.pdo_mappings.length > 1) { alert(`${index} ${objd.name} Generating utypes.h for objects with multiple PDO mappings is not yet supported`); }
 			
-			const line = getDeclaration(objd, index);			
+			const line = getUtypesDeclaration(objd);			
 			
 			if (objd.pdo_mappings[0] == txpdo)  {
 				utypesInputs += line;
@@ -1415,11 +1415,22 @@ function utypes_generator(form, od, indexes) {
 	if (hasInputs) { utypes += utypesInputs + '\n'; }
 	if (hasOutputs) { utypes += utypesOutputs + '\n'; }
 	
+	const sdos = getObjDictSection(sdo); // this is hacky, there should be way to get SDOs from OD passed in
+	if (sdos) {
+		var utypesOutputs = '\n   /* Parameters */\n';
+		const sdoIndexes = getUsedIndexes(sdos);
+		sdoIndexes.forEach(index => {
+			const objd = od[index];
+			utypesOutputs += getUtypesDeclaration(objd);
+		});
+		utypes += utypesOutputs;
+	}
+
 	utypes += '\n} _Objects;\n\nextern _Objects Obj;\n\n#endif /* __UTYPES_H__ */\n';
 	
 	return utypes;
 	
-	function getDeclaration(objd, index) {
+	function getUtypesDeclaration(objd) {
 		const varName = variableName(objd.name);
 		switch (objd.otype) {
 			case OTYPE.VAR: {
