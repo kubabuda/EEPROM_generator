@@ -178,6 +178,9 @@ function addSDOitems(od) {
 
 	indexes.forEach(index => {
 		const item = sdoSection[index];
+		item.isSDOitem = true;
+		objectlist_link_utypes(item);
+
 		addObject(od, item, index);
 	});
 }
@@ -222,7 +225,6 @@ function addTXPDOitems(od) {
 }
 
 var _booleanPaddingCount = 0;
-
 /** 
  * Takes OD entries from given UI SDO/PDO section and adds to given OD
  * using provided SM offset, and SM assignment address.
@@ -247,6 +249,8 @@ function addPdoObjectsSection(od, odSection, pdo){
 			const pdoAssignment = { name: "PDO Mapping", value: `0x${currentOffset}` };
 			addPdoMapping(objd, pdo.name);
 			
+			objectlist_link_utypes(objd);
+
 			switch (objd.otype) {
 			case  OTYPE.VAR: {
 				// create PDO mapping
@@ -254,8 +258,6 @@ function addPdoObjectsSection(od, odSection, pdo){
 				if (objd.dtype == DTYPE.BOOLEAN) { 
 					addBooleanPadding(pdoMappingObj.items, ++_booleanPaddingCount);
 				}
-				// link to OD variable declared on OD struct
-				objd.data = `&Obj.${variableName(objd.name)}`;
 				break;
 			} 
 			case OTYPE.ARRAY: {
@@ -264,8 +266,6 @@ function addPdoObjectsSection(od, odSection, pdo){
 					// create PDO mappings
 					pdoMappingObj.items.push({ name: subitem.name, dtype: DTYPE.UNSIGNED32, value: getPdoMappingValue(index, subindex , objd.dtype) });
 					// TODO handle padding on array of booleans
-					// link to OD variable declared on OD struct
-					subitem.data = `&Obj.${variableName(objd.name)}[${subindex - 1}]`;
 					++subindex;
 				});
 				break;
@@ -278,8 +278,6 @@ function addPdoObjectsSection(od, odSection, pdo){
 					if (subitem.dtype == DTYPE.BOOLEAN) { 
 						addBooleanPadding(pdoMappingObj.items, ++_booleanPaddingCount);
 					}
-					// link to OD variable declared on OD struct
-					subitem.data = `&Obj.${variableName(objd.name)}.${variableName(subitem.name)}`;
 					++subindex;
 				});
 				break;
@@ -459,6 +457,48 @@ function get_objdBitsize(element) {
 		bitsize = bitsize * element.data.length;
 	}
 	return bitsize;
+}
+
+
+/** Takes object dictionary item from sdo, rxpdo or txpdo section
+ * Adds objd.data that is displayed in objectlist.c
+ * and links to OD variable declared on OD struct in utypes.h
+ */
+function objectlist_link_utypes(objd) {
+	switch (objd.otype) {
+		case  OTYPE.VAR: {
+			objd.data = objectlist_VAR_data(objd);
+			break;
+		} 
+		case OTYPE.ARRAY: {
+			var subindex = 1;
+			objd.items.slice(subindex).forEach(subitem => {
+				subitem.data = objectlist_ARRAY_data(objd, subindex);
+				++subindex;
+			});
+			break;
+		}
+		case OTYPE.RECORD: {
+			var subindex = 1;
+			objd.items.slice(subindex).forEach(subitem => {
+				subitem.data = objectlist_RECORD_data(objd, subitem);
+				++subindex;
+			});
+			break;
+		}
+	}
+	
+	function objectlist_VAR_data(objd) {
+		return `&Obj.${variableName(objd.name)}`;
+	}
+	
+	function objectlist_ARRAY_data(objd, subindex) {
+		return `&Obj.${variableName(objd.name)}[${subindex - 1}]`;
+	}
+	
+	function objectlist_RECORD_data(objd, subitem) {
+		return `&Obj.${variableName(objd.name)}.${variableName(subitem.name)}`;
+	}
 }
 
 function objectlist_generator(form, od, indexes)
@@ -1415,14 +1455,16 @@ function utypes_generator(form, od, indexes) {
 	if (hasInputs) { utypes += utypesInputs + '\n'; }
 	if (hasOutputs) { utypes += utypesOutputs + '\n'; }
 	
-	const sdos = getObjDictSection(sdo); // this is hacky, there should be way to get SDOs from OD passed in
-	if (sdos) {
-		var utypesOutputs = '\n   /* Parameters */\n';
-		const sdoIndexes = getUsedIndexes(sdos);
-		sdoIndexes.forEach(index => {
-			const objd = od[index];
+	var utypesOutputs = '\n   /* Parameters */\n';
+	var anyParameters = false;
+	indexes.forEach(index => {
+		const objd = od[index];
+		if (objd.isSDOitem) {
 			utypesOutputs += getUtypesDeclaration(objd);
-		});
+			anyParameters = true;
+		}
+	});
+	if (anyParameters)  { 
 		utypes += utypesOutputs;
 	}
 
