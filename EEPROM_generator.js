@@ -1835,6 +1835,7 @@ function modalOpenForObject(otype) {
 		}
 	}
 	modalOpen();
+	document.getElementById('modalInputIndex').focus();
 }
 
 function modalSetTitle(message) {
@@ -2023,6 +2024,7 @@ function editSubitemClick(odSectionName, indexValue, subindex, actionName = "Edi
 	modal.form.ObjectName.value = subitem.name;
 	modal.subitem = { odSectionName: odSectionName, index: index, subindex: subindex };
 	modalOpen();
+	document.getElementById('modalInputObjectName').focus();
 }
 
 function onEditSubitemSubmit(modalSubitem) {
