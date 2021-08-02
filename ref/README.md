@@ -1,3 +1,8 @@
+# SOES tool
+
+Source code is intentionally keept in single Javascript file so that no build system or web server is needed.
+The only dependency is web browser, that should simplify usage, portability and minimize tool maintenance work in years to come.
+
 # OD structure
 
 OD is keept as JSON object. Expected data format:
@@ -71,9 +76,9 @@ but so far looks that selected types are all right
 - dynamic PDOs
 - use [XML parsing](https://www.w3schools.com/xml/xml_parser.asp) for cleaner builiding ESI XML output
 - add indexes list to OD model, to decrease parametes count in methods
-- save backup before form processing (now even valid OD changes can be erased by error in code generation logic)
 - what about mailbox bootstrap: words `0x14` - `0x17`?
 - 0x1001 UINT8 Error Register is mandatory according to CiA DS301
+- 0x1C12/0x1C13 `PdoAssign` and 0x1608/0x1A08 `PdoMapping` [should be RW](https://infosys.beckhoff.com/english.php?content=../content/1033/el6695/1317558667.html&id=)
 
 ### Code optimization
 - reuse repeated string constants in objlist.c names, test if does any good or compiler does that for you anyway

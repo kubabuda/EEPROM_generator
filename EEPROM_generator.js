@@ -1589,8 +1589,8 @@ function getOutputForm() {
 }
 
 function onFormChanged() {
+	saveLocalBackup();
 	processForm(getForm());
-	saveLocalBackup();  // persist OD changes over page reload
 }
 
 /** Shortcuts:
@@ -1647,7 +1647,7 @@ window.onload = (event) => {
 }
 
 
-// ####################### Button handlers ####################### //
+// ####################### dark mode logic ####################### //
 function setupDarkMode() {
 	if (!localStorage.darkMode) {
 		localStorage.darkMode = 'dark'; // dark mode by default
@@ -1677,11 +1677,7 @@ function processForm(form)
 	outputCtl.HEX.value = toIntelHex(outputCtl.HEX.hexData);
 	outputCtl.ESI.value = esi_generator(form, od, indexes);
 	
-	const useIntelHex = true;
-	const soemWriteFlag = useIntelHex ? "i" : "";
-	document.getElementById('hexInstallCmd').innerHTML = `sudo ./eepromtool 1 eth0 -w${soemWriteFlag} eeprom.hex`;
-
-	// saveLocalBackup();
+	saveLocalBackup();
 
 	return outputCtl;
 }
@@ -2155,6 +2151,7 @@ function restoreBackup(fileContent) {
 
 // ####################### Backup using browser localstorage ####################### //
 
+/** persist OD and settings changes over page reload */
 function saveLocalBackup() {
 	localStorage.etherCATeepromGeneratorBackup = prepareBackupFileContent();
 }
