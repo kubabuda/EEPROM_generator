@@ -55,6 +55,8 @@ but so far looks that selected types are all right
 
 # TODO
 
+- check output for RWpre
+- set project name from device name
 - check output for boolean ARRAY
 - check output for VISIBLE_STRING ARRAY
 - check output for VISIBLE_STRING RECORD subitem
@@ -71,6 +73,7 @@ but so far looks that selected types are all right
 - add indexes list to OD model, to decrease parametes count in methods
 - save backup before form processing (now even valid OD changes can be erased by error in code generation logic)
 - what about mailbox bootstrap: words `0x14` - `0x17`?
+- 0x1001 UINT8 Error Register is mandatory according to CiA DS301
 
 ### Code optimization
 - reuse repeated string constants in objlist.c names, test if does any good or compiler does that for you anyway
