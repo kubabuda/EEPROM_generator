@@ -11,7 +11,7 @@
    <div id="editObjectModal" class="modal">
    <!-- Modal content -->
       <div class="modal-content">
-         <span class="close" onClick="modalClose()">&times;</span>
+         <span class="close" onClick="odModalClose()">&times;</span>
          <h3 id="editObjectTitle">Edit object</h3>
          <form name="EditObjectForm" id="EditObjectForm" action="" onsubmit="onEditObjectSubmit(this); return false;">
             <table border="0">
@@ -52,7 +52,7 @@
                </tr>
                <tr>
                   <td align="center">
-                     <button name="Cancel" onClick='modalClose();'>✖️ &nbsp; Cancel &nbsp;</button>
+                     <button name="Cancel" onClick='odModalClose();'>✖️ &nbsp; Cancel &nbsp;</button>
                   </td><td>
                      <input type="submit" name="SaveChanges" value="✔️&nbsp; Save changes &nbsp;">
                   </td>
@@ -240,8 +240,9 @@
                </h3>
                <div id="tr_rxpdo"></div>
             </td></tr>
-
+            
             <tr><td colspan="6"><hr></td</tr>
+
             <tr><td colspan="6" align="center">
                <button name="GenerateDownload" onclick="onGenerateDownloadClick()" title="Generate all files and download at once">
                   ⏬ &nbsp; Download all files &nbsp;
@@ -265,7 +266,7 @@
       <br><br>
       <form name="outCodeForm" id="outCodeForm" spellcheck="false" action="" onsubmit="return false;">
          ESI file:
-         <button name="DownloadESI" onClick="downloadFile(getOutputForm().ESI.value, fileName = 'esi.xml', contentType = 'text/html');">
+         <button name="DownloadESI" onClick="onDownloadEsiXmlClick()">
             🔽 &nbsp; Download &nbsp;
          </button>   
          <br>

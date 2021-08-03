@@ -1617,8 +1617,8 @@ document.onkeydown = function(e) {
 
 // When the user clicks anywhere outside of the modal, close it
 window.onclick = function(event) {
-	if (event.target == modal) {
-		modalClose();
+	if (event.target == odModal) {
+		odModalClose();
 	}
 }
 
@@ -1683,6 +1683,9 @@ function processForm(form)
 }
 
 // ####################### Button handlers ####################### //
+function getProjectName(form) {
+	return variableName(form.TextDeviceName.value);
+}
 
 function onGenerateDownloadClick()
 {
@@ -1692,7 +1695,8 @@ function onGenerateDownloadClick()
 
 	function downloadGeneratedFilesZipped() {
 		var zip = new JSZip();
-		zip.file("esi.xml", result.ESI.value);
+		const projectName = getProjectName(form);
+		zip.file(`${projectName}.xml`, result.ESI.value);
 		zip.file('eeprom.hex', result.HEX.value);
 		zip.file('eeprom.bin', result.HEX.hexData);
 		zip.file('ecat_options.h', result.ecat_options.value);
@@ -1708,7 +1712,8 @@ function onGenerateDownloadClick()
 	}
 
 	function downloadGeneratedFiles() {
-		downloadFile(result.ESI.value, 'esi.xml', 'text/html');
+		const projectName = getProjectName(form);
+		downloadFile(result.ESI.value, `${projectName}.xml`, 'text/html');
 		downloadFile(result.HEX.value, 'eeprom.hex', 'application/octet-stream');
 		downloadFile(result.ecat_options.value, 'ecat_options.h', 'text/plain');
 		downloadFile(result.objectlist.value, 'objectlist.c', 'text/plain');
@@ -1745,6 +1750,12 @@ function onResetClick() {
 	}
 }
 
+function onDownloadEsiXmlClick() {
+	const form = getForm();
+	const projectName = getProjectName(form);
+	downloadFile(getOutputForm().ESI.value, `${projectName}.xml`, 'text/html');
+}
+
 function onDownloadBinClick() {
 	const record = getOutputForm().HEX.hexData;
 	if (!record) { alert("Generate code before you can download it"); return; }
@@ -1753,37 +1764,37 @@ function onDownloadBinClick() {
 
 // ####################### Handle modal dialog ####################### //
 
-var modal = {};
+var odModal = {};
 
 function modalSetup() {
 	// Get the modal
-	modal = document.getElementById("editObjectModal");
-	modal.form = getDialogForm();
+	odModal = document.getElementById("editObjectModal");
+	odModal.form = getDialogForm();
 }
 
 // When the user clicks the button, open the modal 
-function modalOpen() {
-	modal.style.display = "block";
+function odModalOpen() {
+	odModal.style.display = "block";
 }
 
-function modalClose() {
-	modal.style.display = "none";
+function odModalClose() {
+	odModal.style.display = "none";
 }
 
 function getDialogForm() {
 	return document.getElementById('EditObjectForm');
 }
 
-// update control values
-function modalUpdate(index, objd) {
-	modal.form.Index.value = `0x${index}`;
-	modal.form.ObjectName.value = objd.name;
-	modal.form.DTYPE.value = objd.dtype || DTYPE.UNSIGNED8;
-	modal.form.Access.value = objd.access || 'RO';
-	modal.objd = objd;
+/** update control values on OD modal */
+function odModalUpdate(index, objd) {
+	odModal.form.Index.value = `0x${index}`;
+	odModal.form.ObjectName.value = objd.name;
+	odModal.form.DTYPE.value = objd.dtype || DTYPE.UNSIGNED8;
+	odModal.form.Access.value = objd.access || 'RO';
+	odModal.objd = objd;
 }
 
-function modalHideControls() {
+function odModalHideControls() {
 	document.getElementById('dialogRowIndex').style.display = 'none';
 	document.getElementById('dialogRowDtype').style.display = 'none';
 	document.getElementById('dialogRowValue').style.display = 'none';
@@ -1795,20 +1806,20 @@ function modalHideControls() {
 function editExistingOD_ObjectDialog(odSectionName, index, otype) {
 	const od = getObjDictSection(odSectionName);
 	var objd = od[index]; 
-	modal.index_initial_value = index;
+	odModal.index_initial_value = index;
 	checkObjectType(otype, objd);
-	modalUpdate(index, objd);
+	odModalUpdate(index, objd);
 }
 
 function addNewOD_ObjectDialog(odSectionName, otype) {
 	var objd = getNewObjd(odSectionName, otype);
 	var index = getFirstFreeIndex(odSectionName);
-	delete modal.index_initial_value; // add new object, not replace edited one 
-	modalUpdate(index, objd);
+	delete odModal.index_initial_value; // add new object, not replace edited one 
+	odModalUpdate(index, objd);
 }
 
-function modalOpenForObject(otype) {
-	modalHideControls();
+function odModalOpenForObject(otype) {
+	odModalHideControls();
 	document.getElementById('dialogRowIndex').style.display = '';
 	document.getElementById('dialogRowAccess').style.display = '';
 
@@ -1830,11 +1841,11 @@ function modalOpenForObject(otype) {
 			return;
 		}
 	}
-	modalOpen();
+	odModalOpen();
 	document.getElementById('modalInputIndex').focus();
 }
 
-function modalSetTitle(message) {
+function odModalSetTitle(message) {
 	document.getElementById('editObjectTitle').innerHTML = `<strong>${message}</strong>`;
 }
 
@@ -1844,42 +1855,42 @@ function editVAR_Click(odSectionName, indexValue = null) {
 	const otype = OTYPE.VAR;
 	const index = indexToString(indexValue);
 	var actionName = "Edit";
-	modal.odSectionName = odSectionName;
+	odModal.odSectionName = odSectionName;
 
 	if (objectExists(odSectionName, index)) {
 		editExistingOD_ObjectDialog(odSectionName, index, otype);
-		modal.form.DTYPE.value = modal.objd.dtype;
+		odModal.form.DTYPE.value = odModal.objd.dtype;
 	} else {
 		addNewOD_ObjectDialog(odSectionName, otype);
 		actionName = "Add"
 	}
-	modalSetTitle(`${actionName} ${odSectionName.toUpperCase()} variable`);
-	modalOpenForObject(otype);
+	odModalSetTitle(`${actionName} ${odSectionName.toUpperCase()} variable`);
+	odModalOpenForObject(otype);
 }
 
 function editARRAY_Click(odSectionName, indexValue = null) {
 	const otype = OTYPE.ARRAY;
 	const index = indexToString(indexValue);
 	var actionName = "Edit";
-	modal.odSectionName = odSectionName;
-	modal.form.Access
+	odModal.odSectionName = odSectionName;
+	odModal.form.Access
 
 	if (objectExists(odSectionName, index)) {
 		editExistingOD_ObjectDialog(odSectionName, index, otype);
-		modal.form.DTYPE.value = modal.objd.dtype;
+		odModal.form.DTYPE.value = odModal.objd.dtype;
 	} else {
 		addNewOD_ObjectDialog(odSectionName, otype);
 		actionName = "Add"
 	}
-	modalSetTitle(`${actionName} ${odSectionName.toUpperCase()} array`);
-	modalOpenForObject(otype);
+	odModalSetTitle(`${actionName} ${odSectionName.toUpperCase()} array`);
+	odModalOpenForObject(otype);
 }
 
 function editRECORD_Click(odSectionName, indexValue = null) {
 	const otype = OTYPE.RECORD;
 	const index = indexToString(indexValue);
 	var actionName = "Edit";
-	modal.odSectionName = odSectionName;
+	odModal.odSectionName = odSectionName;
 
 	if (objectExists(odSectionName, index)) {
 		editExistingOD_ObjectDialog(odSectionName, index, otype);
@@ -1887,17 +1898,17 @@ function editRECORD_Click(odSectionName, indexValue = null) {
 		addNewOD_ObjectDialog(odSectionName, otype);
 		actionName = "Add"
 	}
-	modalSetTitle(`${actionName} ${odSectionName.toUpperCase()} record`);
-	modalOpenForObject(otype);
+	odModalSetTitle(`${actionName} ${odSectionName.toUpperCase()} record`);
+	odModalOpenForObject(otype);
 }
 
 function onEditObjectSubmit(modalform) {
-	if (modal.subitem) {
-		onEditSubitemSubmit(modal.subitem);
-		delete modal.subitem;
+	if (odModal.subitem) {
+		onEditSubitemSubmit(odModal.subitem);
+		delete odModal.subitem;
 		return;
 	}
-	const objd = modal.objd;
+	const objd = odModal.objd;
 	const objectType = objd.otype;
 	const index = indexToString(modalform.Index.value);
 
@@ -1924,15 +1935,15 @@ function onEditObjectSubmit(modalform) {
 			alert(`Unexpected type ${objectType} on object ${modalform.ObjectName} being edited!`);
 			break;
 	}
-	const odSection = getObjDictSection(modal.odSectionName);
-	if (modal.index_initial_value) {
-		removeObject(odSection, modal.index_initial_value); // detach from OD, to avoid duplicate if index changed
+	const odSection = getObjDictSection(odModal.odSectionName);
+	if (odModal.index_initial_value) {
+		removeObject(odSection, odModal.index_initial_value); // detach from OD, to avoid duplicate if index changed
 	}
 	addObject(odSection, objd, index);	// attach updated object
-	modalClose();
-	reloadOD_Section(modal.odSectionName);
-	delete modal.odSectionName;
-	modal.objd = {};
+	odModalClose();
+	reloadOD_Section(odModal.odSectionName);
+	delete odModal.odSectionName;
+	odModal.objd = {};
 	
 	onFormChanged();
 }
@@ -2002,24 +2013,24 @@ function editSubitemClick(odSectionName, indexValue, subindex, actionName = "Edi
 
 	if(!objd.items || objd.items.length <= subindex ) { alert(`Object ${index} "${objd.name}" does not have ${subindex} subitems!`); return; }
 	
-	modalSetTitle(`${actionName} ${odSectionName.toUpperCase()} object 0x${index} "${objd.name}" subitem 0x${indexToString(subindex)}`);
+	odModalSetTitle(`${actionName} ${odSectionName.toUpperCase()} object 0x${index} "${objd.name}" subitem 0x${indexToString(subindex)}`);
 	
 	const subitem = objd.items[subindex];
 	
-	modalHideControls();
+	odModalHideControls();
 	
 	document.getElementById('dialogRowValue').style.display = "";
-	modal.form.InitalValue.value = subitem.value ?? 0;
+	odModal.form.InitalValue.value = subitem.value ?? 0;
 	
 	if (objd.otype == OTYPE.RECORD) {
 		document.getElementById('dialogRowDtype').style.display = "";
-		modal.form.DTYPE.value = subitem.dtype;
+		odModal.form.DTYPE.value = subitem.dtype;
 		document.getElementById('dialogRowAccess').style.display = ''; // access for record subitems can differ
-		modal.form.Access.value = subitem.access || 'RO';
+		odModal.form.Access.value = subitem.access || 'RO';
 	}
-	modal.form.ObjectName.value = subitem.name;
-	modal.subitem = { odSectionName: odSectionName, index: index, subindex: subindex };
-	modalOpen();
+	odModal.form.ObjectName.value = subitem.name;
+	odModal.subitem = { odSectionName: odSectionName, index: index, subindex: subindex };
+	odModalOpen();
 	document.getElementById('modalInputObjectName').focus();
 }
 
@@ -2028,13 +2039,13 @@ function onEditSubitemSubmit(modalSubitem) {
 	const objd = odSection[modalSubitem.index];
 	const subitem = objd.items[modalSubitem.subindex];
 
-	subitem.name =  modal.form.ObjectName.value;
-	subitem.value = modal.form.InitalValue.value;
+	subitem.name =  odModal.form.ObjectName.value;
+	subitem.value = odModal.form.InitalValue.value;
 	if (objd.otype == OTYPE.RECORD) {
-		subitem.dtype = modal.form.DTYPE.value;
-		subitem.access = modal.form.Access.value;
+		subitem.dtype = odModal.form.DTYPE.value;
+		subitem.access = odModal.form.Access.value;
 	}
-	modalClose();
+	odModalClose();
 	onFormChanged();
 	reloadOD_Section(modalSubitem.odSectionName);
 }

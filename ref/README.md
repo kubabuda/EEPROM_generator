@@ -60,7 +60,7 @@ but so far looks that selected types are all right
 
 # TODO
 
-- check output for RWpre
+- DC configuration GUI
 - set project name from device name
 - check output for boolean ARRAY
 - check output for VISIBLE_STRING ARRAY
@@ -69,11 +69,11 @@ but so far looks that selected types are all right
     - `ecat_options.h` #define SM2_sma, MAX_TXPDO_SIZE and MAX_RXPDO_SIZE
     - `esi.xml` `<Sm ControlByte="#x24" Enable="1" StartAddress="#x1600">Outputs</Sm>`
     currently this tool mirrors SDK behavior, check if this hack is needed or just duplicated SDK bug
-- DC configuration GUI
 - calculate `MAX_RXPDO_SIZE`, `MAX_TXPDO_SIZE` based on selected SM2 offset
 - check generated XML for PDOs: - <CoE> settings
 - modular device profile
 - dynamic PDOs
+- DC config in ESI .bin
 - use [XML parsing](https://www.w3schools.com/xml/xml_parser.asp) for cleaner builiding ESI XML output
 - add indexes list to OD model, to decrease parametes count in methods
 - what about mailbox bootstrap: words `0x14` - `0x17`?
