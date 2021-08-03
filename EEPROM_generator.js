@@ -1623,7 +1623,8 @@ window.onclick = function(event) {
 }
 
 window.onload = (event) => {
-	modalSetup();
+	odModalSetup();
+	syncModalSetup();
 	tryRestoreLocalBackup();
 	const form = getForm();
 	// for convinience during tool development, trigger codegen on page refresh
@@ -1766,10 +1767,10 @@ function onDownloadBinClick() {
 
 var odModal = {};
 
-function modalSetup() {
+function odModalSetup() {
 	// Get the modal
 	odModal = document.getElementById("editObjectModal");
-	odModal.form = getDialogForm();
+	odModal.form = document.getElementById('EditObjectForm');
 }
 
 // When the user clicks the button, open the modal 
@@ -1779,10 +1780,6 @@ function odModalOpen() {
 
 function odModalClose() {
 	odModal.style.display = "none";
-}
-
-function getDialogForm() {
-	return document.getElementById('EditObjectForm');
 }
 
 /** update control values on OD modal */
@@ -2086,6 +2083,28 @@ function reloadOD_Section(odSectionName) {
 	document.getElementById(`tr_${odSectionName}`).innerHTML = section;
 }
 
+// ####################### Synchronization settings UI ####################### //
+
+var syncModal = {};
+
+function syncModalSetup() {
+	// Get the modal
+	syncModal = document.getElementById("syncModal");
+	// syncModal.form = document.getElementById('syncModalForm');
+}
+
+
+function syncModalClose() {
+	syncModal.style.display = "none";
+}
+
+function syncModalOpen() {
+	syncModal.style.display = "block";
+}
+
+function addSyncClick() {
+	syncModalOpen();
+}
 
 // ####################### Backup serialization + deserialization ####################### //
 
