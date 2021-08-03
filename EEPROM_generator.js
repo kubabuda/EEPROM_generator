@@ -2090,9 +2090,8 @@ var syncModal = {};
 function syncModalSetup() {
 	// Get the modal
 	syncModal = document.getElementById("syncModal");
-	// syncModal.form = document.getElementById('syncModalForm');
+	syncModal.form = document.getElementById('syncModalForm');
 }
-
 
 function syncModalClose() {
 	syncModal.style.display = "none";
@@ -2104,6 +2103,10 @@ function syncModalOpen() {
 
 function addSyncClick() {
 	syncModalOpen();
+}
+
+function onEditSyncSubmit(syncForm) {
+	console.log(syncForm);
 }
 
 // ####################### Backup serialization + deserialization ####################### //

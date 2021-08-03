@@ -68,6 +68,49 @@
          <div class="modal-content">
             <span class="close" onClick="syncModalClose()">&times;</span>
             <h3 id="editObjectTitle">Edit synchronization mode</h3>
+
+            <form name="syncModalForm" id="syncModalForm" action="" onsubmit="onEditSyncSubmit(this); return false;">
+               <table border="0">
+                  <tr>
+                     <td>Name:</td>
+                     <td><input type = "text" name="Name" value="New sync mode" title="Enter Name for new sync mode" id="syncModalName"></td>
+                  </tr>
+                  <tr>
+                     <td>Description:</td>
+                     <td><input type = "text" name="Description" value="New sync mode description" title="Enter Description for new sync mode" id="syncModalDescription"></td>
+                  </tr>
+                  <tr>
+                     <td>Assign Activate:</td>
+                     <td><input type = "text" name="AssignActivate" value="0x0" title="Enter Assign Activate value for new sync mode" id="syncModalAssignActivate"></td>
+                  </tr>
+               </table>
+               <table border="0">
+                  <!-- <tr><td>Sync 0:</td></tr> -->
+                  <tr>
+                     <td>S0 cycle</td>
+                     <td><input type = "text" name="Sync0cycleTime" value="0" title="Enter Sync0 cycle time" id="syncModalSync0cycleTime"></td>
+                     <td>S0 shift</td>
+                     <td><input type = "text" name="Sync0shiftTime" value="0" title="Enter Sync0 shift time" id="syncModalSync0shiftTime"></td>
+                  </tr>
+
+                  <!-- <tr><td>Sync 1:</td></tr> -->
+                  <tr>
+                     <td>S1 cycle</td>
+                     <td><input type = "text" name="Sync1cycleTime" value="0" title="Enter Sync1 cycle time" id="syncModalSync1cycleTime"></td>
+                     <td>S1 shift</td>
+                     <td><input type = "text" name="Sync1shiftTime" value="0" title="Enter Sync1 shift time" id="syncModalSync1shiftTime"></td>
+                  </tr>
+               </table>
+               <table border="0" style="padding-top: 20px;">
+                  <tr>
+                     <td align="center">
+                        <button name="Cancel" onClick='syncModalClose();'>✖️ &nbsp; Cancel &nbsp;</button>
+                     </td><td>
+                        <input type="submit" name="SaveChanges" value="✔️&nbsp; Save changes &nbsp;">
+                     </td>
+                  </tr>
+               </table>
+            </form>
          </div>
    </div>
       
