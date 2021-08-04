@@ -871,7 +871,7 @@ function esi_generator(form, od, indexes)
 	//Add Mailbox DLL
 	esi += `        <Mailbox DataLinkLayer="true">\n          <CoE ${getCoEString(form)}/>\n        </Mailbox>\n`;
 	//Add DCs
-	esi += `        <Dc>\n          <OpMode>\n            <Name>DcOff</Name>\n            <Desc>DC unused</Desc>\n          <AssignActivate>#x0000</AssignActivate>\n          </OpMode>\n        </Dc>\n`;
+	esi += getEsiDCsection(_dc);
 	//Add EEPROM
 	const configdata = hex_generator(form, true);
 	esi +=`        <Eeprom>\n          <ByteSize>${parseInt(form.EEPROMsize.value)}</ByteSize>\n          <ConfigData>${configdata}</ConfigData>\n        </Eeprom>\n`;
@@ -954,6 +954,32 @@ function esi_generator(form, od, indexes)
 			flags += `\n                  <PdoMapping>${pdoMappingFlag}</PdoMapping>`; 	
 		}
 		return flags;
+	}
+
+	function getEsiDCsection(dc) {
+		if (!dc) {
+			return '';
+		}
+		var dcSection = '        <Dc>';
+		dc.forEach(opMode => {
+			dcSection += `\n          <OpMode>\n            <Name>${opMode.Name}</Name>\n            <Desc>${opMode.Description}</Desc>\n            <AssignActivate>${opMode.AssignActivate}</AssignActivate>`;
+			if (opMode.Sync0cycleTime && opMode.Sync0cycleTime != 0) { 
+				dcSection += `\n            <CycleTimeSync0>${opMode.Sync0cycleTime}</CycleTimeSync0>`; 
+			}
+			if (opMode.Sync0shiftTime && opMode.Sync0shiftTime != 0) { 
+				dcSection += `\n            <ShiftTimeSync0>${opMode.Sync0shiftTime}</ShiftTimeSync0>`; 
+			}
+			if (opMode.Sync1cycleTime && opMode.Sync1cycleTime != 0) { 
+				dcSection += `\n            <CycleTimeSync1>${opMode.Sync1cycleTime}</CycleTimeSync1>`; 
+			}
+			if (opMode.Sync1shiftTime && opMode.Sync1shiftTime != 0) { 
+				dcSection += `\n            <ShiftTimeSync1>${opMode.Sync1shiftTime}</ShiftTimeSync1>`; 
+			}
+			dcSection += `\n          </OpMode>`;
+		});
+		dcSection += `\n        </Dc>\n`;
+
+		return dcSection;
 	}
 
 	//See Table 40 ETG2000
@@ -2154,8 +2180,9 @@ function onEditSyncClick(i) {
 }
 
 function onRemoveSyncClick(i) {
-	debugger;
-	// syncModes.splice(i);
+	_dc.splice(i, 1);
+	reloadSyncModes();
+	onFormChanged();
 }
 
 // ####################### Synchronization settings UI ####################### //
@@ -2164,7 +2191,7 @@ function reloadSyncModes() {
 	var section = '';
 	var i = 0;
 	_dc.forEach(sync => {
-		section += `<div class="odItem"><span class="odItemContent">${sync.Name} : ${sync.Description}</span><span>`;
+		section += `<div class="odItem"><span class="odItemContent">${sync.Name} : ${sync.Description} &nbsp; [${sync.AssignActivate}]</span><span>`;
 		section += `<button onClick='onRemoveSyncClick(${i})'>&nbsp; ❌ Remove &nbsp;</button>`;
 		section += `<button onClick='onEditSyncClick(${i})'>&nbsp; 🛠️ &nbsp; Edit &nbsp;</button>`;
 		section += `</span></div>`;
