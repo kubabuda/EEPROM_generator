@@ -69,11 +69,11 @@
             <span class="close" onClick="syncModalClose()">&times;</span>
             <h3 id="editObjectTitle">Edit synchronization mode</h3>
 
-            <form name="syncModalForm" id="syncModalForm" action="" onsubmit="onEditSyncSubmit(this); return false;">
+            <form name="syncModalForm" id="syncModalForm" action="" onsubmit="onSyncSubmit(this); return false;">
                <table border="0">
                   <tr>
                      <td>Name:</td>
-                     <td><input type = "text" name="Name" value="New sync mode" title="Enter Name for new sync mode" id="syncModalName"></td>
+                     <td><input type = "text" name="Name" value="New sync modee" title="Enter Name for new sync mode" id="syncModalName"></td>
                   </tr>
                   <tr>
                      <td>Description:</td>
@@ -85,15 +85,12 @@
                   </tr>
                </table>
                <table border="0">
-                  <!-- <tr><td>Sync 0:</td></tr> -->
                   <tr>
                      <td>S0 cycle</td>
                      <td><input type = "text" name="Sync0cycleTime" value="0" title="Enter Sync0 cycle time" id="syncModalSync0cycleTime"></td>
                      <td>S0 shift</td>
                      <td><input type = "text" name="Sync0shiftTime" value="0" title="Enter Sync0 shift time" id="syncModalSync0shiftTime"></td>
                   </tr>
-
-                  <!-- <tr><td>Sync 1:</td></tr> -->
                   <tr>
                      <td>S1 cycle</td>
                      <td><input type = "text" name="Sync1cycleTime" value="0" title="Enter Sync1 cycle time" id="syncModalSync1cycleTime"></td>
@@ -295,12 +292,12 @@
 
             <tr><td colspan="6"><hr></td</tr>
                <h3 class="odSectionHeading">
-                  <span title="Distributed Clocks configuration" class="synchronizationTitle"> Synchronization </span>
+                  <span title="Distributed Clocks configuration" class="odSectionTitle"> Synchronization </span>
                   <span>
                      <button onClick="addSyncClick()">➕ Add DC settings</button>
                   </span>
                </h3>
-               <div id="dc_settings"></div>
+               <div id="dcSyncModes"></div>
             
             <tr><td colspan="6"><hr></td</tr>
 

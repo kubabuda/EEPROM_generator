@@ -870,7 +870,7 @@ function esi_generator(form, od, indexes)
 	
 	//Add Mailbox DLL
 	esi += `        <Mailbox DataLinkLayer="true">\n          <CoE ${getCoEString(form)}/>\n        </Mailbox>\n`;
-	//Add DC
+	//Add DCs
 	esi += `        <Dc>\n          <OpMode>\n            <Name>DcOff</Name>\n            <Desc>DC unused</Desc>\n          <AssignActivate>#x0000</AssignActivate>\n          </OpMode>\n        </Dc>\n`;
 	//Add EEPROM
 	const configdata = hex_generator(form, true);
@@ -2086,6 +2086,7 @@ function reloadOD_Section(odSectionName) {
 // ####################### Synchronization settings UI ####################### //
 
 var syncModal = {};
+var _dc = []
 
 function syncModalSetup() {
 	// Get the modal
@@ -2095,18 +2096,81 @@ function syncModalSetup() {
 
 function syncModalClose() {
 	syncModal.style.display = "none";
+	delete syncModal.edited;
+	reloadSyncModes();
 }
 
 function syncModalOpen() {
 	syncModal.style.display = "block";
 }
 
-function addSyncClick() {
+function syncModeEdit(sync) {
+	syncModal.edited = sync;
+
+	syncModal.form.Name.value = sync.Name;
+	syncModal.form.Description.value = sync.Description;
+	syncModal.form.AssignActivate.value = sync.AssignActivate;
+	syncModal.form.Sync0cycleTime.value = sync.Sync0cycleTime;
+	syncModal.form.Sync0shiftTime.value = sync.Sync0shiftTime;
+	syncModal.form.Sync1cycleTime.value = sync.Sync1cycleTime;
+	syncModal.form.Sync1shiftTime.value = sync.Sync1shiftTime;
+
 	syncModalOpen();
 }
 
-function onEditSyncSubmit(syncForm) {
-	console.log(syncForm);
+function onSyncSubmit(syncForm) {
+
+	syncModal.edited.Name = syncForm.Name.value;
+	syncModal.edited.Description = syncForm.Description.value;
+	syncModal.edited.AssignActivate = syncForm.AssignActivate.value;
+	syncModal.edited.Sync0cycleTime = syncForm.Sync0cycleTime.value;
+	syncModal.edited.Sync0shiftTime = syncForm.Sync0shiftTime.value;
+	syncModal.edited.Sync1cycleTime = syncForm.Sync1cycleTime.value;
+	syncModal.edited.Sync1shiftTime = syncForm.Sync1shiftTime.value;
+
+	syncModalClose();
+	onFormChanged();
+}
+
+// ####################### Synchronization settings button handlers ####################### //
+
+function addSyncClick() {
+	const newSyncMode = {
+		Name: "DcOff",
+		Description: "DC unused",
+		AssignActivate: "#x000",
+		Sync0cycleTime: 0,
+		Sync0shiftTime: 0,
+		Sync1cycleTime: 0,
+		Sync1shiftTime: 0,
+	}
+	_dc.push(newSyncMode);
+	syncModeEdit(newSyncMode);
+}
+
+function onEditSyncClick(i) {
+	const syncMode = _dc[i];
+	syncModeEdit(syncMode);
+}
+
+function onRemoveSyncClick(i) {
+	debugger;
+	// syncModes.splice(i);
+}
+
+// ####################### Synchronization settings UI ####################### //
+
+function reloadSyncModes() {
+	var section = '';
+	var i = 0;
+	_dc.forEach(sync => {
+		section += `<div class="odItem"><span class="odItemContent">${sync.Name} : ${sync.Description}</span><span>`;
+		section += `<button onClick='onRemoveSyncClick(${i})'>&nbsp; ❌ Remove &nbsp;</button>`;
+		section += `<button onClick='onEditSyncClick(${i})'>&nbsp; 🛠️ &nbsp; Edit &nbsp;</button>`;
+		section += `</span></div>`;
+		++i;
+	});
+	document.getElementById(`dcSyncModes`).innerHTML = section;
 }
 
 // ####################### Backup serialization + deserialization ####################### //
@@ -2133,6 +2197,7 @@ function prepareBackupObject() {
 	const backup = {
 		form: formValues,
 		od: _odSections,
+		dc: _dc,
 	};
 
 	return backup;
@@ -2148,7 +2213,11 @@ function loadBackup(backupObject) {
 		_odSections.txpdo = backupObject.od.txpdo;
 		_odSections.rxpdo = backupObject.od.rxpdo;
 	}
-		
+
+	if (backupObject.dc) {
+		_dc = backupObject.dc;
+	}
+	
 	var form = getForm();
 	Object.entries(form).forEach(formEntry => {
 		const formControl = formEntry[1]; // entry[0] is index
@@ -2179,6 +2248,7 @@ function restoreBackup(fileContent) {
 	if (isValidBackup(backup)) {
 		loadBackup(backup);
 		reloadOD_Sections();
+		reloadSyncModes()
 	}
 }
 
