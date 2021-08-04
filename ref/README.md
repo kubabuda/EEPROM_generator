@@ -75,6 +75,7 @@ but so far looks that selected types are all right
 - dynamic PDOs
 - DC config in ESI .bin
 - use [XML parsing](https://www.w3schools.com/xml/xml_parser.asp) for cleaner builiding ESI XML output
+- read XML files: make reverse eningeering 3rd party devices easier
 - add indexes list to OD model, to decrease parametes count in methods
 - what about mailbox bootstrap: words `0x14` - `0x17`?
 - 0x1001 UINT8 Error Register is mandatory according to CiA DS301
