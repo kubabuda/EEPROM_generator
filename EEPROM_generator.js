@@ -2087,7 +2087,7 @@ function reloadOD_Section(odSectionName) {
 	var section = '';
 	indexes.forEach(index => {
 		const objd = odSection[index];
-		section += `<div class="odItem"><span class="odItemContent"><strong>0x${index}</strong>&nbsp;&nbsp; "${objd.name}" ${objd.otype} ${objd.dtype ?? ''}</span><span>`;
+		section += `<div class="odItem"><span class="odItemContent"><strong>0x${index}</strong> &nbsp; &nbsp; "${objd.name}" ${objd.otype} ${objd.dtype ?? ''}</span><span>`;
 		if (objd.otype == OTYPE.ARRAY || objd.otype == OTYPE.RECORD) {
 			section += `<button onClick='addSubitemClick(${odSectionName}, 0x${index})'>&nbsp; ➕ Add subitem &nbsp;</button>`;
 		}
@@ -2191,7 +2191,7 @@ function reloadSyncModes() {
 	var section = '';
 	var i = 0;
 	_dc.forEach(sync => {
-		section += `<div class="odItem"><span class="odItemContent">${sync.Name} : ${sync.Description} &nbsp; [${sync.AssignActivate}]</span><span>`;
+		section += `<div class="odItem"><span class="odItemContent"><strong>${sync.Name}</strong> &nbsp; &nbsp; ${sync.Description} &nbsp; [${sync.AssignActivate}]</span><span>`;
 		section += `<button onClick='onRemoveSyncClick(${i})'>&nbsp; ❌ Remove &nbsp;</button>`;
 		section += `<button onClick='onEditSyncClick(${i})'>&nbsp; 🛠️ &nbsp; Edit &nbsp;</button>`;
 		section += `</span></div>`;
