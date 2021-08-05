@@ -692,7 +692,7 @@ function esi_generator(form, od, indexes)
 	//Add in between
 	esi += `        <GroupType>${form.TextGroupType.value}</GroupType>\n`;
 	//Add profile
-	esi += `        <Profile>\n          <ProfileNo>5001</ProfileNo>\n          <AddInfo>0</AddInfo>\n          <Dictionary>\n            <DataTypes>`;
+	esi += `        <Profile>\n          <ProfileNo>${form.ProfileNo.value}</ProfileNo>\n          <AddInfo>0</AddInfo>\n          <Dictionary>\n            <DataTypes>`;
 	const customTypes = {};
 	const variableTypes = {};
 	
