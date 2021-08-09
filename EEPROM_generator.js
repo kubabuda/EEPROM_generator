@@ -6,7 +6,7 @@
 Source code is intentionally keept in single Javascript file so that no build system or web server is needed.
 The only dependency is web browser, that should simplify usage, portability and minimize tool maintenance work in years to come.
  
- * Victor Sluitter 2013-2018
+ * Victor Sluiter 2013-2018
  * Kuba Buda 2020-2021
  */
 'use strict'
