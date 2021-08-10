@@ -58,6 +58,10 @@ VBinDiff ref/et1100.bin  ref/lan9252.bin
 Good reference: https://www.sitepoint.com/mime-types-complete-list/
 but so far looks that selected types are all right
 
+# Unit tests
+
+https://jasmine.github.io/
+
 # TODO
 
 - check output for boolean ARRAY
