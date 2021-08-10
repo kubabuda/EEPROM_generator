@@ -1101,8 +1101,9 @@ function getOutputForm() {
 }
 
 function onFormChanged() {
-	saveLocalBackup();
-	processForm(getForm());
+	const form = getForm();
+	saveLocalBackup(form);
+	processForm(form);
 }
 
 /** Shortcuts:
@@ -1137,8 +1138,8 @@ window.onclick = function(event) {
 window.onload = (event) => {
 	odModalSetup();
 	syncModalSetup();
-	tryRestoreLocalBackup();
 	const form = getForm();
+	tryRestoreLocalBackup(form);
 	// for convinience during tool development, trigger codegen on page refresh
 	processForm(form);
 	
@@ -1190,7 +1191,7 @@ function processForm(form)
 	outputCtl.HEX.value = toIntelHex(outputCtl.HEX.hexData);
 	outputCtl.ESI.value = esi_generator(form, od, indexes);
 	
-	saveLocalBackup();
+	saveLocalBackup(form);
 
 	return outputCtl;
 }
@@ -1224,14 +1225,14 @@ function onGenerateDownloadClick()
 		});
 	}
 
-	function downloadGeneratedFiles() {
+	function downloadGeneratedFiles(form, result) {
 		const projectName = getProjectName(form);
 		downloadFile(result.ESI.value, `${projectName}.xml`, 'text/html');
 		downloadFile(result.HEX.value, 'eeprom.hex', 'application/octet-stream');
 		downloadFile(result.ecat_options.value, 'ecat_options.h', 'text/plain');
 		downloadFile(result.objectlist.value, 'objectlist.c', 'text/plain');
 		downloadFile(result.utypes.value, 'utypes.h', 'text/plain');
-		downloadBackupFile();
+		downloadBackupFile(form);
 	
 	}
 }
@@ -1241,8 +1242,9 @@ function onGenerateClick() {
 }
 
 function onSaveClick() {
-	downloadBackupFile();
-	saveLocalBackup();
+	const form = getForm();
+	downloadBackupFile(form);
+	saveLocalBackup(form);
 }
 
 function onRestoreClick() {
@@ -1251,8 +1253,8 @@ function onRestoreClick() {
 }
 
 function onRestoreComplete(fileContent) {
-	restoreBackup(fileContent);
 	const form = getForm();
+	restoreBackup(fileContent, form);
 	processForm(form);
 }
 
@@ -1713,8 +1715,7 @@ function isValidBackup(backup) {
 	return true;
 }
 
-function prepareBackupObject() {
-	const form = getForm();
+function prepareBackupObject(form) {
 	const formValues = {};
 	Object.entries(form).forEach(formEntry => {
 		const formControl = formEntry[1]; // entry[0] is form control order number
@@ -1736,7 +1737,7 @@ function isBackedUp(formControl) {
 	return formControl.type != "button";
 }
 
-function loadBackup(backupObject) {
+function loadBackup(backupObject, form) {
 	if (backupObject.od) {
 		setObjDictSection(sdo, backupObject.od.sdo);
 		setObjDictSection(txpdo, backupObject.od.txpdo);
@@ -1747,7 +1748,6 @@ function loadBackup(backupObject) {
 		_dc = backupObject.dc;
 	}
 	
-	var form = getForm();
 	if (form) {
 		Object.entries(form).forEach(formEntry => {
 			const formControl = formEntry[1]; // entry[0] is index
@@ -1759,8 +1759,8 @@ function loadBackup(backupObject) {
 	}
 }
 
-function prepareBackupFileContent() {
-	var backupObject = prepareBackupObject();
+function prepareBackupFileContent(form) {
+	var backupObject = prepareBackupObject(form);
 	var backupFileContent = JSON.stringify(backupObject, null, 2); // pretty print
 	return backupFileContent;
 }
@@ -1769,15 +1769,15 @@ function prepareBackupFileContent() {
 
 // Localstorage limit is usually 5MB, super large object dictionaries on older browsers might be problematic
 
-function downloadBackupFile() {
-	const backupFileContent = prepareBackupFileContent(); // pretty print
+function downloadBackupFile(form) {
+	const backupFileContent = prepareBackupFileContent(form); // pretty print
 	downloadFile(backupFileContent, 'esi.json', 'text/json');
 }
 
-function restoreBackup(fileContent) {
+function restoreBackup(fileContent, form) {
 	var backup = JSON.parse(fileContent);
 	if (isValidBackup(backup)) {
-		loadBackup(backup);
+		loadBackup(backup, form);
 		reloadOD_Sections();
 		reloadSyncModes()
 	}
@@ -1786,13 +1786,13 @@ function restoreBackup(fileContent) {
 // ####################### Backup using browser localstorage ####################### //
 
 /** persist OD and settings changes over page reload */
-function saveLocalBackup() {
-	localStorage.etherCATeepromGeneratorBackup = prepareBackupFileContent();
+function saveLocalBackup(form) {
+	localStorage.etherCATeepromGeneratorBackup = prepareBackupFileContent(form);
 }
 
-function tryRestoreLocalBackup() {
+function tryRestoreLocalBackup(form) {
 	if (localStorage.etherCATeepromGeneratorBackup) {
-		restoreBackup(localStorage.etherCATeepromGeneratorBackup);
+		restoreBackup(localStorage.etherCATeepromGeneratorBackup, form);
 	}
 }
 
