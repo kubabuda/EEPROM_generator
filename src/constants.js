@@ -1,4 +1,7 @@
 /**
+ * SOES EEPROM generator
+ * Shared constants, data types
+
  * This tool serves as:
 - EtherCAT Slave Information XML + EEPROM binary generator
 - SOES code generator
