@@ -1,6 +1,6 @@
 # SOES tool
 
-Source code is intentionally keept in single Javascript file so that no build system or web server is needed.
+Source code is intentionally keept in plain Javascript file so that no build system or web server is needed.
 The only dependency is web browser, that should simplify usage, portability and minimize tool maintenance work in years to come.
 
 # OD structure
@@ -57,6 +57,7 @@ VBinDiff ref/et1100.bin  ref/lan9252.bin
 
 Good reference: https://www.sitepoint.com/mime-types-complete-list/
 but so far looks that selected types are all right
+
 
 # Unit tests
 
