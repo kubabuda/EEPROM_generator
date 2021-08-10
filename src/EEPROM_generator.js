@@ -337,13 +337,15 @@ function addPdoObjectsSection(od, odSection, pdo){
 }
 /** populates mandatory objects with values from UI */
 function populateMandatoryObjectValues(form, od) {
-	od['1008'].data = form.TextDeviceName.value;
-	od['1009'].data = form.HWversion.value;
-	od['100A'].data = form.SWversion.value;
-	od['1018'].items[1].value = parseInt(form.VendorID.value);
-	od['1018'].items[2].value = parseInt(form.ProductCode.value);
-	od['1018'].items[3].value = parseInt(form.RevisionNumber.value);
-	od['1018'].items[4].value = parseInt(form.SerialNumber.value);
+	if (form) {
+		od['1008'].data = form.TextDeviceName.value;
+		od['1009'].data = form.HWversion.value;
+		od['100A'].data = form.SWversion.value;
+		od['1018'].items[1].value = parseInt(form.VendorID.value);
+		od['1018'].items[2].value = parseInt(form.ProductCode.value);
+		od['1018'].items[3].value = parseInt(form.RevisionNumber.value);
+		od['1018'].items[4].value = parseInt(form.SerialNumber.value);
+	}
 }
 /** builds complete object dictionary, with values from UI */
 function buildObjectDictionary(form) {
@@ -1796,7 +1798,12 @@ var odModal = {};
 function odModalSetup() {
 	// Get the modal
 	odModal = document.getElementById("editObjectModal");
-	odModal.form = document.getElementById('EditObjectForm');
+	if (odModal) {
+		odModal.form = document.getElementById('EditObjectForm');
+	}
+	else {
+		alert("Element required to edit Object Dictionary not found!");
+	}
 }
 
 // When the user clicks the button, open the modal 
@@ -2106,7 +2113,10 @@ function reloadOD_Section(odSectionName) {
 			});
 		}
 	});
-	document.getElementById(`tr_${odSectionName}`).innerHTML = section;
+	const odSectionElement = document.getElementById(`tr_${odSectionName}`); 
+	if (odSectionElement) {
+		odSectionElement.innerHTML = section;
+	} 
 }
 
 // ####################### Synchronization settings UI ####################### //
@@ -2117,7 +2127,12 @@ var _dc = []
 function syncModalSetup() {
 	// Get the modal
 	syncModal = document.getElementById("syncModal");
-	syncModal.form = document.getElementById('syncModalForm');
+	if (syncModal) {
+		syncModal.form = document.getElementById('syncModalForm');
+	}
+	else {
+		alert("Element required to edit Object Dictionary not found!");
+	}
 }
 
 function syncModalClose() {
@@ -2197,7 +2212,10 @@ function reloadSyncModes() {
 		section += `</span></div>`;
 		++i;
 	});
-	document.getElementById(`dcSyncModes`).innerHTML = section;
+	const sectionElement = document.getElementById(`dcSyncModes`);
+	if (sectionElement) {
+		sectionElement.innerHTML = section;
+	}
 }
 
 // ####################### Backup serialization + deserialization ####################### //
@@ -2246,13 +2264,15 @@ function loadBackup(backupObject) {
 	}
 	
 	var form = getForm();
-	Object.entries(form).forEach(formEntry => {
-		const formControl = formEntry[1]; // entry[0] is index
-		const formControlValue = backupObject.form[formControl.name];
-		if(isBackedUp(formControl) && formControlValue) {
-			formControl.value = formControlValue;
-		};
-	});
+	if (form) {
+		Object.entries(form).forEach(formEntry => {
+			const formControl = formEntry[1]; // entry[0] is index
+			const formControlValue = backupObject.form[formControl.name];
+			if(isBackedUp(formControl) && formControlValue) {
+				formControl.value = formControlValue;
+			};
+		});
+	}
 }
 
 function prepareBackupFileContent() {
