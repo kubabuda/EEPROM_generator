@@ -30,8 +30,8 @@ function getObjDictSection(odSectionName) {
 	return _odSections[odSectionName];
 }
 
-function setObjDictSection(odSectionName, value) {
-	_odSections[odSectionName] = value;
+function setObjDictSection(odSectionName, backupValue) {
+	_odSections[odSectionName] = backupValue;
 }
 
 function objectExists(odSectionName, index) {
