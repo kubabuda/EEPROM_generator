@@ -1,6 +1,6 @@
 # SOES tool
 
-Source code is intentionally keept in plain Javascript file so that no build system or web server is needed.
+Source code is intentionally keept in plain Javascript files so that no build system or web server is needed.
 The only dependency is web browser, that should simplify usage, portability and minimize tool maintenance work in years to come.
 
 # OD structure
@@ -69,7 +69,6 @@ https://jasmine.github.io/
 - check output for VISIBLE_STRING ARRAY
 - check output for VISIBLE_STRING RECORD subitem
 - dynamic/multiple PDOs
-- separate generator code from UI logic
 - unit tests
 - SM2 offset: regardles of value set, SDK generates RXPDO mappings as SDO1600. SM2 offset change affects
     - `ecat_options.h` #define SM2_sma, MAX_TXPDO_SIZE and MAX_RXPDO_SIZE

@@ -1,6 +1,15 @@
 <head>
    <meta charset="UTF-8">
    <title>🔁 ESI / EEPROM Generator for SOES</title>
+<!--
+ * SOES EEPROM generator
+ * This tool serves as:
+- EtherCAT Slave Information XML + EEPROM binary generator
+- SOES code generator
+
+ * Victor Sluiter 2013-2018
+ * Kuba Buda 2020-2021
+ -->
    <script src="lib/jszip.min.js"></script>
 
    <script src="src/constants.js"></script>
@@ -8,9 +17,11 @@
    <script src="src/file_io.js"></script>
    <script src="src/backup.js"></script>
    
+   <script src="src/generators/ecat_options.js"></script>
+   <script src="src/generators/EEPROM.js"></script>
+   <script src="src/generators/esi_xml.js"></script>
    <script src="src/generators/objectlist.js"></script>
-   <script src="src/EEPROM_generator.js"></script>
-   
+   <script src="src/generators/utypes.js"></script>   
    
    <script src="src/ui.js"></script>
    
