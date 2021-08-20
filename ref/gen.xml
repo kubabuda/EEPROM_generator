@@ -268,7 +268,7 @@
         <Sm StartAddress="#x1600" ControlByte="#x24" Enable="0">Outputs</Sm>
         <Sm StartAddress="#x1A00" ControlByte="#x20" Enable="0">Inputs</Sm>
         <Mailbox DataLinkLayer="true">
-          <CoE SdoInfo="false" PdoAssign="false" PdoConfig="false" PdoUpload="false" CompleteAccess="false" />
+          <CoE SdoInfo="true" PdoAssign="true" PdoConfig="true" PdoUpload="true" CompleteAccess="true" />
         </Mailbox>
         <Dc>
         </Dc>

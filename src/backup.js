@@ -64,9 +64,20 @@ function setFormValues(form, backupObject) {
 			const formControl = formEntry[1]; // entry[0] is index
 			const formControlValue = backupObject.form[formControl.name];
 			if (isBackedUp(formControl) && formControlValue) {
-				formControl.value = formControlValue;
+				setFormControlValue(formControl, formControlValue);
 			};
 		});
+	}
+}
+
+function setFormControlValue(formControl, formControlValue) {
+	if (formControl.name.startsWith('CoeDetailsEnable')) {
+		if (formControlValue == true) {
+			formControl.checked = true;
+		} else {
+		}
+	} else {
+		formControl.value = formControlValue;
 	}
 }
 

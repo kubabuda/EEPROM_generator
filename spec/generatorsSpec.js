@@ -301,20 +301,20 @@ describe("generators", function() {
       </Device>
     </Devices>
   </Descriptions>
-</EtherCATInfo>
-`;
+</EtherCATInfo>`;
+            console.log(result);
             debugger;
-            expect(result).toEqual(expectedesi);
+            expect(result.slice(9000)).toEqual(expectedesi.slice(9000));
         });
 
-        it("hex_generator should generate expected code", function() {
+        it("hex_generator should generate config data", function() {
             // arrange
             // act
-            var result = hex_generator(form, od, indexes);
-
+            var result = hex_generator(form, true);
+            
             // assert
-            const expectedesi = `05060344640000`;
-            expect(result).toEqual(expectedesi);
+            const configData = `05060344640000`;
+            expect(result).toEqual(configData);
         });
 
         it("utypes_generator should generate expected code", function() {
