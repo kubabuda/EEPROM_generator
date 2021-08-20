@@ -141,3 +141,8 @@ a {
    color: var(--text-color);
    font-weight: 600;
 }
+
+a.link-no-decoration {
+   font-weight: 300; 
+   text-decoration: none;
+}
