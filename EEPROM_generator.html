@@ -133,17 +133,24 @@
          </div>
    </div>
       
-   <div class="dark-mode-toggle-container">
+   <div class="settings-menu">
       <span></span>
       <div>
-         <button name="tests" title="Run unit tests">
-            <a href="./tests.html" class="link-no-decoration">
-               🔴🟢 &nbsp; Run unit tests &nbsp;
-            </a>
-         </button>
-         <button name="DarkMode"onClick='toggleDarkMode();' title="Toggle dark mode">
-            ⚙️ &nbsp; Toggle dark mode &nbsp;
-         </button>
+         <div class="dropdown">
+            <button class="dropbtn">⚙️ Settings</button>
+            <div class="dropdown-content">
+               <a href="#">
+                  <button name="DarkMode"onClick='toggleDarkMode();' title="Toggle dark mode">
+                     🔳 Dark mode
+                  </button>
+               </a>
+               <a href="./tests.html">
+                  <button name="tests" title="Run unit tests">
+                     🔴🟢 Tests &nbsp;
+                  </button>
+               </a>
+            </div>
+          </div>
       </div>
    </div>
 

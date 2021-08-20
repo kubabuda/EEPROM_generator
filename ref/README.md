@@ -69,7 +69,7 @@ https://jasmine.github.io/
 - check output for VISIBLE_STRING ARRAY
 - check output for VISIBLE_STRING RECORD subitem
 - dynamic/multiple PDOs
-- unit tests
+- more unit tests
 - SM2 offset: regardles of value set, SDK generates RXPDO mappings as SDO1600. SM2 offset change affects
     - `ecat_options.h` #define SM2_sma, MAX_TXPDO_SIZE and MAX_RXPDO_SIZE
     - `esi.xml` `<Sm ControlByte="#x24" Enable="1" StartAddress="#x1600">Outputs</Sm>`
@@ -78,11 +78,10 @@ https://jasmine.github.io/
 - modular device profile
 - set project name from device name
 - DC config in ESI .bin
-- check generated XML for PDOs: - <CoE> settings
+
 - use [XML parsing](https://www.w3schools.com/xml/xml_parser.asp) for cleaner builiding ESI XML output
 - read XML files: make reverse eningeering 3rd party devices easier
 - add indexes list to OD model, to decrease parametes count in methods
-- what about mailbox bootstrap: words `0x14` - `0x17`?
 - 0x1001 UINT8 Error Register is mandatory according to CiA DS301
 - 0x1C12/0x1C13 `PdoAssign` and 0x1608/0x1A08 `PdoMapping` [should be RW](https://infosys.beckhoff.com/english.php?content=../content/1033/el6695/1317558667.html&id=)
 

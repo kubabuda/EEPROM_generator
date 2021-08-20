@@ -67,6 +67,42 @@ tr td:nth-child(6) {
    cursor: pointer;
 }
 
+/* Dropdown Button */
+.dropbtn {
+   padding: 6px 16px;
+ }
+ 
+ /* The container <div> - needed to position the dropdown content */
+ .dropdown {
+   position: relative;
+   display: inline-block;
+ }
+ 
+ /* Dropdown Content (Hidden by Default) */
+ .dropdown-content {
+   display: none;
+   position: absolute;
+   background-color: var(--background-color);
+   box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+   z-index: 1;
+ }
+ 
+ /* Links inside the dropdown */
+ .dropdown-content a {
+   /* width: 100;  */
+   text-decoration: none;
+   margin: 10px 4px;
+ }
+ 
+ /* Change color of dropdown links on hover */
+ .dropdown-content a:hover {background-color: #ddd;}
+ 
+ /* Show the dropdown menu on hover */
+ .dropdown:hover .dropdown-content {display: block;}
+ 
+ /* Change the background color of the dropdown button when the dropdown content is shown */
+ .dropdown:hover .dropbtn {background-color: var(--background-color);} 
+
 /* main content layout */
 
 body {
@@ -92,7 +128,7 @@ button {
    margin-right: 5px;
 }
 
-div.dark-mode-toggle-container {
+div.settings-menu {
    display: flex;
    justify-content: space-between;
    /* align-items: right; */
@@ -140,9 +176,4 @@ input, textarea, select, button {
 a {
    color: var(--text-color);
    font-weight: 600;
-}
-
-a.link-no-decoration {
-   font-weight: 300; 
-   text-decoration: none;
 }
