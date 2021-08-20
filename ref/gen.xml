@@ -2,20 +2,20 @@
 <EtherCATInfo>
   <Vendor>
     <Id>0</Id>
-    <Name>ACME EtherCAT Devices</Name>
+    <Name LcId="1033">ACME EtherCAT Devices</Name>
   </Vendor>
   <Descriptions>
     <Groups>
       <Group>
-        <Type>Dig</Type>
-        <Name>Digital input</Name>
+        <Type>DigIn</Type>
+        <Name LcId="1033">Digital input</Name>
       </Group>
     </Groups>
     <Devices>
       <Device Physics="YY ">
         <Type ProductCode="#xab123" RevisionNo="#x2">DigIn2000</Type>
-        <Name><![CDATA[2-channel Hypergalactic input superimpermanator]]></Name>
-        <GroupType>Dig</GroupType>
+        <Name LcId="1033">2-channel Hypergalactic input superimpermanator</Name>
+        <GroupType>DigIn</GroupType>
         <Profile>
           <ProfileNo>5001</ProfileNo>
           <AddInfo>0</AddInfo>
@@ -131,7 +131,7 @@
                 <Type>UDINT</Type>
                 <BitSize>32</BitSize>
                 <Info>
-                  <DefaultValue>#x1389</DefaultValue>
+                  <DefaultValue>5001</DefaultValue>
                 </Info>
                 <Flags>
                   <Access>ro</Access>
@@ -148,7 +148,6 @@
                 </Info>
                 <Flags>
                   <Access>ro</Access>
-                  <Category>m</Category>
                 </Flags>
               </Object>
               <Object>
@@ -161,7 +160,7 @@
                 </Info>
                 <Flags>
                   <Access>ro</Access>
-                  <Category>m</Category>
+                  <Category>o</Category>
                 </Flags>
               </Object>
               <Object>
@@ -174,7 +173,6 @@
                 </Info>
                 <Flags>
                   <Access>ro</Access>
-                  <Category>m</Category>
                 </Flags>
               </Object>
               <Object>
@@ -216,7 +214,6 @@
                 </Info>
                 <Flags>
                   <Access>ro</Access>
-                  <Category>m</Category>
                 </Flags>
               </Object>
               <Object>
@@ -258,7 +255,6 @@
                 </Info>
                 <Flags>
                   <Access>ro</Access>
-                  <Category>m</Category>
                 </Flags>
               </Object>
             </Objects>
@@ -268,22 +264,17 @@
         <Fmmu>Inputs</Fmmu>
         <Fmmu>MBoxState</Fmmu>
         <Sm DefaultSize="512" StartAddress="#x1000" ControlByte="#x26" Enable="1">MBoxOut</Sm>
-        <Sm DefaultSize="512" StartAddress="#x1080" ControlByte="#x22" Enable="1">MBoxIn</Sm>
-        <Sm StartAddress="#x1400" ControlByte="#x24" Enable="1">Outputs</Sm>
-        <Sm StartAddress="#x1a00" ControlByte="#x20" Enable="1">Inputs</Sm>
+        <Sm DefaultSize="512" StartAddress="#x1200" ControlByte="#x22" Enable="1">MBoxIn</Sm>
+        <Sm StartAddress="#x1600" ControlByte="#x24" Enable="0">Outputs</Sm>
+        <Sm StartAddress="#x1A00" ControlByte="#x20" Enable="0">Inputs</Sm>
         <Mailbox DataLinkLayer="true">
-          <CoE SdoInfo="true" PdoAssign="false" PdoConfig="false" PdoUpload="true" CompleteAccess="false" />
+          <CoE SdoInfo="false" PdoAssign="false" PdoConfig="false" PdoUpload="false" CompleteAccess="false" />
         </Mailbox>
         <Dc>
-          <OpMode>
-            <Name>DcOff</Name>
-            <Desc>DC unused</Desc>
-          <AssignActivate>#x0000</AssignActivate>
-          </OpMode>
         </Dc>
         <Eeprom>
           <ByteSize>2048</ByteSize>
-          <ConfigData>050603446400000000001A000000</ConfigData>
+          <ConfigData>05060344640000</ConfigData>
         </Eeprom>
       </Device>
     </Devices>

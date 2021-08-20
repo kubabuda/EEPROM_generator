@@ -18,7 +18,7 @@ function esiDTbitsize(dtype) {
 }
 
 //See ETG2000 for ESI format
-function esi_generator(form, od, indexes)
+function esi_generator(form, od, indexes, dc)
 {
 	//VendorID
 	var esi =`<?xml version="1.0" encoding="UTF-8"?>\n<EtherCATInfo>\n  <Vendor>\n    <Id>${parseInt(form.VendorID.value).toString()}</Id>\n`;
@@ -212,7 +212,7 @@ function esi_generator(form, od, indexes)
 	//Add Mailbox DLL
 	esi += `        <Mailbox DataLinkLayer="true">\n          <CoE ${getCoEString(form)}/>\n        </Mailbox>\n`;
 	//Add DCs
-	esi += getEsiDCsection(_dc);
+	esi += getEsiDCsection(dc);
 	//Add EEPROM
 	const configdata = hex_generator(form, true);
 	esi +=`        <Eeprom>\n          <ByteSize>${parseInt(form.EEPROMsize.value)}</ByteSize>\n          <ConfigData>${configdata}</ConfigData>\n        </Eeprom>\n`;
@@ -327,27 +327,27 @@ function esi_generator(form, od, indexes)
 	function getCoEString(form)
 	{
 		var result = ""
-	//	if(form.CoeDetails[0].checked) 
+	//	if(form.CoeDetailsEnableSDO.checked) 
 	//		result += 'SdoInfo="true" ';
 	//	else
 	//		result += 'SdoInfo="false" ';
-		if(form.CoeDetails[1].checked) 
+		if(form.CoeDetailsEnableSDOInfo.checked) 
 			result += 'SdoInfo="true" ';
 		else
 			result += 'SdoInfo="false" ';
-		if(form.CoeDetails[2].checked) 
+		if(form.CoeDetailsEnablePDOAssign.checked) 
 			result += 'PdoAssign="true" ';	
 		else
 			result += 'PdoAssign="false" ';
-		if(form.CoeDetails[3].checked) 
+		if(form.CoeDetailsEnablePDOConfiguration.checked) 
 			result += 'PdoConfig="true" ';
 		else
 			result += 'PdoConfig="false" ';
-		if(form.CoeDetails[4].checked) 
+		if(form.CoeDetailsEnableUploadAtStartup.checked) 
 			result += 'PdoUpload="true" ';
 		else 
 			result += 'PdoUpload="false" ';
-		if(form.CoeDetails[5].checked) 
+		if(form.CoeDetailsEnableSDOCompleteAccess.checked) 
 			result += 'CompleteAccess="true" ';
 		else 
 			result +='CompleteAccess="false" ';

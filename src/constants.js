@@ -136,6 +136,11 @@ function getFormDefaultValues() {
 		Port3Physical: " ",
 		ESC: "ET1100",
 		SPImode: "3",
-		CoeDetails: "EnableSDOCompleteAccess"
+		CoeDetailsEnableSDO: false,
+		CoeDetailsEnableSDOInfo: false,
+		CoeDetailsEnablePDOAssign: false,
+		CoeDetailsEnablePDOConfiguration: false,
+		CoeDetailsEnableUploadAtStartup: false,
+		CoeDetailsEnableSDOCompleteAccess: false,
 	}};  
 }

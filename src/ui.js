@@ -111,7 +111,7 @@ function processForm(form)
 	outputCtl.utypes.value = utypes_generator(form, od, indexes);
 	outputCtl.HEX.hexData = hex_generator(form);
 	outputCtl.HEX.value = toIntelHex(outputCtl.HEX.hexData);
-	outputCtl.ESI.value = esi_generator(form, od, indexes);
+	outputCtl.ESI.value = esi_generator(form, od, indexes, _dc);
 	
 	saveLocalBackup(form);
 

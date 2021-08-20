@@ -225,12 +225,12 @@ function hex_generator(form, stringOnly=false)
 	function getCOEdetails(form)
 	{
 		let coedetails = 0;
-		if(form.CoeDetails[0].checked) coedetails |= 0x01; 	//Enable SDO
-		if(form.CoeDetails[1].checked) coedetails |= 0x02;	//Enable SDO Info
-		if(form.CoeDetails[2].checked) coedetails |= 0x04;	//Enable PDO Assign
-		if(form.CoeDetails[3].checked) coedetails |= 0x08;	//Enable PDO Configuration
-		if(form.CoeDetails[4].checked) coedetails |= 0x10;	//Enable Upload at startup
-		if(form.CoeDetails[5].checked) coedetails |= 0x20;	//Enable SDO complete access
+		if(form.CoeDetailsEnableSDO.checked) coedetails |= 0x01; 	//Enable SDO
+		if(form.CoeDetailsEnableSDOInfo.checked) coedetails |= 0x02;	//Enable SDO Info
+		if(form.CoeDetailsEnablePDOAssign.checked) coedetails |= 0x04;	//Enable PDO Assign
+		if(form.CoeDetailsEnablePDOConfiguration.checked) coedetails |= 0x08;	//Enable PDO Configuration
+		if(form.CoeDetailsEnableUploadAtStartup.checked) coedetails |= 0x10;	//Enable Upload at startup
+		if(form.CoeDetailsEnableSDOCompleteAccess.checked) coedetails |= 0x20;	//Enable SDO complete access
 		return coedetails;
 	}
 	/** ETG1000.6 Table 21 */
