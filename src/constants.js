@@ -107,3 +107,35 @@ function getMandatoryObjects() {
 const sdo = 'sdo';
 const txpdo = 'txpdo';
 const rxpdo = 'rxpdo';
+
+//** Form default values */
+function getFormDefaultValues() {
+	return {form: {
+		VendorName: "ACME EtherCAT Devices",
+		VendorID: "0x000",
+		ProductCode: "0x00ab123",
+		ProfileNo: "5001",
+		RevisionNumber: "0x002",
+		SerialNumber: "0x001",
+		HWversion: "0.0.1",
+		SWversion: "0.0.1",
+		EEPROMsize: "2048",
+		RxMailboxOffset: "0x1000",
+		TxMailboxOffset: "0x1200",
+		MailboxSize: "512",
+		SM2Offset: "0x1600",
+		SM3Offset: "0x1A00",
+		TextGroupType: "DigIn",
+		TextGroupName5: "Digital input",
+		ImageName: "IMGCBY",
+		TextDeviceType: "DigIn2000",
+		TextDeviceName: "2-channel Hypergalactic input superimpermanator",
+		Port0Physical: "Y",
+		Port1Physical: "Y",
+		Port2Physical: " ",
+		Port3Physical: " ",
+		ESC: "ET1100",
+		SPImode: "3",
+		CoeDetails: "EnableSDOCompleteAccess"
+	}};  
+}

@@ -60,6 +60,7 @@ window.onload = (event) => {
 	odModalSetup();
 	syncModalSetup();
 	const form = getForm();
+	setFormValues(form, getFormDefaultValues());
 	tryRestoreLocalBackup(form);
 	// for convinience during tool development, trigger codegen on page refresh
 	processForm(form);

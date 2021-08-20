@@ -55,11 +55,15 @@ function loadBackup(backupObject, form) {
 		_dc = backupObject.dc;
 	}
 	
+	setFormValues(form, backupObject);
+}
+
+function setFormValues(form, backupObject) {
 	if (form) {
 		Object.entries(form).forEach(formEntry => {
 			const formControl = formEntry[1]; // entry[0] is index
 			const formControlValue = backupObject.form[formControl.name];
-			if(isBackedUp(formControl) && formControlValue) {
+			if (isBackedUp(formControl) && formControlValue) {
 				formControl.value = formControlValue;
 			};
 		});
@@ -98,9 +102,9 @@ function saveLocalBackup(form) {
 }
 
 function tryRestoreLocalBackup(form) {
-	if (localStorage.etherCATeepromGeneratorBackup) {
+	if (localStorage.etherCATeepromGeneratorBackup)  {
 		restoreBackup(localStorage.etherCATeepromGeneratorBackup, form);
-	}
+	}	
 }
 
 function resetLocalBackup() {
