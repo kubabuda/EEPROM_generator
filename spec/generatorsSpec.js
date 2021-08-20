@@ -1,19 +1,25 @@
 describe("generators", function() {
   
-    beforeEach(function() {
-    });
-  
-    it("utypes_generator", function() {
-      // arrange
-      const form = buildMockFormHelper();
-      const od = buildObjectDictionary(form);
-      const indexes = getUsedIndexes(od);
-  
-      // act
-      var result = utypes_generator(form, od, indexes);
+    
+    describe("for default, empty project", function() {
+        var form;
+        var od;
+        var indexes;
+        
+        beforeEach(function() {
+            form = buildMockFormHelper();
+            od = buildObjectDictionary(form);
+            indexes = getUsedIndexes(od);
+        });
+    
+        it("utypes_generator should generate expected code", function() {
+            // arrange
+        
+            // act
+            var result = utypes_generator(form, od, indexes);
 
-      // assert
-    const expectedUtypes = 
+            // assert
+            const expectedUtypes = 
 `#ifndef __UTYPES_H__
 #define __UTYPES_H__
 
@@ -33,7 +39,8 @@ extern _Objects Obj;
 
 #endif /* __UTYPES_H__ */
 `;
-      expect(result).toEqual(expectedUtypes);
-      });
-  });
+        expect(result).toEqual(expectedUtypes);
+        });
+    });
+});
   

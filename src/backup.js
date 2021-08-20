@@ -108,7 +108,7 @@ function tryRestoreLocalBackup(form) {
 }
 
 function resetLocalBackup() {
-	if (localStorage.ethetruerCATeepromGeneratorBackup) {
+	if (localStorage.etherCATeepromGeneratorBackup) {
 		delete localStorage.etherCATeepromGeneratorBackup;
 	}
 }
