@@ -2,6 +2,8 @@
    --background-color: #fff;
    --text-color: #000;
    --input-color: #ffffff;
+   --display-dark: none;
+   --display-light: block;
 }
  
 /* dark mode */
@@ -10,6 +12,8 @@
    --background-color: #2D2D2D; /* #4D4D4D; */
    --text-color: white;
    --input-color: #3D3D3D;
+   --display-dark: block;
+   --display-light: none;
 }
 
 tr td:nth-child(3) { 
@@ -171,6 +175,14 @@ body {
 input, textarea, select, button {
    background-color: var(--input-color);
    color: var(--text-color);
+}
+
+.display-dark {
+   display: var(--display-dark);
+}
+
+.display-light {
+   display: var(--display-light);
 }
 
 a {
