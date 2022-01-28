@@ -1,9 +1,31 @@
-# SOES tool
+# EEPROM generator
 
-Source code is intentionally keept in plain Javascript files so that no build system or web server is needed.
+This is code generator tool for EtherCAT devices using [SOES library](https://github.com/OpenEtherCATsociety/SOES). 
+You can configure:
+- ESC (Ethercat Slave Chip) 
+- OD (CANopen Object Dictionary) entries
+- PDO mappings (which OD objects are mapped in TX, RX datagrams)
+
+Tool generates consistent data across C sources, ESI file and EEPROM content, and backs up your current project in localstorage.
+You can save project to JSON file on your hard drive, restore from it later, and download all files at once.
+
+## Limitations
+
+- Only single, non-dynamic PDO is supported for TX and RX respectively
+- Some data types might not be supported
+- Browsers other than Firefox might not be supported
+
+# Development
+
+Pull requests wellcome.
+Source code is intentionally keept in plain Javascript files so that build system like webpack or even web server is not needed.
 The only dependency is web browser, that should simplify usage, portability and minimize tool maintenance work in years to come.
 
-# OD structure
+## Unit tests
+
+Tests are using [Jasmine](https://jasmine.github.io). 
+
+## OD structure
 
 OD is keept as JSON object. Expected data format:
 
@@ -45,23 +67,14 @@ Code generation copies all values into single OD, adds PDO mappings and SM assig
 
 ## PDO mappings
 
-Currently single, not dynamic PDO is supported for TX and RX respectively.
+Currently single, non-dynamic PDO is supported for TX and RX respectively.
 
-# Binary file comparison tool: [VBinDiff](https://www.cjmweb.net/vbindiff/VBinDiff-Win32)
+## Binary file comparison tool for Windows: [VBinDiff](https://www.cjmweb.net/vbindiff/VBinDiff-Win32)
 
 ```cmd
-VBinDiff ref/et1100.bin  ref/lan9252.bin
+VBinDiff et1100.bin  lan9252.bin
 ```
 
-# MIME types
-
-Good reference: https://www.sitepoint.com/mime-types-complete-list/
-but so far looks that selected types are all right
-
-
-# Unit tests
-
-https://jasmine.github.io/
 
 # TODO
 
