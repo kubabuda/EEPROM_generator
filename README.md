@@ -1,13 +1,17 @@
 # EEPROM generator
 
-This is code generator tool for EtherCAT devices using [SOES library](https://github.com/OpenEtherCATsociety/SOES). 
+This is basic code generator tool for EtherCAT devices using [SOES library](https://github.com/OpenEtherCATsociety/SOES).
+
+[It is available online, here](https://kubabuda.github.io/EEPROM_generator)
+
 You can configure:
 - ESC (Ethercat Slave Chip) 
 - OD (CANopen Object Dictionary) entries
 - PDO mappings (which OD objects are mapped in TX, RX datagrams)
 
-Tool generates consistent data across C sources, ESI file and EEPROM content, and backs up your current project in localstorage.
-You can save project to JSON file on your hard drive, restore from it later, and download all files at once.
+Tool generates consistent data across C sources, ESI file and EEPROM content.
+
+It also backs up your current project in localstorage. You can save project to JSON file on your hard drive, restore from it later, and download all files at once.
 
 ## Limitations
 
@@ -18,8 +22,9 @@ You can save project to JSON file on your hard drive, restore from it later, and
 # Development
 
 Pull requests wellcome.
+
 Source code is intentionally keept in plain Javascript files so that build system like webpack or even web server is not needed.
-The only dependency is web browser, that should simplify usage, portability and minimize tool maintenance work in years to come.
+The only dependency is web browser, that should future proof it.
 
 ## Unit tests
 
@@ -52,7 +57,8 @@ OD is keept as JSON object. Expected data format:
 }   
 ```
 
-There is 4 parts to it: 
+OD model for generator has 4 sections:
+
 - `sdo`, not mapped to PDOs
 - `txpdo`, mapped to TXPDO (SM3). Expected format (for OTYPE VAR):
 ```js
