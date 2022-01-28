@@ -1,4 +1,4 @@
-# What is in `objectlist.h` ?
+<!-- # What is in `objectlist.h` ?
 Objectlist is the place where all CoE objects are defined. To get a good understanding of what happens here please start reading about CANOpen first, and keep ETG1000.6 (EtherCAT specification, Application Layer) at hand. Chapter 5.6.7 describes the object dictionary structure and shows how data should be encoded. SOES handles this encoding by using `struct`s and arrays, but having a basic understanding of the way this is mapped in the application layer will help in understanding internal dependencies of these structures. Also, ETG5001 comes in handy here, as it describes the default indexes for several categories of devices and offers a good overview of 'standardized' indexes. 
 
 # CANOpen, CoE
@@ -44,7 +44,7 @@ An array is 'simply' an array of 'VAR' objects, with subindex 0 telling how many
 ```
 #!c
 const _objd SDO1C13[]=                                              //TxPDO Assign objects ; CHANGEABLE, thus 'RWpre' mode
-{{0x00,DTYPE_UNSIGNED8,8,ATYPE_RWpre,&acNameNOE[0],0x02},               //Number of Entries
+{ {0x00,DTYPE_UNSIGNED8,8,ATYPE_RWpre,&acNameNOE[0],0x02},               //Number of Entries
   {0x01,DTYPE_UNSIGNED16,16,ATYPE_RWpre,&acNameMO[0],0x1A00},            //Send objects in index 0x1A00
   {0x02,DTYPE_UNSIGNED16,16,ATYPE_RWpre,&acNameMO[0],0x1A10}             //Send objects in index 0x1A10
 };
@@ -111,7 +111,7 @@ Here is its definition:
 ```
 #!c
 const _objectlist SDOobjects[]=
-{{0x1000,OTYPE_VAR     , 0,0,&acName1000[0],&SDO1000[0]},       //Device Type
+{ {0x1000,OTYPE_VAR     , 0,0,&acName1000[0],&SDO1000[0]},       //Device Type
   {0x1008,OTYPE_VAR     , 0,0,&acName1008[0],&SDO1008[0]},      //Device Name
   {0x1009,OTYPE_VAR     , 0,0,&acName1009[0],&SDO1009[0]},      //Hardware Version
   {0x100A,OTYPE_VAR     , 0,0,&acName100A[0],&SDO100A[0]},      //Software Version
@@ -138,4 +138,4 @@ Here you see that all objects are listed neatly, and in this list the coupling i
 ** VERY CAREFUL! When adding subindexes to objects, ALSO change the number of subindexes in SDOobjects[]!!! ***
 
 Happy hacking!
-
+ -->
