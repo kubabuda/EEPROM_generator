@@ -1,4 +1,4 @@
-<!-- # What is in `objectlist.h` ?
+# What is in `objectlist.h` ?
 Objectlist is the place where all CoE objects are defined. To get a good understanding of what happens here please start reading about CANOpen first, and keep ETG1000.6 (EtherCAT specification, Application Layer) at hand. Chapter 5.6.7 describes the object dictionary structure and shows how data should be encoded. SOES handles this encoding by using `struct`s and arrays, but having a basic understanding of the way this is mapped in the application layer will help in understanding internal dependencies of these structures. Also, ETG5001 comes in handy here, as it describes the default indexes for several categories of devices and offers a good overview of 'standardized' indexes. 
 
 # CANOpen, CoE
@@ -17,14 +17,12 @@ When changing objects in `objlist.h' you have to be very careful to maintain con
 
 ## Explanation of objects
 I'm going to start with a very simple object, the 'hardware version":
-```
-#!c
+```c
 const _objd SDO1009[]=
 {{0x00,DTYPE_VISIBLE_STRING,sizeof(ac1009_00)<<3,ATYPE_R,&acName1009[0],0,&ac1009_00[0]}};
 ```
 This is a `const` array of '_objd' variables, called SDO1009. In ETG1000.6:5.6.7.4 (Table 70) we see that Object 1009 is a 'VAR' of type 'VisibleString'. Each object in `objectlist.h` is described as a struct of type `_objd`:
-```
-#!c
+```c
 typedef const struct
   {
     uint16        subindex;
@@ -41,8 +39,7 @@ From the declarations above we can see that the first member is the subindex, an
 
 ### A bit more complicated; CANOpen ARRAY object.
 An array is 'simply' an array of 'VAR' objects, with subindex 0 telling how many entries are listed:
-```
-#!c
+```c
 const _objd SDO1C13[]=                                              //TxPDO Assign objects ; CHANGEABLE, thus 'RWpre' mode
 { {0x00,DTYPE_UNSIGNED8,8,ATYPE_RWpre,&acNameNOE[0],0x02},               //Number of Entries
   {0x01,DTYPE_UNSIGNED16,16,ATYPE_RWpre,&acNameMO[0],0x1A00},            //Send objects in index 0x1A00
@@ -58,8 +55,7 @@ Also, do mind that the data size is descibed *twice* in each subindex above: bot
 
 ### A level further: RECORDS
 A record looks a lot like an array, but holds references to other indexes and subindexes
-```
-#!c
+```c
 const _objd SDO1A00[]=                                              //TxPDO mapping (objects from slave to master)
 {{0x00,DTYPE_UNSIGNED8,8,ATYPE_R,&acNameNOE[0],0x03},               //Number of TxPDOs
   {0x01,DTYPE_UNSIGNED32,32,ATYPE_R,&acNameMO[0],0x60000108},       //First Object, pointing to object  6000:01
@@ -80,8 +76,7 @@ const _objd SDO1A10[]=                                              //Second TxP
 };
 ```
 Here you can see the RECORDs the ARRAY above pointed to. Each subindex in the record points to a variable that will be sent over TxPDO. Again, subindexes should be increasing, and the amount of subindexes (<0) and the 'value' in subindex 0 should be in accordance. The value of each item in a record is combined out of 'index'+'subindex'+'bitlength of VAR'. For example: 0x60010610-> index 6001, subindex 06, 0x10 bits (16bit). Let's take a look at object 6001:
-```
-#!c
+```c
 const _objd SDO6001[]=                                                      //TxPDO module
 {{0x00,DTYPE_UNSIGNED8  ,8,ATYPE_R,&acNameNOE[0],0x09},                     //Number of elements
   {0x01,DTYPE_INTEGER16  ,16,ATYPE_R,&acName6001_01[0],0,&(Rb.analog[0])},  //6001:1 is analog 0
@@ -108,8 +103,7 @@ To keep track of all Slave objects,`objectlist.h` ends with a list that describe
 ** When adding objects, don't forget to add them to the SDOobjects[] array! **
 
 Here is its definition:
-```
-#!c
+```c
 const _objectlist SDOobjects[]=
 { {0x1000,OTYPE_VAR     , 0,0,&acName1000[0],&SDO1000[0]},       //Device Type
   {0x1008,OTYPE_VAR     , 0,0,&acName1008[0],&SDO1008[0]},      //Device Name
@@ -138,4 +132,4 @@ Here you see that all objects are listed neatly, and in this list the coupling i
 ** VERY CAREFUL! When adding subindexes to objects, ALSO change the number of subindexes in SDOobjects[]!!! ***
 
 Happy hacking!
- -->
+
