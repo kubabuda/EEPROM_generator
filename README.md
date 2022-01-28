@@ -1,4 +1,4 @@
-# 🔁 EEPROM generator
+# [🔁 EEPROM generator](https://kubabuda.github.io/EEPROM_generator)
 
 This is basic code generator tool for EtherCAT devices, using [SOES library](https://github.com/OpenEtherCATsociety/SOES).
 
@@ -19,7 +19,7 @@ It also backs up your current project in localstorage. You can save project to J
 - Some data types might not be supported
 - Browsers other than Firefox might not be supported
 
-If you need more, [RT-Labs](https://rt-labs.com/ethercat/) offers EtherCAT SDK with training.
+If you need more, [RT-Labs](https://rt-labs.com/ethercat/) offers professional IDE - EtherCAT SDK, and training.
 
 # Development
 
@@ -109,3 +109,9 @@ VBinDiff et1100.bin  lan9252.bin
 ### Code optimization
 - reuse repeated string constants in objlist.c names, test if does any good or compiler does that for you anyway
 - shrink to fit on AVR ATmega
+
+
+# Disclaimer
+
+The EtherCAT Technology, the trade name and logo "EtherCAT" are the intellectual
+property of, and protected by Beckhoff Automation GmbH.
