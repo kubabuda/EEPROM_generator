@@ -1,6 +1,6 @@
-# EEPROM generator
+# 🔁 EEPROM generator
 
-This is basic code generator tool for EtherCAT devices using [SOES library](https://github.com/OpenEtherCATsociety/SOES).
+This is basic code generator tool for EtherCAT devices, using [SOES library](https://github.com/OpenEtherCATsociety/SOES).
 
 [It is available online, here](https://kubabuda.github.io/EEPROM_generator)
 
@@ -19,9 +19,11 @@ It also backs up your current project in localstorage. You can save project to J
 - Some data types might not be supported
 - Browsers other than Firefox might not be supported
 
+If you need more, [RT-Labs](https://rt-labs.com/ethercat/) offers EtherCAT SDK with training.
+
 # Development
 
-Pull requests wellcome.
+Pull requests welcome.
 
 Source code is intentionally keept in plain Javascript files so that build system like webpack or even web server is not needed.
 The only dependency is web browser, that should future proof it.

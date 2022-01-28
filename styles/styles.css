@@ -189,3 +189,7 @@ a {
    color: var(--text-color);
    font-weight: 600;
 }
+
+button {
+   font-size: 16px;
+}
