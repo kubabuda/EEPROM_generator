@@ -24,12 +24,14 @@ function isValidBackup(backup) {
 
 function prepareBackupObject(form) {
 	const formValues = {};
-	Object.entries(form).forEach(formEntry => {
-		const formControl = formEntry[1]; // entry[0] is form control order number
-		if(isBackedUp(formControl) && formControl.value) {
-			formValues[formControl.name] = formControl.value;
-		};
-	});
+	if (form) {
+		Object.entries(form).forEach(formEntry => {
+			const formControl = formEntry[1]; // entry[0] is form control order number
+			if(isBackedUp(formControl) && formControl.value) {
+				formValues[formControl.name] = formControl.value;
+			};
+		});
+	}
 
 	const backup = {
 		form: formValues,
