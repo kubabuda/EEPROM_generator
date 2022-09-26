@@ -28,9 +28,9 @@ Pull requests welcome.
 Source code is intentionally keept in plain Javascript files so that build system like webpack or even web server is not needed.
 The only dependency is web browser, that should future proof it.
 
-## Unit tests
+## [Unit tests](https://kubabuda.github.io/EEPROM_generator/tests.html)
 
-Tests are using [Jasmine](https://jasmine.github.io). 
+[Unit tests](https://kubabuda.github.io/EEPROM_generator/tests.html) are using [Jasmine](https://jasmine.github.io). 
 
 ## OD structure
 
@@ -107,9 +107,9 @@ VBinDiff et1100.bin  lan9252.bin
 - 0x1C12/0x1C13 `PdoAssign` and 0x1608/0x1A08 `PdoMapping` [should be RW](https://infosys.beckhoff.com/english.php?content=../content/1033/el6695/1317558667.html&id=)
 
 ### Code optimization
-- reuse repeated string constants in objlist.c names, test if does any good or compiler does that for you anyway
-- shrink to fit on AVR ATmega
 
+- reuse repeated string constants in objlist.c names, test if does any good or compiler does that for you anyway
+- shrink to fit on AVR ATmega. It was working on SOES pre-v1, it probably can work on Arduino Uno with new SOES version if one will tweak buffer sizez
 
 # Disclaimer
 
