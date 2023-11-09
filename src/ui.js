@@ -127,9 +127,9 @@ function onGenerateDownloadClick()
 {
 	const form = getForm();
 	var result = processForm(form);
-	downloadGeneratedFilesZipped();
+	downloadGeneratedFilesZipped(form, result);
 
-	function downloadGeneratedFilesZipped() {
+	function downloadGeneratedFilesZipped(form, result) {
 		var zip = new JSZip();
 		const projectName = getProjectName(form);
 		zip.file(`${projectName}.xml`, result.ESI.value);
@@ -138,7 +138,7 @@ function onGenerateDownloadClick()
 		zip.file('ecat_options.h', result.ecat_options.value);
 		zip.file('objectlist.c', result.objectlist.value);
 		zip.file('utypes.h', result.utypes.value);
-		zip.file('esi.json', prepareBackupFileContent());
+		zip.file('esi.json', prepareBackupFileContent(form));
 
 		zip.generateAsync({type:"blob"}).then(function (blob) { // generate the zip file
 			downloadFile(blob, "esi.zip", "application/zip"); // trigger the download
