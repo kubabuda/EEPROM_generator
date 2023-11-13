@@ -26,10 +26,25 @@ function hex_generator(form, stringOnly=false)
 		var record = new Uint8Array(recordLength);
 		record.fill(0xFF);
 		//Start of EEPROM contents; A lot of information can be found in 5.4 of ETG1000.6
-		const pdiControl = (form.ESC.value == SupportedESC.LAN9252) ? 0x80 : 0x05;
-		const spiMode = parseInt(form.SPImode.value);
-		const reserved_0x05 = (form.ESC.value == SupportedESC.AX58100) ? 0x001A : 0x00; // enable IO for SPI driver on AX58100:
-		// Write 0x1A value (INT edge pulse length, 8 mA Control + IO 9:0 Drive Select) to 0x0A (Host Interface Extend Setting and Drive Strength
+		let pdiControl = 0x05;
+		const spiMode = parseInt(form.SPImode.value);  // valid values ara 0, 1, 2 or 3
+		let reserved_0x05 = 0x0000; 
+		// const reserved_0x06 = 0x0000;//(form.ESC.value == SupportedESC.LAN9252_Beckhoff) ? 0xC01A : 0x00; // enable IO for SPI driver on AX58100:
+		
+		switch(form.ESC.value)  {
+			case SupportedESC.AX58100: 
+				reserved_0x05 = 0x001A; // enable IO for SPI driver on AX58100:
+			    // Write 0x1A value (INT edge pulse length, 8 mA Control + IO 9:0 Drive Select) to 0x0A (Host Interface Extend Setting and Drive Strength
+				break;
+			case SupportedESC.LAN9252: 
+				pdiControl = 0x80;
+				break;
+			case SupportedESC.LAN9253_Beckhoff: 
+				reserved_0x05 = 0xC040;
+				break;
+			default:
+				break;
+		}
 		
 		//WORD ADDRESS 0-7
 		writeEEPROMbyte_byteaddress(pdiControl, 0, record); //PDI control: SPI slave (mapped to register 0x0140)
@@ -40,8 +55,9 @@ function hex_generator(form, stringOnly=false)
 		writeEEPROMword_wordaddress(0x00, 3, record); //Extended PDI configuration (none for SPI slave)(0x0152:0x0153)
 		writeEEPROMword_wordaddress(0x00, 4, record); //Configured Station Alias (0x0012:0x0013)
 		writeEEPROMword_wordaddress(reserved_0x05, 5, record); //Reserved, 0 (when not AX58100)
-		writeEEPROMword_wordaddress(0x00, 6, record); //Reserved, 0
-		writeEEPROMword_wordaddress(FindCRC(record, 14), 7, record); //CRC
+		writeEEPROMword_wordaddress(0, 6, record); //Reserved, 0
+		const crc = FindCRC(record, 14);
+		writeEEPROMword_wordaddress(crc, 7, record); //CRC
 		
 		return record;
 	}
@@ -300,10 +316,11 @@ function hex_generator(form, stringOnly=false)
 		record[2 + (address*2)] = (word>>16) & 0xFF;
 		record[3 + (address*2)] = (word>>24) & 0xFF;
 	}
-	
+
 	/** takes bytes array and count, returns ConfigData string */
 	function getConfigDataString(record, esc) {
-		const configdata_bytecount = (esc == 'AX58100') ? 14 : 7; // for AX58100 configdata reaches 0x0A byte
+		const configdata_bytecount = new Set(configOnReservedBytes).has(esc) ? 14 : 7;
+
 		var configdata = '';
 		for (var bytecount = 0; bytecount < configdata_bytecount; bytecount++) {
 			configdata += (record[bytecount] + 0x100).toString(16).slice(-2).toUpperCase();

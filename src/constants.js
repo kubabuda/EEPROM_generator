@@ -102,17 +102,22 @@ function getMandatoryObjects() {
 		]},
 	};
 	return OD;
-}
+};
 
 const sdo = 'sdo';
 const txpdo = 'txpdo';
 const rxpdo = 'rxpdo';
 
+/** EtherCAT Slave Chips that are supported by this web tool */
 const SupportedESC = {
 	AX58100: 'AX58100',
 	ET1100: 'ET1100',
 	LAN9252: 'LAN9252',
-}
+	LAN9253_Beckhoff: 'LAN9253 Beckhoff',
+};
+
+/** ESCs that are using reserved bytes for configuration, for example AX58100 configdata reaches 0x0A byte */
+const configOnReservedBytes = [SupportedESC.AX58100, SupportedESC.LAN9253_Beckhoff];
 
 //** Form default values */
 function getFormDefaultValues() {
@@ -149,4 +154,4 @@ function getFormDefaultValues() {
 		CoeDetailsEnableUploadAtStartup: true,
 		CoeDetailsEnableSDOCompleteAccess: false,
 	}};  
-}
+};
