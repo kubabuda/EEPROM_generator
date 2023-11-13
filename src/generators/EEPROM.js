@@ -26,9 +26,9 @@ function hex_generator(form, stringOnly=false)
 		var record = new Uint8Array(recordLength);
 		record.fill(0xFF);
 		//Start of EEPROM contents; A lot of information can be found in 5.4 of ETG1000.6
-		const pdiControl = (form.ESC.value == 'LAN9252') ? 0x80 : 0x05;
+		const pdiControl = (form.ESC.value == SupportedESC.LAN9252) ? 0x80 : 0x05;
 		const spiMode = parseInt(form.SPImode.value);
-		const reserved_0x05 = (form.ESC.value == 'AX58100') ? 0x001A : 0x00; // enable IO for SPI driver on AX58100:
+		const reserved_0x05 = (form.ESC.value == SupportedESC.AX58100) ? 0x001A : 0x00; // enable IO for SPI driver on AX58100:
 		// Write 0x1A value (INT edge pulse length, 8 mA Control + IO 9:0 Drive Select) to 0x0A (Host Interface Extend Setting and Drive Strength
 		
 		//WORD ADDRESS 0-7

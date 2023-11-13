@@ -108,6 +108,12 @@ const sdo = 'sdo';
 const txpdo = 'txpdo';
 const rxpdo = 'rxpdo';
 
+const SupportedESC = {
+	AX58100: 'AX58100',
+	ET1100: 'ET1100',
+	LAN9252: 'LAN9252',
+}
+
 //** Form default values */
 function getFormDefaultValues() {
 	return {form: {
@@ -134,7 +140,7 @@ function getFormDefaultValues() {
 		Port1Physical: "Y",
 		Port2Physical: " ",
 		Port3Physical: " ",
-		ESC: "ET1100",
+		ESC: SupportedESC.ET1100,
 		SPImode: "3",
 		CoeDetailsEnableSDO: true,
 		CoeDetailsEnableSDOInfo: true,
