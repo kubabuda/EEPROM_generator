@@ -86,6 +86,10 @@ VBinDiff et1100.bin  lan9252.bin
 
 # TODO
 
+- add support for 64bit number types
+- why default dark mode has dark text in Chromium but not Firefox, when OS is in dark mode
+- generate .h file for EEPROM emulation
+- add support for LAN9253 Direct, XMC4300, XMC4800
 - check output for boolean ARRAY
 - check output for VISIBLE_STRING ARRAY
 - check output for VISIBLE_STRING RECORD subitem
@@ -109,7 +113,6 @@ VBinDiff et1100.bin  lan9252.bin
 ### Code optimization
 
 - reuse repeated string constants in objlist.c names, test if does any good or compiler does that for you anyway
-- shrink to fit on AVR ATmega. It was working on SOES pre-v1, it probably can work on Arduino Uno with new SOES version if one will tweak buffer sizez
 
 # Disclaimer
 
