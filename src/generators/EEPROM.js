@@ -29,8 +29,7 @@ function hex_generator(form, stringOnly=false)
 		let pdiControl = 0x05;
 		const spiMode = parseInt(form.SPImode.value);  // valid values ara 0, 1, 2 or 3
 		let reserved_0x05 = 0x0000; 
-		// const reserved_0x06 = 0x0000;//(form.ESC.value == SupportedESC.LAN9252_Beckhoff) ? 0xC01A : 0x00; // enable IO for SPI driver on AX58100:
-		
+
 		switch(form.ESC.value)  {
 			case SupportedESC.AX58100: 
 				reserved_0x05 = 0x001A; // enable IO for SPI driver on AX58100:
@@ -40,7 +39,8 @@ function hex_generator(form, stringOnly=false)
 				pdiControl = 0x80;
 				break;
 			case SupportedESC.LAN9253_Beckhoff: 
-				reserved_0x05 = 0xC040;
+				reserved_0x05 = 0xC040; // enable ERRLED, STATE_RUNLED and MI Write 
+				// in ASIC CONFIGURATION REGISTER: 0142h-0143h (refer to DS00003421A-page 268)
 				break;
 			default:
 				break;
