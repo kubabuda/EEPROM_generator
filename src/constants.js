@@ -114,10 +114,15 @@ const SupportedESC = {
 	ET1100: 'ET1100',
 	LAN9252: 'LAN9252',
 	LAN9253_Beckhoff: 'LAN9253 Beckhoff',
+	LAN9253_Indirect: 'LAN9253 Indirect',
 };
 
 /** ESCs that are using reserved bytes for configuration, for example AX58100 configdata reaches 0x0A byte */
-const configOnReservedBytes = [SupportedESC.AX58100, SupportedESC.LAN9253_Beckhoff];
+const configOnReservedBytes = [
+	SupportedESC.AX58100, 
+	SupportedESC.LAN9253_Beckhoff,
+	SupportedESC.LAN9253_Indirect
+];
 
 //** Form default values */
 function getFormDefaultValues() {

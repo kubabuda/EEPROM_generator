@@ -86,8 +86,10 @@ VBinDiff et1100.bin  lan9252.bin
 
 # TODO
 
+- do not save as esi.json/esi.zip, but {projectName}.json / {projectName}.zip
 - add support for 64bit number types
 - why default dark mode has dark text in Chromium but not Firefox, when OS is in dark mode
+- create accordion to allow collapsing currently unused config sections
 - generate .h file for EEPROM emulation
 - add support for LAN9253 Direct, XMC4300, XMC4800
 - check output for boolean ARRAY
