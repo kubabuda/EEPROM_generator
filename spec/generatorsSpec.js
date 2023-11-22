@@ -590,6 +590,29 @@ extern _Objects Obj;
       });
     });
 
+    describe("for LAN9253_Direct project", function() {
+      var form;
+      var od;
+      var indexes;
+      
+      beforeEach(function() {
+          form = buildMockFormHelper();
+          form.ESC.value = SupportedESC.LAN9253_Direct
+          od = buildObjectDictionary(form);
+          indexes = getUsedIndexes(od);
+      });
+
+      it("hex_generator should generate config data 8206034464000000000040C00000", function() {
+        // arrange
+        // act
+        var result = hex_generator(form, true);
+        
+        // assert
+        const configData = `8206034464000000000040C00000`;
+        expect(result).toEqual(configData);
+      });
+    });
+
     describe("for LAN9253_Indirect project", function() {
       var form;
       var od;

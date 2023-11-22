@@ -42,6 +42,11 @@ function hex_generator(form, stringOnly=false)
 				reserved_0x05 = 0xC040; // enable ERRLED, STATE_RUNLED and MI Write 
 				// in ASIC CONFIGURATION REGISTER: 0142h-0143h (refer to DS00003421A-page 268)
 				break;
+			case SupportedESC.LAN9253_Direct: 
+				pdiControl = 0x82;
+				reserved_0x05 = 0xC040; // enable ERRLED, STATE_RUNLED and MI Write 
+				// in ASIC CONFIGURATION REGISTER: 0142h-0143h (refer to DS00003421A-page 268)
+				break;
 			case SupportedESC.LAN9253_Indirect: 
 				pdiControl = 0x80;
 				reserved_0x05 = 0xC040; // enable ERRLED, STATE_RUNLED and MI Write 

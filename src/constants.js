@@ -114,6 +114,7 @@ const SupportedESC = {
 	ET1100: 'ET1100',
 	LAN9252: 'LAN9252',
 	LAN9253_Beckhoff: 'LAN9253 Beckhoff',
+	LAN9253_Direct: 'LAN9253 Direct',
 	LAN9253_Indirect: 'LAN9253 Indirect',
 };
 
@@ -121,7 +122,8 @@ const SupportedESC = {
 const configOnReservedBytes = [
 	SupportedESC.AX58100, 
 	SupportedESC.LAN9253_Beckhoff,
-	SupportedESC.LAN9253_Indirect
+	SupportedESC.LAN9253_Direct,
+	SupportedESC.LAN9253_Indirect,
 ];
 
 //** Form default values */

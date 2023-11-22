@@ -86,6 +86,7 @@ VBinDiff et1100.bin  lan9252.bin
 
 # TODO
 
+- add tool URL to generated sources
 - do not save as esi.json/esi.zip, but {projectName}.json / {projectName}.zip
 - add support for 64bit number types
 - why default dark mode has dark text in Chromium but not Firefox, when OS is in dark mode
