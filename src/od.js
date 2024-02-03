@@ -88,11 +88,11 @@ function addSDOitems(od) {
 	const indexes = getUsedIndexes(sdoSection);
 
 	indexes.forEach(index => {
-		const item = sdoSection[index];
-		item.isSDOitem = true;
-		objectlist_link_utypes(item);
+		const objd = sdoSection[index];
+		objd.isSDOitem = true;
+		objectlist_link_utypes(objd);
 
-		addObject(od, item, index);
+		addObject(od, objd, index);
 	});
 }
 /** Returns true if any object in given Object Dictionary has mapping to PDO with given name */
