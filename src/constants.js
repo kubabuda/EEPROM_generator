@@ -56,6 +56,18 @@ const dtype_bitsize = {
 	'VISIBLE_STRING' : 8,
 };
 const booleanPaddingBitsize = 7;
+/** Default empty values for Data types  */
+const dtype_default_epmty_value = {
+	'BOOLEAN' : 0,
+	'INTEGER8' : 0,
+	'INTEGER16' : 0,
+	'INTEGER32' : 0,
+	'UNSIGNED8' : 0,
+	'UNSIGNED16' : 0,
+	'UNSIGNED32' : 0,
+	'REAL32' : 0,
+	'VISIBLE_STRING' : '',
+};
 /** ESI XML data type */
 const ESI_DT = {
 	'BOOLEAN': { name: 'BOOL', bitsize: 1, ctype: 'uint8_t' },
