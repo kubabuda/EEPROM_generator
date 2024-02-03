@@ -86,10 +86,14 @@ VBinDiff et1100.bin  lan9252.bin
 
 # TODO
 
+- output for VISIBLE_STRING and ARRAY
+- how to specify string length in PDOs
+- why form.
+
+- why default dark mode has dark text in Chromium but not Firefox, when OS is in dark mode
+- add support for 64bit number types
 - add tool URL to generated sources
 - do not save as esi.json/esi.zip, but {projectName}.json / {projectName}.zip
-- add support for 64bit number types
-- why default dark mode has dark text in Chromium but not Firefox, when OS is in dark mode
 - create accordion to allow collapsing currently unused config sections
 - generate .h file for EEPROM emulation
 - add support for LAN9253 Direct, XMC4300, XMC4800
@@ -104,11 +108,12 @@ VBinDiff et1100.bin  lan9252.bin
     currently this tool mirrors SDK behavior, check if this hack is needed or just duplicated SDK bug
 - calculate `MAX_RXPDO_SIZE`, `MAX_TXPDO_SIZE` based on selected SM2 offset
 - modular device profile
-- set project name from device name
+- set project name from device name?
 - DC config in ESI .bin
 
 - use [XML parsing](https://www.w3schools.com/xml/xml_parser.asp) for cleaner builiding ESI XML output
 - read XML files: make reverse eningeering 3rd party devices easier
+- allow XML conversion to SII .bin, [like siitool](https://github.com/synapticon/siitool)
 - add indexes list to OD model, to decrease parametes count in methods
 - 0x1001 UINT8 Error Register is mandatory according to CiA DS301
 - 0x1C12/0x1C13 `PdoAssign` and 0x1608/0x1A08 `PdoMapping` [should be RW](https://infosys.beckhoff.com/english.php?content=../content/1033/el6695/1317558667.html&id=)
