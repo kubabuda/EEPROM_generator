@@ -113,9 +113,8 @@ function getSM2_MappingOffset(form) {
 	return	parseInt(form.SM2Offset.value);
 }
 /** Takes OD entries from UI RXPDO section and adds to given OD */
-function addRXPDOitems(od) {
+function addRXPDOitems(form, od) {
 	const rxpdoSection = getObjDictSection(rxpdo);
-	const form = getForm();
 	const pdo = {
 		name : rxpdo,
 		SMassignmentIndex : '1C12',
@@ -124,9 +123,8 @@ function addRXPDOitems(od) {
 	addPdoObjectsSection(od, rxpdoSection, pdo);
 }
 /** Takes OD entries from UI TXPDO section and adds to given OD */
-function addTXPDOitems(od) {
+function addTXPDOitems(form, od) {
 	const txpdoSection = getObjDictSection(txpdo);
-	const form = getForm();
 	const pdo = {
 		name : txpdo,
 		SMassignmentIndex : '1C13',
@@ -264,8 +262,8 @@ function buildObjectDictionary(form) {
 	populateMandatoryObjectValues(form, od);
 	// populate custom objects
 	addSDOitems(od);
-	addTXPDOitems(od);
-	addRXPDOitems(od);
+	addTXPDOitems(form, od);
+	addRXPDOitems(form, od);
 	_booleanPaddingCount = 0;
 
 	return od;
