@@ -115,7 +115,7 @@ function objectlist_generator(form, od, indexes)
 		switch (objd.otype) {
 			case OTYPE.VAR: {
 				const value = objectlist_getItemValue(objd, objd.dtype);
-				objectlist += `\n  {0x0, DTYPE_${objd.dtype}, ${get_objdBitsize(objd)}, ${objectlist_objdFlags(objd)}, acName${index}, ${value}, ${objeclist_objdData(objd)}},`;
+				objectlist += `\n  {0x0, DTYPE_${objd.dtype}, ${get_objdBitsize(objd)}, ${objectlist_objdFlags(objd)}, acName${index}, ${value}, ${objectlist_objdData(objd)}},`;
 				break;
 			}
 			case OTYPE.ARRAY: {
@@ -218,7 +218,7 @@ function objectlist_generator(form, od, indexes)
 		return flags;
 	}
 	
-	function objeclist_objdData(element) {
+	function objectlist_objdData(element) {
 		let el_data = 'NULL';
 	
 		if (element.data) {
