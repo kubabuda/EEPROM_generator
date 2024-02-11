@@ -36,7 +36,7 @@
       <div class="modal-content">
          <span class="close" onClick="odModalClose()">&times;</span>
          <h3 id="editObjectTitle">Edit object</h3>
-         <form name="EditObjectForm" id="EditObjectForm" action="" onsubmit="onEditObjectSubmit(this); return false;">
+         <form name="EditObjectForm" id="EditObjectForm" action="" onsubmit="onEditObjectSubmit(event); return false;">
             <table border="0">
                <tr id="dialogRowIndex">
                   <td>Index:</td>
@@ -79,9 +79,9 @@
                </tr>
                <tr>
                   <td align="center">
-                     <button name="Cancel" onClick='odModalClose();'>✖️ &nbsp; Cancel &nbsp;</button>
+                     <button name="Cancel" onclick="odModalClose()">✖️ &nbsp; Cancel &nbsp;</button>
                   </td><td>
-                     <input type="submit" name="SaveChanges" value="✔️&nbsp; Save changes &nbsp;">
+                     <button name="SaveChanges" onclick="odModalSaveChanges()">✔️&nbsp; Save changes &nbsp;</button>
                   </td>
                </tr>
             </table>

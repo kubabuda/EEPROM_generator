@@ -47,6 +47,7 @@ function checkObjectType(expected, objd) {
 function addObject(od, objd, index) {
 	if (od[index]) {
 		alert(`Object ${objd.name} duplicates 0x${index}: ${od[index].name} !`);
+		// throw new Exception(msg);
 	}
 	od[index] = objd;
 }
@@ -78,6 +79,22 @@ function variableName(objectName) {
 		variableName = variableName.replaceAll(c, '');
 	});
 	return variableName;
+}
+
+// returns index of object with given name, or null
+function findObjectIndexByName(name) {
+	for(let s = 0; s < OD_sections.length; ++s) {
+		const sdoSection = getObjDictSection(OD_sections[s]);
+		const indexes = getUsedIndexes(sdoSection);
+		
+		for(let i = 0; i < indexes.length; ++i) {
+			const objd = sdoSection[indexes[i]];
+			if (objd.name == name) {
+				return indexes[i];
+			}
+		};
+	};
+	return null;
 }
 
 // ####################### Building Object Dictionary model ####################### //

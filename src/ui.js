@@ -255,6 +255,7 @@ function odModalUpdate(index, objd) {
 	odModal.form.ObjectName.value = objd.name;
 	odModal.form.DTYPE.value = dtype;
 	odModal.form.InitalValue.value = objd.value || dtype_default_epmty_value[dtype];
+	odModal.form.Size.value = odModal.form.InitalValue.value.length || 0;
 	odModal.form.Access.value = objd.access || 'RO';
 	odModal.objd = objd;
 	odModalShowSizeInput(dtype);
@@ -369,7 +370,14 @@ function editRECORD_Click(odSectionName, indexValue = null) {
 	odModalOpenForObject(otype);
 }
 
-function onEditObjectSubmit(modalform) {
+function onEditObjectSubmit(e) {
+	// dummy
+	e.preventDefault();
+	return false;
+}
+
+function odModalSaveChanges() {
+	const modalform = odModal.form;
 	if (odModal.subitem) {
 		onEditSubitemSubmit(odModal.subitem);
 		delete odModal.subitem;
@@ -378,8 +386,15 @@ function onEditObjectSubmit(modalform) {
 	const objd = odModal.objd;
 	const objectType = objd.otype;
 	const index = indexToString(modalform.Index.value);
-
-	objd.name = modalform.ObjectName.value;
+	const newName = modalform.ObjectName.value;
+	
+	// validate changes
+	const matchingObjectIndex = findObjectIndexByName(newName);
+	if (matchingObjectIndex && matchingObjectIndex != odModal.index_initial_value) {
+		alert(`Name ${newName} already used by object 0x${matchingObjectIndex}`);
+		return false;
+	}
+	objd.name = newName;
 
 	switch (objectType) {
 		case OTYPE.VAR:
@@ -400,9 +415,11 @@ function onEditObjectSubmit(modalform) {
 			break;
 		default:
 			alert(`Unexpected type ${objectType} on object ${modalform.ObjectName} being edited!`);
-			break;
+			return false;
 	}
+	
 	const odSection = getObjDictSection(odModal.odSectionName);
+
 	if (odModal.index_initial_value) {
 		removeObject(odSection, odModal.index_initial_value); // detach from OD, to avoid duplicate if index changed
 	}

@@ -119,6 +119,7 @@ function getMandatoryObjects() {
 const sdo = 'sdo';
 const txpdo = 'txpdo';
 const rxpdo = 'rxpdo';
+const OD_sections = [sdo, txpdo, rxpdo];
 
 /** EtherCAT Slave Chips that are supported by this web tool */
 const SupportedESC = {
