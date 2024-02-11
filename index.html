@@ -48,7 +48,7 @@
                </tr>
                <tr id="dialogRowDtype">
                   <td>Data Type</td>
-                  <td><select type = "text" name="DTYPE" title="Enter data type of new object">
+                  <td><select type = "text" name="DTYPE" title="Enter data type of new object" onchange="odModalDTYPEChanged()">
                      <option value="BOOLEAN">BOOLEAN</option>
                      <option value="INTEGER8">INTEGER8</option>
                      <option value="INTEGER16">INTEGER16</option>
@@ -62,7 +62,11 @@
                </tr>
                <tr id="dialogRowValue">
                   <td>Value:</td>
-                  <td><input type = "text" name="InitalValue" value="0" title="Enter initial value for the new object"></td>
+                  <td><input type = "text" name="InitalValue" value="0" title="Enter initial value for the new object" onchange="odModalValueChanged()"></td>
+               </tr>
+               <tr id="sizeInput">
+                  <td>Size:</td>
+                  <td><input type = "number" name="Size" value="0" title="Enter size for the new object"></td>
                </tr>
                <tr id="dialogRowAccess">
                   <td>Access:</td>

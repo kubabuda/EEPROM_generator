@@ -202,10 +202,12 @@ function onDownloadBinClick() {
 // ####################### Handle modal dialog ####################### //
 
 var odModal = {};
+var sizeInput = {};
 
 function odModalSetup() {
 	// Get the modal
 	odModal = document.getElementById("editObjectModal");
+	sizeInput = document.getElementById("sizeInput");
 	if (odModal) {
 		odModal.form = document.getElementById('EditObjectForm');
 	}
@@ -217,6 +219,28 @@ function odModalSetup() {
 // When the user clicks the button, open the modal 
 function odModalOpen() {
 	odModal.style.display = "block";
+}
+
+function odModalShowSizeInput(dtype) {
+	if (dtype == DTYPE.VISIBLE_STRING) {
+		sizeInput.style.display = "";
+	} else {
+		sizeInput.style.display = "none";
+	}
+}
+
+function odModalDTYPEChanged() {
+	odModalShowSizeInput(odModal.form.DTYPE.value);
+	// set input type on value, depending on DTYPE
+}
+
+function odModalValueChanged() {
+	const newValue = odModal.form.InitalValue.value;
+	// const size = 
+	 // validation
+	if (odModal.form.DTYPE.value = DTYPE.VISIBLE_STRING) {
+		// if (newValue > size) { } // trim size/show alert about default > max?
+	}
 }
 
 function odModalClose() {
@@ -233,12 +257,14 @@ function odModalUpdate(index, objd) {
 	odModal.form.InitalValue.value = objd.value || dtype_default_epmty_value[dtype];
 	odModal.form.Access.value = objd.access || 'RO';
 	odModal.objd = objd;
+	odModalShowSizeInput(dtype);
 }
 
 function odModalHideControls() {
 	document.getElementById('dialogRowIndex').style.display = 'none';
 	document.getElementById('dialogRowDtype').style.display = 'none';
 	document.getElementById('dialogRowValue').style.display = 'none';
+	document.getElementById('sizeInput').style.display = 'none';
 	document.getElementById('dialogRowAccess').style.display = 'none';
 }
 
@@ -360,7 +386,7 @@ function onEditObjectSubmit(modalform) {
 			objd.dtype = modalform.DTYPE.value;
 			
 			if (objd.dtype == DTYPE.VISIBLE_STRING) {
-				objd.data = ''  // whyyy
+				objd.data = ''  // we cannot insert _objd.data and value at once but its a hack TODO
 			} else {
 				objd.value = modalform.InitalValue.value;
 			}
