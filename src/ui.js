@@ -231,15 +231,24 @@ function odModalShowSizeInput(dtype) {
 
 function odModalDTYPEChanged() {
 	odModalShowSizeInput(odModal.form.DTYPE.value);
-	// set input type on value, depending on DTYPE
 }
 
 function odModalValueChanged() {
-	const newValue = odModal.form.InitalValue.value;
-	// const size = 
-	 // validation
-	if (odModal.form.DTYPE.value = DTYPE.VISIBLE_STRING) {
-		// if (newValue > size) { } // trim size/show alert about default > max?
+	let value = odModal.form.InitalValue.value;
+	const dtype = odModal.form.DTYPE.value;
+	odModal.form.InitalValue.value = sanitizeInitialValue(value, dtype);
+}
+
+function sanitizeInitialValue(value, dtype) {
+	if (dtype == DTYPE.VISIBLE_STRING) {
+		// no sanitization: all characters allowed
+		return value;
+	} else if (dtype == DTYPE.REAL32) {
+		// float types
+		return value;//.replace(/[^a-z]/, ''); // [+-]?([0-9]*[.])?[0-9]+ // TODO
+	} else {
+		// decimal types
+		return value.match(/[0-9]/).join('');
 	}
 }
 
@@ -387,7 +396,7 @@ function odModalSaveChanges() {
 	const objectType = objd.otype;
 	const index = indexToString(modalform.Index.value);
 	const newName = modalform.ObjectName.value;
-	
+
 	// validate changes
 	const matchingObjectIndex = findObjectIndexByName(newName);
 	if (matchingObjectIndex && matchingObjectIndex != odModal.index_initial_value) {

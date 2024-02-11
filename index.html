@@ -62,7 +62,8 @@
                </tr>
                <tr id="dialogRowValue">
                   <td>Value:</td>
-                  <td><input type = "text" name="InitalValue" value="0" title="Enter initial value for the new object" onchange="odModalValueChanged()"></td>
+                  <td><input type = "text" name="InitalValue" value="0" title="Enter initial value for the new object" 
+                     onkeyup="odModalValueChanged(this.value)"></td>
                </tr>
                <tr id="sizeInput">
                   <td>Size:</td>
