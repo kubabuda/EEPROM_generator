@@ -223,7 +223,7 @@ function objectlist_generator(form, od, indexes)
 	
 		if (element.data) {
 			el_data = element.data;
-			if (element.dtype == DTYPE.VISIBLE_STRING) {
+			if (element.dtype == DTYPE.VISIBLE_STRING && !el_data.startsWith('&Obj.')) {
 				el_data = `"${element.data}"`;
 			}
 		}

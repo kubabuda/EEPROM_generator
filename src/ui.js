@@ -220,14 +220,17 @@ function odModalOpen() {
 }
 
 function odModalClose() {
+	// TODO clear form 
 	odModal.style.display = "none";
 }
 
 /** update control values on OD modal */
 function odModalUpdate(index, objd) {
+	const dtype = objd.dtype || DTYPE.UNSIGNED8;
 	odModal.form.Index.value = `0x${index}`;
 	odModal.form.ObjectName.value = objd.name;
-	odModal.form.DTYPE.value = objd.dtype || DTYPE.UNSIGNED8;
+	odModal.form.DTYPE.value = dtype;
+	odModal.form.InitalValue.value = objd.value || dtype_default_epmty_value[dtype];
 	odModal.form.Access.value = objd.access || 'RO';
 	odModal.objd = objd;
 }
@@ -357,7 +360,7 @@ function onEditObjectSubmit(modalform) {
 			objd.dtype = modalform.DTYPE.value;
 			
 			if (objd.dtype == DTYPE.VISIBLE_STRING) {
-				objd.data = '' 
+				objd.data = ''  // whyyy
 			} else {
 				objd.value = modalform.InitalValue.value;
 			}
@@ -458,7 +461,7 @@ function editSubitemClick(odSectionName, indexValue, subindex, actionName = "Edi
 	odModalHideControls();
 	
 	document.getElementById('dialogRowValue').style.display = "";
-	odModal.form.InitalValue.value = subitem.value ?? 0;
+	odModal.form.InitalValue.value = subitem.value ?? dtype_default_epmty_value[subitem.dtype];
 	
 	if (objd.otype == OTYPE.RECORD) {
 		document.getElementById('dialogRowDtype').style.display = "";
