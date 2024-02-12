@@ -241,23 +241,43 @@ function odModalValueChanged() {
 }
 
 function sanitizeInitialValue(value, dtype) {
+	if (value == null) {
+		return '0'; // always assign initial value
+	}
+	let minusSign = value.startsWith('-');
+	let result = '';
 	if (dtype == DTYPE.VISIBLE_STRING) {
 		// no sanitization: all characters allowed
 		return value;
 	} else if (dtype == DTYPE.REAL32) {
-		// float types
-		const s = value.replaceAll(',', '.').match(/[0-9\.]/g).join('')
-			.split('.');
+		if (value.length == 1 && minusSign) { return '-'; }
+		const matched = value.replaceAll(',', '.').match(/[0-9\.]/g)
+		if (!matched) {			
+			return '';
+		}
+		const s = matched.join('').split('.');
 		if (s.length > 1) {
-			return `${s[0]}.${s.splice(1).join('')}`;
+			result = `${s[0]}.${s.splice(1).join('')}`;
+		} else if (value.endsWith('.')) {
+			result = `${s[0]}.`
+		} else {
+			result = s[0];
 		}
-		if (value.endsWith('.')) {
-			return `${s[0]}.`
-		}
-		return s[0];
+		return minusSign ? `-${result}` : result;
+	} else if (dtype == DTYPE.INTEGER8 || dtype == DTYPE.INTEGER16 || dtype == DTYPE.INTEGER32) {
+		if (value.length == 1 && minusSign) { return '-'; }
+		const matched = value.match(/[0-9]/g);
+		if (!matched) { return '' }
+		result = matched.join('');
+		return minusSign ? `-${result}` : result;
+	} else if (dtype == DTYPE.BOOLEAN) {
+		if (!value) { return '0'; }
+		return (value == '0') ? '0' : '1';
 	} else {
-		// decimal types
-		return value.match(/[0-9]/g).join('');
+		// unsigned decimal types and boolean
+		const matched = value.match(/[0-9]/g);
+		if (!matched) { return '' }
+		return matched.join('');
 	}
 }
 
@@ -407,16 +427,12 @@ function odModalSaveChanges() {
 	// const initialValue = 
 	const newName = modalform.ObjectName.value;
 
-	// validate changes
+	// validate name changes
 	const matchingObjectIndex = findObjectIndexByName(newName);
 	if (matchingObjectIndex && matchingObjectIndex != odModal.index_initial_value) {
 		alert(`Name ${newName} already used by object 0x${matchingObjectIndex}`);
 		return false;
 	}
-	// if (objd.dtype == DTYPE.REAL32 && !// [+-]?([0-9]*[.])?[0-9]+ // TODO) {
-	// 	alert(`InitialValue ${InitalValue} is invalid for data type ${objd.dtype}`);
-	// 	return false;
-	// }
 	objd.name = newName;
 
 	switch (objectType) {
@@ -426,8 +442,14 @@ function odModalSaveChanges() {
 			if (objd.dtype == DTYPE.VISIBLE_STRING) {
 				objd.data = ''  // we cannot insert _objd.data and value at once but its a hack TODO
 			} else {
+				// validate initial value for numeric type
+				if (! isNaN(modalform.InitalValue.value)) {
+					alert(`Initial value '${modalform.InitalValue.value}' is invalid for data type ${objd.dtype}`);
+					return false;
+				}
 				objd.value = modalform.InitalValue.value;
 			}
+			
 			break;
 		case OTYPE.ARRAY:
 			objd.dtype = modalform.DTYPE.value;
