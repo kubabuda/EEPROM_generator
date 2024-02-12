@@ -231,6 +231,7 @@ function odModalShowSizeInput(dtype) {
 
 function odModalDTYPEChanged() {
 	odModalShowSizeInput(odModal.form.DTYPE.value);
+	odModalValueChanged();
 }
 
 function odModalValueChanged() {
@@ -245,10 +246,18 @@ function sanitizeInitialValue(value, dtype) {
 		return value;
 	} else if (dtype == DTYPE.REAL32) {
 		// float types
-		return value;//.replace(/[^a-z]/, ''); // [+-]?([0-9]*[.])?[0-9]+ // TODO
+		const s = value.replaceAll(',', '.').match(/[0-9\.]/g).join('')
+			.split('.');
+		if (s.length > 1) {
+			return `${s[0]}.${s.splice(1).join('')}`;
+		}
+		if (value.endsWith('.')) {
+			return `${s[0]}.`
+		}
+		return s[0];
 	} else {
 		// decimal types
-		return value.match(/[0-9]/).join('');
+		return value.match(/[0-9]/g).join('');
 	}
 }
 
@@ -395,6 +404,7 @@ function odModalSaveChanges() {
 	const objd = odModal.objd;
 	const objectType = objd.otype;
 	const index = indexToString(modalform.Index.value);
+	// const initialValue = 
 	const newName = modalform.ObjectName.value;
 
 	// validate changes
@@ -403,6 +413,10 @@ function odModalSaveChanges() {
 		alert(`Name ${newName} already used by object 0x${matchingObjectIndex}`);
 		return false;
 	}
+	// if (objd.dtype == DTYPE.REAL32 && !// [+-]?([0-9]*[.])?[0-9]+ // TODO) {
+	// 	alert(`InitialValue ${InitalValue} is invalid for data type ${objd.dtype}`);
+	// 	return false;
+	// }
 	objd.name = newName;
 
 	switch (objectType) {
