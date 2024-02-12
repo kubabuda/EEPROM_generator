@@ -22,7 +22,11 @@ function isValidBackup(backup) {
 	return true;
 }
 
-function prepareBackupObject(form) {
+function isBackedUp(formControl) {
+	return formControl.type != "button";
+}
+
+function prepareBackupObject(form, _dc) {
 	const formValues = {};
 	if (form) {
 		Object.entries(form).forEach(formEntry => {
@@ -32,7 +36,6 @@ function prepareBackupObject(form) {
 			};
 		});
 	}
-
 	const backup = {
 		form: formValues,
 		od: getObjDict(),
@@ -40,10 +43,6 @@ function prepareBackupObject(form) {
 	};
 
 	return backup;
-}
-
-function isBackedUp(formControl) {
-	return formControl.type != "button";
 }
 
 function loadBackup(backupObject, form) {
@@ -72,6 +71,18 @@ function setFormValues(form, backupObject) {
 	}
 }
 
+// use to update getEmptyFrom in tests, when new forms are added
+function getEmptyFrom(form) {
+	const emptyForm = {};
+	Object.entries(form).forEach(formEntry => {
+		const formControl = formEntry[1]; // entry[0] is index
+		if (formControl.name) {
+			emptyForm[formControl.name] = { name: formControl.name };
+		}
+	});
+	return emptyForm;
+}
+
 function setFormControlValue(formControl, formControlValue) {
 	if (formControl.name.startsWith('CoeDetailsEnable')) {
 		if (formControlValue == true) {
@@ -83,8 +94,8 @@ function setFormControlValue(formControl, formControlValue) {
 	}
 }
 
-function prepareBackupFileContent(form) {
-	var backupObject = prepareBackupObject(form);
+function prepareBackupFileContent(form, _dc) {
+	var backupObject = prepareBackupObject(form, _dc);
 	var backupFileContent = JSON.stringify(backupObject, null, 2); // pretty print
 	return backupFileContent;
 }
@@ -94,7 +105,7 @@ function prepareBackupFileContent(form) {
 // Localstorage limit is usually 5MB, super large object dictionaries on older browsers might be problematic
 
 function downloadBackupFile(form) {
-	const backupFileContent = prepareBackupFileContent(form); // pretty print
+	const backupFileContent = prepareBackupFileContent(form, _dc); // pretty print
 	downloadFile(backupFileContent, 'esi.json', 'text/json');
 }
 
@@ -102,8 +113,6 @@ function restoreBackup(fileContent, form) {
 	var backup = JSON.parse(fileContent);
 	if (isValidBackup(backup)) {
 		loadBackup(backup, form);
-		reloadOD_Sections();
-		reloadSyncModes()
 	}
 }
 

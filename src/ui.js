@@ -62,6 +62,8 @@ window.onload = (event) => {
 	const form = getForm();
 	setFormValues(form, getFormDefaultValues());
 	tryRestoreLocalBackup(form);
+	reloadOD_Sections();
+	reloadSyncModes();
 	// for convinience during tool development, trigger codegen on page refresh
 	processForm(form);
 	
@@ -154,7 +156,7 @@ function onGenerateDownloadClick()
 		downloadFile(result.ecat_options.value, 'ecat_options.h', 'text/plain');
 		downloadFile(result.objectlist.value, 'objectlist.c', 'text/plain');
 		downloadFile(result.utypes.value, 'utypes.h', 'text/plain');
-		downloadBackupFile(form);
+		downloadBackupFile(form, _dc);
 	
 	}
 }
@@ -165,7 +167,7 @@ function onGenerateClick() {
 
 function onSaveClick() {
 	const form = getForm();
-	downloadBackupFile(form);
+	downloadBackupFile(form, _dc);
 	saveLocalBackup(form);
 }
 
@@ -177,6 +179,8 @@ function onRestoreClick() {
 function onRestoreComplete(fileContent) {
 	const form = getForm();
 	restoreBackup(fileContent, form);
+	reloadOD_Sections();
+	reloadSyncModes();
 	processForm(form);
 }
 
@@ -441,6 +445,7 @@ function odModalSaveChanges() {
 			
 			if (objd.dtype == DTYPE.VISIBLE_STRING) {
 				objd.data = ''  // we cannot insert _objd.data and value at once but its a hack TODO
+				objd.size = modalform.Size.value;
 			} else {
 				// validate initial value for numeric type
 				if (! isNaN(modalform.InitalValue.value)) {
