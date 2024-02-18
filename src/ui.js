@@ -233,55 +233,73 @@ function odModalShowSizeInput(dtype) {
 	}
 }
 
-function odModalDTYPEChanged() {
-	odModalShowSizeInput(odModal.form.DTYPE.value);
-	odModalValueChanged();
+function odModalDTYPEChanged(dtype) {
+	odModalShowSizeInput(dtype);
+	odModalValueChanged(odModal.form.InitalValue.value);
 }
 
-function odModalValueChanged() {
-	let value = odModal.form.InitalValue.value;
+function odModalValueChanged(value) {
 	const dtype = odModal.form.DTYPE.value;
 	odModal.form.InitalValue.value = sanitizeInitialValue(value, dtype);
+}
+
+function sanitizeBool(value, dtype) {
+	if (!value) { return '0'; }
+	return (value == '0') ? '0' : '1';
+}
+
+function sanitizeFloat(value, dtype) {
+	let minusSign = value.startsWith('-');
+	let result = '';
+	
+	if (value.length == 1 && minusSign) { return '-'; }
+	const matched = value.replaceAll(',', '.').match(/[0-9\.]/g)
+	if (!matched) {			
+		return '';
+	}
+	const s = matched.join('').split('.');
+	if (s.length > 1) {
+		result = `${s[0]}.${s.splice(1).join('')}`;
+	} else if (value.endsWith('.')) {
+		result = `${s[0]}.`
+	} else {
+		result = s[0];
+	}
+	return minusSign ? `-${result}` : result;	
+}
+
+function sanitizeInt(value, dtype) {
+	let minusSign = value.startsWith('-');
+	let result = '';
+
+	if (value.length == 1 && minusSign) { return '-'; }
+	const matched = value.match(/[0-9]/g);
+	if (!matched) { return '' }
+	result = matched.join('');
+	return minusSign ? `-${result}` : result;
+}
+
+function sanitizeUint(value, dtype) {
+	const matched = value.match(/[0-9]/g);
+	if (!matched) { return '' }
+	return matched.join('');
 }
 
 function sanitizeInitialValue(value, dtype) {
 	if (value == null) {
 		return '0'; // always assign initial value
 	}
-	let minusSign = value.startsWith('-');
-	let result = '';
 	if (dtype == DTYPE.VISIBLE_STRING) {
 		// no sanitization: all characters allowed
 		return value;
 	} else if (dtype == DTYPE.REAL32) {
-		if (value.length == 1 && minusSign) { return '-'; }
-		const matched = value.replaceAll(',', '.').match(/[0-9\.]/g)
-		if (!matched) {			
-			return '';
-		}
-		const s = matched.join('').split('.');
-		if (s.length > 1) {
-			result = `${s[0]}.${s.splice(1).join('')}`;
-		} else if (value.endsWith('.')) {
-			result = `${s[0]}.`
-		} else {
-			result = s[0];
-		}
-		return minusSign ? `-${result}` : result;
+		return sanitizeFloat(value, dtype);
 	} else if (dtype == DTYPE.INTEGER8 || dtype == DTYPE.INTEGER16 || dtype == DTYPE.INTEGER32) {
-		if (value.length == 1 && minusSign) { return '-'; }
-		const matched = value.match(/[0-9]/g);
-		if (!matched) { return '' }
-		result = matched.join('');
-		return minusSign ? `-${result}` : result;
+		return sanitizeInt(value, dtype);
 	} else if (dtype == DTYPE.BOOLEAN) {
-		if (!value) { return '0'; }
-		return (value == '0') ? '0' : '1';
+		return sanitizeBool(value, dtype);
 	} else {
-		// unsigned decimal types and boolean
-		const matched = value.match(/[0-9]/g);
-		if (!matched) { return '' }
-		return matched.join('');
+		return sanitizeUint(value, dtype);
 	}
 }
 
