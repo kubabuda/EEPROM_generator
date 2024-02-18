@@ -86,9 +86,12 @@ VBinDiff et1100.bin  lan9252.bin
 
 # TODO
 
-- output for VISIBLE_STRING and ARRAY
+- CoeDetailsEnable save/restore in/from esi.json
 - how to specify string length in PDOs
-- why form.
+- test output for VISIBLE_STRING 
+- test output for ARRAY
+- why form.value for string = 0
+- unit test esi.json saving
 
 - why default dark mode has dark text in Chromium but not Firefox, when OS is in dark mode
 - add support for 64bit number types
@@ -102,6 +105,7 @@ VBinDiff et1100.bin  lan9252.bin
 - check output for VISIBLE_STRING RECORD subitem
 - dynamic/multiple PDOs
 - more unit tests
+- parameters SDOs 0x8000 manufacturer 0x2000
 - SM2 offset: regardles of value set, SDK generates RXPDO mappings as SDO1600. SM2 offset change affects
     - `ecat_options.h` #define SM2_sma, MAX_TXPDO_SIZE and MAX_RXPDO_SIZE
     - `esi.xml` `<Sm ControlByte="#x24" Enable="1" StartAddress="#x1600">Outputs</Sm>`
@@ -126,3 +130,27 @@ VBinDiff et1100.bin  lan9252.bin
 
 The EtherCAT Technology, the trade name and logo "EtherCAT" are the intellectual
 property of, and protected by Beckhoff Automation GmbH.
+
+
+```c
+typedef struct CC_PACKED
+{
+   uint16_t subindex;
+   uint16_t datatype;
+   uint16_t bitlength;
+   uint16_t flags;
+   const char *name;
+   uint32_t value;
+   void *data;
+} _objd;
+
+typedef struct CC_PACKED
+{
+   uint16_t index;
+   uint16_t objtype;
+   uint8_t maxsub;
+   uint8_t pad1;
+   const char *name;
+   const _objd *objdesc;
+} _objectlist;
+```
