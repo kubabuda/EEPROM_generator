@@ -241,6 +241,9 @@ function odModalDTYPEChanged(dtype) {
 function odModalValueChanged(value) {
 	const dtype = odModal.form.DTYPE.value;
 	odModal.form.InitalValue.value = sanitizeInitialValue(value, dtype);
+	if (dtype == DTYPE.VISIBLE_STRING) {
+		odModal.form.Size.value = Math.max(odModal.form.Size.value, value.length);
+	}
 }
 
 function sanitizeBool(value, dtype) {
