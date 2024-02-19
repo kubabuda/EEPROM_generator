@@ -206,12 +206,10 @@ function onDownloadBinClick() {
 // ####################### Handle modal dialog ####################### //
 
 var odModal = {};
-var sizeInput = {};
 
 function odModalSetup() {
 	// Get the modal
 	odModal = document.getElementById("editObjectModal");
-	sizeInput = document.getElementById("sizeInput");
 	if (odModal) {
 		odModal.form = document.getElementById('EditObjectForm');
 	}
@@ -227,9 +225,9 @@ function odModalOpen() {
 
 function odModalShowSizeInput(dtype) {
 	if (dtype == DTYPE.VISIBLE_STRING) {
-		sizeInput.style.display = "";
+		document.getElementById('sizeInput').style.display = '';
 	} else {
-		sizeInput.style.display = "none";
+		document.getElementById('sizeInput').style.display = 'none';
 	}
 }
 
@@ -358,6 +356,7 @@ function odModalOpenForObject(otype) {
 		case OTYPE.VAR: {
 			document.getElementById('dialogRowDtype').style.display = '';
 			document.getElementById('dialogRowValue').style.display = '';
+			odModalShowSizeInput(odModal.objd.dtype);
 			break;
 		}
 		case OTYPE.ARRAY: {
