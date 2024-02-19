@@ -7,8 +7,8 @@
 }
  
 /* dark mode */
-[data-theme="dark"] {
-/* body, .modal-content { */
+[data-theme="dark"]
+body, .modal-content, table {
    --background-color: #2D2D2D; /* #4D4D4D; */
    --text-color: white;
    --input-color: #3D3D3D;
