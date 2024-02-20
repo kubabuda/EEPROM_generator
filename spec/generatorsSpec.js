@@ -300,7 +300,13 @@ describe("generators", function() {
     </Devices>
   </Descriptions>
 </EtherCATInfo>`;
-            expect(result.slice(9000)).toEqual(expectedesi.slice(9000));
+            // resultLines = result.split('\n');
+            // expectedLines = expectedesi.split('\n');
+            // for (const [index, expectedLine] of expectedLines.entries()) {
+            //     expect(resultLines[index]).toEqual(expectedLine);
+            // }
+            // expect(result.slice(9000)).toEqual(expectedesi.slice(9000));
+            expect(result).toEqual(expectedesi);
         });
 
         it("hex_generator should generate config data", function() {
@@ -1257,7 +1263,10 @@ extern _Objects Obj;
         });
       });
     });
+});
 
+describe("OTYPE VAR", function() {
+    // TODO other DTYPES
     xdescribe("for project with single VISIBLE_STRING variable in SDO", function() {
     });
 
