@@ -316,7 +316,7 @@ function odModalUpdate(index, objd) {
 	odModal.form.ObjectName.value = objd.name;
 	odModal.form.DTYPE.value = dtype;
 	odModal.form.InitalValue.value = objd.value || dtype_default_epmty_value[dtype];
-	odModal.form.Size.value = odModal.form.InitalValue.value.length || 0;
+	odModal.form.Size.value = objd.size || odModal.form.InitalValue.value.length || 0;
 	odModal.form.Access.value = objd.access || 'RO';
 	odModal.objd = objd;
 	odModalShowSizeInput(dtype);
@@ -462,6 +462,7 @@ function odModalSaveChanges() {
 	switch (objectType) {
 		case OTYPE.VAR:
 			objd.dtype = modalform.DTYPE.value;
+			objd.value = modalform.InitalValue.value;
 			
 			if (objd.dtype == DTYPE.VISIBLE_STRING) {
 				objd.data = ''  // we cannot insert _objd.data and value at once but its a hack TODO
@@ -472,7 +473,6 @@ function odModalSaveChanges() {
 					alert(`Initial value '${modalform.InitalValue.value}' is invalid for data type ${objd.dtype}`);
 					return false;
 				}
-				objd.value = modalform.InitalValue.value;
 			}
 			
 			break;
