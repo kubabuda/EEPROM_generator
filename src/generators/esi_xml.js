@@ -139,13 +139,12 @@ function esi_generator(form, od, indexes, dc)
 		const el_dtype = esiDtName(objd, index);
 		const bitsize = esiBitsize(objd);
 		let result = `\n              <Object>\n                <Index>#x${index}</Index>\n                <Name>${objd.name}</Name>\n                <Type>${el_dtype}</Type>\n                <BitSize>${bitsize}</BitSize>\n                <Info>`;
-		if (objd.data) {
-			if (objd.dtype == DTYPE.VISIBLE_STRING) {
-				result += `\n                  <DefaultString>${objd.data}</DefaultString>`;	
-			}
-		}
 		if (objd.value) {
-			result += `\n                  <DefaultValue>${toEsiHexValue(objd.value)}</DefaultValue>`;
+			if (objd.dtype == DTYPE.VISIBLE_STRING) {
+				result += `\n                  <DefaultString>${objd.value}</DefaultString>`;	
+			} else {
+				result += `\n                  <DefaultValue>${toEsiHexValue(objd.value)}</DefaultValue>`;
+			}
 		}
 		//Add object subitems for complex types
 		if (objd.items) {
@@ -357,7 +356,7 @@ function esi_generator(form, od, indexes, dc)
 	function esiVariableTypeName(element) {
 		let el_name = ESI_DT[element.dtype].name;
 		if (element.dtype == DTYPE.VISIBLE_STRING) {
-			return `${el_name}(${element.data.length})`;
+			return `${el_name}(${element.size})`;
 		}
 		return el_name;
 	}	
@@ -380,7 +379,7 @@ function esi_generator(form, od, indexes, dc)
 			case OTYPE.VAR: {
 				let bitsize = esiDTbitsize(element.dtype);
 				if (element.dtype == DTYPE.VISIBLE_STRING) {
-					return bitsize * element.data.length;
+					return bitsize * element.size;
 				}
 				return bitsize;
 			}

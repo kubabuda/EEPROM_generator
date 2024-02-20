@@ -300,12 +300,6 @@ describe("generators", function() {
     </Devices>
   </Descriptions>
 </EtherCATInfo>`;
-            // resultLines = result.split('\n');
-            // expectedLines = expectedesi.split('\n');
-            // for (const [index, expectedLine] of expectedLines.entries()) {
-            //     expect(resultLines[index]).toEqual(expectedLine);
-            // }
-            // expect(result.slice(9000)).toEqual(expectedesi.slice(9000));
             expect(result).toEqual(expectedesi);
         });
 
