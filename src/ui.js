@@ -465,7 +465,6 @@ function odModalSaveChanges() {
 			objd.value = modalform.InitalValue.value;
 			
 			if (objd.dtype == DTYPE.VISIBLE_STRING) {
-				objd.data = ''  // we cannot insert _objd.data and value at once but its a hack TODO
 				objd.size = modalform.Size.value;
 			} else {
 				// validate initial value for numeric type

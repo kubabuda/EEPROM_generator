@@ -62,7 +62,11 @@ function utypes_generator(form, od, indexes) {
 		switch (objd.otype) {
 			case OTYPE.VAR: {
 				const ctype = ESI_DT[objd.dtype].ctype;
-				return `\n   ${ctype} ${varName};`
+				let suffix = '';
+				if (objd.dtype == DTYPE.VISIBLE_STRING) {
+					suffix = `[${objd.size}]`;
+				}
+				return `\n   ${ctype} ${varName}${suffix};`
 			}
 			case OTYPE.ARRAY: {
 				const ctype = ESI_DT[objd.dtype].ctype;
