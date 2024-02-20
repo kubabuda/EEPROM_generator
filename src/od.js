@@ -264,9 +264,12 @@ function addPdoObjectsSection(od, odSection, pdo){
 /** populates mandatory objects with values from UI */
 function populateMandatoryObjectValues(form, od) {
 	if (form) {
-		od['1008'].data = form.TextDeviceName.value;
-		od['1009'].data = form.HWversion.value;
-		od['100A'].data = form.SWversion.value;
+		od['1008'].value = form.TextDeviceName.value;
+		od['1008'].size  = form.TextDeviceName.value.length;
+		od['1009'].value = form.HWversion.value;
+		od['1009'].size  = form.HWversion.value.length;
+		od['100A'].value = form.SWversion.value;
+		od['100A'].size  = form.SWversion.value.length;
 		od['1018'].items[1].value = parseInt(form.VendorID.value);
 		od['1018'].items[2].value = parseInt(form.ProductCode.value);
 		od['1018'].items[3].value = parseInt(form.RevisionNumber.value);

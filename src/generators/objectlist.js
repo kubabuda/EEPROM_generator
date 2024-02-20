@@ -16,7 +16,7 @@
 function get_objdBitsize(element) {
 	let bitsize = dtype_bitsize[element.dtype];
 	if (element.dtype == DTYPE.VISIBLE_STRING) {
-		bitsize = bitsize * element.data.length;
+		bitsize = bitsize * element.size || element.value.length;
 	}
 	return bitsize;
 }
@@ -180,13 +180,17 @@ function objectlist_generator(form, od, indexes)
 		return Array.apply(null, { length: 4 }).map((_, i) => getHex(view.getUint8(i))).join('');
 	}
 
-	function objectlist_getItemValue(item, dtype) {
+	function objectlist_getItemValue(objd, dtype) {
 		let value = '0';
-		if (item.value) {
-			value = `${item.value}`;
-			if (dtype == DTYPE.REAL32) {
-				return `0x${float32ToHex(value)}`;
-			}
+		if (objd.value) {
+			switch(dtype) {
+				case DTYPE.REAL32:
+					return `0x${float32ToHex(value)}`;
+				case DTYPE.VISIBLE_STRING:
+					return value;
+				default:
+					return `${objd.value}`;
+			}				
 		}
 		return value;
 	}
@@ -223,11 +227,11 @@ function objectlist_generator(form, od, indexes)
 	
 		if (element.data) {
 			el_data = element.data;
-			if (element.dtype == DTYPE.VISIBLE_STRING && !el_data.startsWith('&Obj.')) {
-				el_data = `"${element.data}"`;
+		} else if (element.value) {
+			if (element.dtype == DTYPE.VISIBLE_STRING) {
+				el_data = `"${element.value}"`;
 			}
 		}
-		/* TODO el_data is assigned also for PDO mapped variables */
 		return el_data;
 	}	
 }
