@@ -1,4 +1,5 @@
-describe("ESC-specific generators", function() {
+describe("generators", function() {
+  describe("ESC-specific generators", function() {
     describe("for AX58100 project", function() {
       var form;
       var od;
@@ -136,4 +137,5 @@ describe("ESC-specific generators", function() {
         expect(result).toEqual(configData);
       });
     });
+  });
 });

@@ -481,7 +481,6 @@ extern _Objects Obj;
       beforeEach(function() {
           form = getEmptyFrom();
           _dc = [];
-          // setFormValues(form, getFormDefaultValues()); // restore like its done in app - hides serialization problem
 	        restoreBackup(etherCATeepromGeneratorBackup, form);
           od = buildObjectDictionary(form);
           indexes = getUsedIndexes(od);
@@ -1257,20 +1256,7 @@ extern _Objects Obj;
         });
       });
     });
-});
-
-describe("OTYPE VAR", function() {
-    // TODO other DTYPES
-    xdescribe("for project with single VISIBLE_STRING variable in SDO", function() {
-    });
-
-    xdescribe("for project with single VISIBLE_STRING variable in PDO", function() {
-    });
-
-    xdescribe("for project with single ARRAY variable in SDO", function() {
-    });
 
     xdescribe("for example CiA 402 CSP application", function() {
     });
 });
-
