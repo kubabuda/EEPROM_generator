@@ -311,7 +311,7 @@ function odModalClose() {
 
 /** update control values on OD modal */
 function odModalUpdate(index, objd) {
-	const dtype = objd.dtype || DTYPE.UNSIGNED8;
+	const dtype = objd.dtype || DTYPE.UNSIGNED8; // todo: if not record
 	odModal.form.Index.value = `0x${index}`;
 	odModal.form.ObjectName.value = objd.name;
 	odModal.form.DTYPE.value = dtype;

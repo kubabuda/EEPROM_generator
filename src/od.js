@@ -328,7 +328,10 @@ function getFirstFreeIndex(odSectionName) {
 	return indexToString(result);
 }
 /** returns new object description for given PDO section  */
-function getNewObjd(odSectionName, otype) {
+function getNewObjd(odSectionName, otype, dtype) {
+	if (dtype == undefined) {
+		dtype = DTYPE.UNSIGNED8; // first from list
+	}
 	const readableNames = {
 		VAR: 'Variable',
 		ARRAY: 'Array',
@@ -341,17 +344,22 @@ function getNewObjd(odSectionName, otype) {
 	};
 	switch(otype) {
 	case OTYPE.ARRAY: {
+		objd.dtype = dtype;
 		objd.items = [
 			{ name: 'Max SubIndex' },
 		];
-		addArraySubitem(objd);
+		addArraySubitem(objd, dtype);
 		break;
 	}
 	case OTYPE.RECORD: {
 		objd.items = [
 			{ name: 'Max SubIndex' },
 		];
-		addRecordSubitem(objd);
+		addRecordSubitem(objd, dtype);
+		break;
+	}
+	default: {
+		objd.dtype = dtype;
 		break;
 	}}
 	if (odSectionName == txpdo || odSectionName == rxpdo) {
@@ -360,21 +368,19 @@ function getNewObjd(odSectionName, otype) {
 	return objd;
 }
 
-function addArraySubitem(objd) {
+function addArraySubitem(objd, dtype) {
 	if (objd.otype != OTYPE.ARRAY) { alert(`${objd} is not ARRAY, cannot add subitem`); return; }
 	if (!objd.items) { alert(`${objd} does not have items list, cannot add subitem`); return; }
-	const newSubitem = { name: 'New array subitem' }
+	const newSubitem = { name: 'New array subitem', value: dtype_default_epmty_value[dtype] };
 	objd.items.push(newSubitem);
 
 	return newSubitem;
 }
 
-function addRecordSubitem(objd) {
+function addRecordSubitem(objd, dtype) {
 	if (objd.otype != OTYPE.RECORD) { alert(`${objd} is not RECORD, cannot add subitem`); return; }
 	if (!objd.items) { alert(`${objd} does not have items list, cannot add subitem`); return; }
-
-	const default_subitemDT = DTYPE.UNSIGNED8; // first from list
-	const newSubitem = { name: 'New record subitem', dtype: default_subitemDT }
+	const newSubitem = { name: 'New record subitem', dtype: dtype, value: dtype_default_epmty_value[dtype] }
 	objd.items.push(newSubitem);
 
 	return newSubitem;
