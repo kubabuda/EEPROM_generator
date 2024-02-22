@@ -537,18 +537,19 @@ function onRemoveClick(odSectionName, indexValue, subindex = null) {
 function addSubitemClick(odSectionName, indexValue) {
 	const index = indexToString(indexValue);
 	const odSection = getObjDictSection(odSectionName);
-	const objd = odSection[index]; 
+	const objd = odSection[index];
+	const dtypeDefault = DTYPE.UNSIGNED8
 
 	// we expect objd to have items array with at least [{ name: 'Max SubIndex' }]
 	if(!objd.items || !objd.items.length ) { alert(`Object ${index} "${objd.name}" has no subitems!`); return; }
 
 	switch(objd.otype) {
 		case OTYPE.ARRAY: {
-			addArraySubitem(objd);
+			addArraySubitem(objd, objd.dtype || dtypeDefault);
 			break;
 		}
 		case OTYPE.RECORD: {
-			addRecordSubitem(objd);
+			addRecordSubitem(objd, dtypeDefault);
 			break;
 		}
 		default: {
