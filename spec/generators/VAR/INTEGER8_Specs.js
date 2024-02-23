@@ -1,7 +1,6 @@
-// TODO other DTYPES
-xdescribe("OTYPE VAR", function() {
-  describe("DTYPE none", function() {
-    describe("for default empty project with no variable in SDO or PDO", function() {
+describe("OTYPE VAR", function() {
+  describe("DTYPE INT8", function() {
+    describe("for default empty project with INT8 as TXPDO", function() {
       var form;
       var od;
       var indexes;
@@ -9,19 +8,19 @@ xdescribe("OTYPE VAR", function() {
       beforeEach(function() {
           form = buildMockFormHelper();
           od = buildObjectDictionary(form);
-          // od['6000'] = {
-          //   otype: "VAR",
-          //   name: "Count",
-          //   access: "RO",
-          //   pdo_mappings: [
-          //     "txpdo",
-          //   ],
-          //   dtype: "INT8",
-          //   value: "42",
-          //   data: "&Obj.Count",
-          // }
+          od['6000'] = {
+            otype: "VAR",
+            name: "Count",
+            access: "RO",
+            pdo_mappings: [
+              "txpdo",
+            ],
+            dtype: "INTEGER8",
+            value: "42",
+            data: "&Obj.Count",
+          }
           indexes = getUsedIndexes(od);
-      });
+        });
       
       it("esi_generator should generate expected code", function() {
           // arrange
@@ -154,6 +153,10 @@ xdescribe("OTYPE VAR", function() {
               </DataType>
               <DataType>
                 <Name>USINT</Name>
+                <BitSize>8</BitSize>
+              </DataType>
+              <DataType>
+                <Name>SINT</Name>
                 <BitSize>8</BitSize>
               </DataType>
             </DataTypes>
@@ -290,6 +293,19 @@ xdescribe("OTYPE VAR", function() {
                   <Access>ro</Access>
                 </Flags>
               </Object>
+              <Object>
+                <Index>#x6000</Index>
+                <Name>Count</Name>
+                <Type>SINT</Type>
+                <BitSize>8</BitSize>
+                <Info>
+                  <DefaultValue>42</DefaultValue>
+                </Info>
+                <Flags>
+                  <Access>ro</Access>
+                  <PdoMapping>T</PdoMapping>
+                </Flags>
+              </Object>
             </Objects>
           </Dictionary>
         </Profile>
@@ -299,7 +315,18 @@ xdescribe("OTYPE VAR", function() {
         <Sm DefaultSize="512" StartAddress="#x1000" ControlByte="#x26" Enable="1">MBoxOut</Sm>
         <Sm DefaultSize="512" StartAddress="#x1200" ControlByte="#x22" Enable="1">MBoxIn</Sm>
         <Sm StartAddress="#x1600" ControlByte="#x24" Enable="0">Outputs</Sm>
-        <Sm StartAddress="#x1A00" ControlByte="#x20" Enable="0">Inputs</Sm>
+        <Sm StartAddress="#x1A00" ControlByte="#x20" Enable="1">Inputs</Sm>
+        <TxPdo Fixed="true" Mandatory="true" Sm="3">
+          <Index>#x1A00</Index>
+          <Name>Count</Name>
+          <Entry>
+            <Index>#x6000</Index>
+            <SubIndex>#x0</SubIndex>
+            <BitLen>8</BitLen>
+            <Name>Count</Name>
+            <DataType>SINT</DataType>
+          </Entry>
+        </TxPdo>
         <Mailbox DataLinkLayer="true">
           <CoE SdoInfo="true" PdoAssign="false" PdoConfig="false" PdoUpload="true" CompleteAccess="false" />
         </Mailbox>
@@ -369,7 +396,7 @@ xdescribe("OTYPE VAR", function() {
 #define SM3_act          1
 
 #define MAX_MAPPINGS_SM2 0
-#define MAX_MAPPINGS_SM3 0
+#define MAX_MAPPINGS_SM3 1
 
 #define MAX_RXPDO_SIZE   512
 #define MAX_TXPDO_SIZE   512
@@ -407,6 +434,7 @@ static const char acName1C00_01[] = "Communications Type SM0";
 static const char acName1C00_02[] = "Communications Type SM1";
 static const char acName1C00_03[] = "Communications Type SM2";
 static const char acName1C00_04[] = "Communications Type SM3";
+static const char acName6000[] = "Count";
 
 const _objd SDO1000[] =
 {
@@ -440,6 +468,10 @@ const _objd SDO1C00[] =
   {0x03, DTYPE_UNSIGNED8, 8, ATYPE_RO, acName1C00_03, 3, NULL},
   {0x04, DTYPE_UNSIGNED8, 8, ATYPE_RO, acName1C00_04, 4, NULL},
 };
+const _objd SDO6000[] =
+{
+  {0x0, DTYPE_INTEGER8, 8, ATYPE_RO | ATYPE_TXPDO, acName6000, 42, &Obj.Count},
+};
 
 const _objectlist SDOobjects[] =
 {
@@ -449,6 +481,7 @@ const _objectlist SDOobjects[] =
   {0x100A, OTYPE_VAR, 0, 0, acName100A, SDO100A},
   {0x1018, OTYPE_RECORD, 4, 0, acName1018, SDO1018},
   {0x1C00, OTYPE_ARRAY, 4, 0, acName1C00, SDO1C00},
+  {0x6000, OTYPE_VAR, 0, 0, acName6000, SDO6000},
   {0xffff, 0xff, 0xff, 0xff, NULL, NULL}
 };
 `;
@@ -474,6 +507,10 @@ typedef struct
    /* Identity */
 
    uint32_t serial;
+
+   /* Inputs */
+
+   int8_t Count;
 
 } _Objects;
 

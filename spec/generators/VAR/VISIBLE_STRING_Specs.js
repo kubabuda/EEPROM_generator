@@ -1,5 +1,4 @@
 describe("OTYPE VAR", function() {
-  // TODO other DTYPES
   describe("DTYPE VISIBLE_STRING", function() {
     describe("for project with single VISIBLE_STRING variable in SDO", function() {
       var form;
