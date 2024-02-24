@@ -237,7 +237,7 @@ function odModalDTYPEChanged(dtype) {
 }
 
 function odModalIndexChanged(index) {
-	odModal.form.Index.value = index.trim(); // TODO sanitize hex
+	odModal.form.Index.value = sanitize0xHexa(index).slice(0, 6);
 }
 
 function odModalValueChanged(value) {

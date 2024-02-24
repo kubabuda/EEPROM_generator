@@ -13,15 +13,6 @@
 
 /** Value validation logic */
 
-/** Used for object and variable names */
-function sanitizeString(value) {
-	value = value.trim();
-	charsToRemove.forEach(c => {
-		value = value.replaceAll(c, '');
-	});
-	return value;
-}
-
 function sanitizeBool(value, dtype) {
 	if (!value) { return '0'; }
 	return (value == '0') ? '0' : '1';
@@ -80,6 +71,33 @@ function sanitizeInitialValue(value, dtype) {
 	} else {
 		return sanitizeUint(value, dtype);
 	}
+}
+
+/** Object and variable names validation */
+
+function sanitizeHexa(value) {
+	value = value.trim().toUpperCase();
+	const matched = value.match(/[0-9A-F]/g);
+	if (!matched) { return '' }
+	return matched.join('');
+}
+
+function sanitize0xHexa(value) {
+	const hex = sanitizeHexa(value);
+	if (hex.startsWith('0')) {
+		return `0x${sanitizeHexa(hex).slice(1)}`;
+	} else {
+		return `0x${sanitizeHexa(hex)}`;
+	}
+	
+}
+
+function sanitizeString(value) {
+	value = value.trim();
+	charsToRemove.forEach(c => {
+		value = value.replaceAll(c, '');
+	});
+	return value;
 }
 
 function variableName(objectName) {
