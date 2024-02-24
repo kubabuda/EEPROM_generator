@@ -67,22 +67,6 @@ function isInArray(array, seekValue) {
 		|| array.find(currentValue => currentValue == seekValue));
 }
 
-function sanitizeString(value) {
-	value = value.trim();
-	charsToRemove.forEach(c => {
-		value = value.replaceAll(c, '');
-	});
-	return value;
-}
-
-function variableName(objectName) {
-	var variableName = sanitizeString(objectName);
-	charsToReplace.forEach(c => {
-		variableName = variableName.replaceAll(c, '_');
-	});
-	return variableName;
-}
-
 // returns index of object with given name, or null
 function findObjectIndexByName(name) {
 	for(let s = 0; s < OD_sections.length; ++s) {
@@ -368,30 +352,6 @@ function getNewObjd(odSectionName, otype, dtype) {
 		objd.pdo_mappings = [ odSectionName ];
 	}
 	return objd;
-}
-
-function checkIsSubitemNameFree(objd, newName, subIndex = null) {
-	const names = new Set();
-	for (let i = 0; i < objd.items.length; ++i) {
-		if (subIndex == null || i != subIndex) {
-			const n = objd.items[i].name;
-			if (names.has(n)) { 
-				alert(`Object ${objd.name} (${objd.otype}) has duplicate name subitems ${n}`);
-			}
-			names.add(n);
-		}
-	}
-	return !names.has(newName);
-}
-
-function getNextFreeSubitemName(objd, name) {
-	let newName = name;
-	let i = 1;
-	while (!checkIsSubitemNameFree(objd, newName)) {
-		newName = `${name} ${i}`;
-		i++;
-	}
-	return newName;
 }
 
 function addArraySubitem(objd, dtype) {
