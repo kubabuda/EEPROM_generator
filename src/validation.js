@@ -7,12 +7,13 @@
 - SOES code generator
 
  * Victor Sluiter 2013-2018
- * Kuba Buda 2020-2021
+ * Kuba Buda 2020-2024
  */
 'use strict'
 
 /** Value validation logic */
 
+/** Used for object and variable names */
 function sanitizeString(value) {
 	value = value.trim();
 	charsToRemove.forEach(c => {
@@ -20,7 +21,6 @@ function sanitizeString(value) {
 	});
 	return value;
 }
-
 
 function sanitizeBool(value, dtype) {
 	if (!value) { return '0'; }
@@ -112,24 +112,4 @@ function getNextFreeSubitemName(objd, name) {
 		i++;
 	}
 	return newName;
-}
-
-function addArraySubitem(objd, dtype) {
-	if (objd.otype != OTYPE.ARRAY) { alert(`${objd} is not ARRAY, cannot add subitem`); return; }
-	if (!objd.items) { alert(`${objd} does not have items list, cannot add subitem`); return; }
-	let newName = getNextFreeSubitemName(objd, 'New array subitem');
-	const newSubitem = { name: newName, value: dtype_default_epmty_value[dtype] };
-	objd.items.push(newSubitem);
-
-	return newSubitem;
-}
-
-function addRecordSubitem(objd, dtype) {
-	if (objd.otype != OTYPE.RECORD) { alert(`${objd} is not RECORD, cannot add subitem`); return; }
-	if (!objd.items) { alert(`${objd} does not have items list, cannot add subitem`); return; }
-	let newName = getNextFreeSubitemName(objd, 'New record subitem');
-	const newSubitem = { name: newName, dtype: dtype, value: dtype_default_epmty_value[dtype] }
-	objd.items.push(newSubitem);
-
-	return newSubitem;
 }

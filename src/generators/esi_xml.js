@@ -7,7 +7,7 @@
 - SOES code generator
 
  * Victor Sluiter 2013-2018
- * Kuba Buda 2020-2021
+ * Kuba Buda 2020-2024
  */
 'use strict'
 
