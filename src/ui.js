@@ -236,6 +236,10 @@ function odModalDTYPEChanged(dtype) {
 	odModalValueChanged(odModal.form.InitalValue.value);
 }
 
+function odModalIndexChanged(index) {
+	odModal.form.Index.value = index.trim(); // TODO sanitize hex
+}
+
 function odModalValueChanged(value) {
 	const dtype = odModal.form.DTYPE.value;
 	odModal.form.InitalValue.value = sanitizeInitialValue(value, dtype);

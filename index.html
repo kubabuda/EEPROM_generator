@@ -40,7 +40,8 @@
             <table border="0">
                <tr id="dialogRowIndex">
                   <td>Index:</td>
-                  <td><input type = "text" name="Index" value="0x6000" title="Enter OD index for the new object" id="modalInputIndex"></td>
+                  <td><input type = "text" name="Index" value="0x6000" title="Enter OD index for the new object" id="modalInputIndex"
+                     onkeyup="odModalIndexChanged(this.value)"></td>
                </tr>
                <tr>
                   <td>Name of Object:</td>
@@ -48,7 +49,8 @@
                </tr>
                <tr id="dialogRowDtype">
                   <td>Data Type</td>
-                  <td><select type = "text" name="DTYPE" title="Enter data type of new object" onchange="odModalDTYPEChanged(this.value)">
+                  <td><select type = "text" name="DTYPE" title="Enter data type of new object" 
+                     onchange="odModalDTYPEChanged(this.value)">
                      <option value="BOOLEAN">BOOLEAN</option>
                      <option value="INTEGER8">INTEGER8</option>
                      <option value="INTEGER16">INTEGER16</option>
