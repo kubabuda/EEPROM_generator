@@ -12,16 +12,28 @@ describe("OTYPE VAR", function() {
             otype: "ARRAY",
             name: "CountArr",
             access: "RO",
+            dtype: "INTEGER8",
             pdo_mappings: [
               "txpdo",
             ],
             items: [
-              
+              {
+                name: "Max SubIndex",
+              },
+              {
+                name: "New array subitem",
+                value: 0,
+                data: "&Obj.New_Array[0]",
+              },
+              {
+                name: "New array subitem",
+                value: "0",
+                data: "&Obj.New_Array[1]",
+              },   
             ],
-            dtype: "INTEGER8",
             size: "2",
             data: "&Obj.CountArr",
-          }
+          };
           indexes = getUsedIndexes(od);
         });
       
@@ -139,6 +151,39 @@ describe("OTYPE VAR", function() {
                   <BitOffs>16</BitOffs>
                   <Flags>
                     <Access>ro</Access>
+                  </Flags>
+                </SubItem>
+              </DataType>
+              <DataType>
+                <Name>DT6000ARR</Name>
+                <BaseType>SINT</BaseType>
+                <BitSize>16</BitSize>
+                <ArrayInfo>
+                  <LBound>1</LBound>
+                  <Elements>2</Elements>
+                </ArrayInfo>
+              </DataType>
+              <DataType>
+                <Name>DT6000</Name>
+                <BitSize>32</BitSize>
+                <SubItem>
+                  <SubIdx>0</SubIdx>
+                  <Name>Max SubIndex</Name>
+                  <Type>USINT</Type>
+                  <BitSize>8</BitSize>
+                  <BitOffs>0</BitOffs>
+                  <Flags>
+                    <Access>ro</Access>
+                  </Flags>
+                </SubItem>
+                <SubItem>
+                  <Name>Elements</Name>
+                  <Type>DT6000ARR</Type>
+                  <BitSize>16</BitSize>
+                  <BitOffs>16</BitOffs>
+                  <Flags>
+                    <Access>ro</Access>
+                  <PdoMapping>T</PdoMapping>
                   </Flags>
                 </SubItem>
               </DataType>
@@ -299,14 +344,30 @@ describe("OTYPE VAR", function() {
               <Object>
                 <Index>#x6000</Index>
                 <Name>CountArr</Name>
-                <Type>SINT</Type>
-                <BitSize>8</BitSize>
+                <Type>DT6000</Type>
+                <BitSize>32</BitSize>
                 <Info>
-                  <DefaultValue>42</DefaultValue>
+                  <SubItem>
+                    <Name>Max SubIndex</Name>
+                    <Info>
+                      <DefaultValue>2</DefaultValue>
+                    </Info>
+                  </SubItem>
+                  <SubItem>
+                    <Name>New array subitem</Name>
+                    <Info>
+                      <DefaultValue>0</DefaultValue>
+                    </Info>
+                  </SubItem>
+                  <SubItem>
+                    <Name>New array subitem</Name>
+                    <Info>
+                      <DefaultValue>0</DefaultValue>
+                    </Info>
+                  </SubItem>
                 </Info>
                 <Flags>
                   <Access>ro</Access>
-                  <PdoMapping>T</PdoMapping>
                 </Flags>
               </Object>
             </Objects>
@@ -324,9 +385,16 @@ describe("OTYPE VAR", function() {
           <Name>CountArr</Name>
           <Entry>
             <Index>#x6000</Index>
-            <SubIndex>#x0</SubIndex>
+            <SubIndex>#x1</SubIndex>
             <BitLen>8</BitLen>
-            <Name>CountArr</Name>
+            <Name>New array subitem</Name>
+            <DataType>SINT</DataType>
+          </Entry>
+          <Entry>
+            <Index>#x6000</Index>
+            <SubIndex>#x2</SubIndex>
+            <BitLen>8</BitLen>
+            <Name>New array subitem</Name>
             <DataType>SINT</DataType>
           </Entry>
         </TxPdo>
@@ -438,6 +506,9 @@ static const char acName1C00_02[] = "Communications Type SM1";
 static const char acName1C00_03[] = "Communications Type SM2";
 static const char acName1C00_04[] = "Communications Type SM3";
 static const char acName6000[] = "CountArr";
+static const char acName6000_00[] = "Max SubIndex";
+static const char acName6000_01[] = "New array subitem";
+static const char acName6000_02[] = "New array subitem";
 
 const _objd SDO1000[] =
 {
@@ -473,7 +544,9 @@ const _objd SDO1C00[] =
 };
 const _objd SDO6000[] =
 {
-  {0x0, DTYPE_INTEGER8, 8, ATYPE_RO | ATYPE_TXPDO, acName6000, 42, &Obj.CountArr},
+  {0x00, DTYPE_UNSIGNED8, 8, ATYPE_RO, acName6000_00, 2, NULL},
+  {0x01, DTYPE_INTEGER8, 8, ATYPE_RO | ATYPE_TXPDO, acName6000_01, 0, &Obj.New_Array[0]},
+  {0x02, DTYPE_INTEGER8, 8, ATYPE_RO | ATYPE_TXPDO, acName6000_02, 0, &Obj.New_Array[1]},
 };
 
 const _objectlist SDOobjects[] =
@@ -484,7 +557,7 @@ const _objectlist SDOobjects[] =
   {0x100A, OTYPE_VAR, 0, 0, acName100A, SDO100A},
   {0x1018, OTYPE_RECORD, 4, 0, acName1018, SDO1018},
   {0x1C00, OTYPE_ARRAY, 4, 0, acName1C00, SDO1C00},
-  {0x6000, OTYPE_VAR, 0, 0, acName6000, SDO6000},
+  {0x6000, OTYPE_ARRAY, 2, 0, acName6000, SDO6000},
   {0xffff, 0xff, 0xff, 0xff, NULL, NULL}
 };
 `;
