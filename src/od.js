@@ -67,16 +67,18 @@ function isInArray(array, seekValue) {
 		|| array.find(currentValue => currentValue == seekValue));
 }
 
-function variableName(objectName) {
-	const charsToReplace = [ ' ', '.', ',', ';', ':', '/' ];
-	const charsToRemove = [ '+', '-', '*', '=', '!', '@' ];
+function sanitizeString(value) {
+	value = value.trim();
+	charsToRemove.forEach(c => {
+		value = value.replaceAll(c, '');
+	});
+	return value;
+}
 
-	var variableName = objectName;
+function variableName(objectName) {
+	var variableName = sanitizeString(objectName);
 	charsToReplace.forEach(c => {
 		variableName = variableName.replaceAll(c, '_');
-	});
-	charsToRemove.forEach(c => {
-		variableName = variableName.replaceAll(c, '');
 	});
 	return variableName;
 }
@@ -366,6 +368,20 @@ function getNewObjd(odSectionName, otype, dtype) {
 		objd.pdo_mappings = [ odSectionName ];
 	}
 	return objd;
+}
+
+function checkIsSubitemNameFree(objd, newName, subIndex = null) {
+	const names = new Set();
+	for (let i = 0; i < objd.items.length; ++i) {
+		if (subIndex == null || i != subIndex) {
+			const n = objd.items[i].name;
+			if (names.has(n)) { 
+				alert(`Object ${objd.name} (${objd.otype}) has duplicate name subitems ${n}`);
+			}
+			names.add(n);
+		}
+	}
+	return !names.has(newName);
 }
 
 function getNextFreeSubitemName(objd, name) {

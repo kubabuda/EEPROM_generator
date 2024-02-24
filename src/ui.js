@@ -438,8 +438,14 @@ function onEditObjectSubmit(e) {
 	return false;
 }
 
+function sanitizeModalValues(modalform) {
+	modalform.ObjectName.value = sanitizeString(modalform.ObjectName.value);
+}
+
 function odModalSaveChanges() {
 	const modalform = odModal.form;
+	sanitizeModalValues(modalform);
+
 	if (odModal.subitem) {
 		onEditSubitemSubmit(odModal.subitem);
 		delete odModal.subitem;
@@ -448,7 +454,6 @@ function odModalSaveChanges() {
 	const objd = odModal.objd;
 	const objectType = objd.otype;
 	const index = indexToString(modalform.Index.value);
-	// const initialValue = 
 	const newName = modalform.ObjectName.value;
 
 	// validate name changes
@@ -586,20 +591,6 @@ function editSubitemClick(odSectionName, indexValue, subindex, actionName = "Edi
 	odModal.subitem = { odSectionName: odSectionName, index: index, subindex: subindex };
 	odModalOpen();
 	document.getElementById('modalInputObjectName').focus();
-}
-
-function checkIsSubitemNameFree(objd, newName, subIndex = null) {
-	const names = new Set();
-	for (let i = 0; i < objd.items.length; ++i) {
-		if (subIndex == null || i != subIndex) {
-			const n = objd.items[i].name;
-			if (names.has(n)) { 
-				alert(`Object ${objd.name} (${objd.otype}) has duplicate name subitems ${n}`);
-			}
-			names.add(n);
-		}
-	}
-	return !names.has(newName);
 }
 
 function onEditSubitemSubmit(modalSubitem) {

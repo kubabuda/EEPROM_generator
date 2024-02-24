@@ -184,3 +184,7 @@ function getFormDefaultValues() {
 		CoeDetailsEnableSDOCompleteAccess: false,
 	}};  
 };
+
+// for building object variable names in C code
+const charsToReplace = [ ' ', '.', ',', ';', ':', '/' ];
+const charsToRemove = [ '+', '-', '*', '=', '!', '@' ];
