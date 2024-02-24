@@ -368,10 +368,21 @@ function getNewObjd(odSectionName, otype, dtype) {
 	return objd;
 }
 
+function getNextFreeSubitemName(objd, name) {
+	let newName = name;
+	let i = 1;
+	while (!checkIsSubitemNameFree(objd, newName)) {
+		newName = `${name} ${i}`;
+		i++;
+	}
+	return newName;
+}
+
 function addArraySubitem(objd, dtype) {
 	if (objd.otype != OTYPE.ARRAY) { alert(`${objd} is not ARRAY, cannot add subitem`); return; }
 	if (!objd.items) { alert(`${objd} does not have items list, cannot add subitem`); return; }
-	const newSubitem = { name: 'New array subitem', value: dtype_default_epmty_value[dtype] };
+	let newName = getNextFreeSubitemName(objd, 'New array subitem');
+	const newSubitem = { name: newName, value: dtype_default_epmty_value[dtype] };
 	objd.items.push(newSubitem);
 
 	return newSubitem;
@@ -380,7 +391,8 @@ function addArraySubitem(objd, dtype) {
 function addRecordSubitem(objd, dtype) {
 	if (objd.otype != OTYPE.RECORD) { alert(`${objd} is not RECORD, cannot add subitem`); return; }
 	if (!objd.items) { alert(`${objd} does not have items list, cannot add subitem`); return; }
-	const newSubitem = { name: 'New record subitem', dtype: dtype, value: dtype_default_epmty_value[dtype] }
+	let newName = getNextFreeSubitemName(objd, 'New record subitem');
+	const newSubitem = { name: newName, dtype: dtype, value: dtype_default_epmty_value[dtype] }
 	objd.items.push(newSubitem);
 
 	return newSubitem;

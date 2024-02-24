@@ -588,10 +588,10 @@ function editSubitemClick(odSectionName, indexValue, subindex, actionName = "Edi
 	document.getElementById('modalInputObjectName').focus();
 }
 
-function checkIsSubitemNameFree(objd, subIndex, newName) {
+function checkIsSubitemNameFree(objd, newName, subIndex = null) {
 	const names = new Set();
 	for (let i = 0; i < objd.items.length; ++i) {
-		if (i != subIndex) {
+		if (subIndex == null || i != subIndex) {
 			const n = objd.items[i].name;
 			if (names.has(n)) { 
 				alert(`Object ${objd.name} (${objd.otype}) has duplicate name subitems ${n}`);
@@ -608,7 +608,7 @@ function onEditSubitemSubmit(modalSubitem) {
 	const subitem = objd.items[modalSubitem.subindex];
 	const newName = odModal.form.ObjectName.value;
 
-	if (!checkIsSubitemNameFree(objd, modalSubitem.subindex, newName)) {
+	if (!checkIsSubitemNameFree(objd, newName, modalSubitem.subindex)) {
 		alert(`Name ${newName} already used by another subitem, pick another name`);
 		return false;
 	}
