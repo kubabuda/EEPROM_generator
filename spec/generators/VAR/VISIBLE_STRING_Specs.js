@@ -17,7 +17,7 @@ describe("OTYPE VAR", function() {
             isSDOitem: true,
             data: "&Obj.New",
             size: "6",
-          }
+          };
           indexes = getUsedIndexes(od);
       });
       

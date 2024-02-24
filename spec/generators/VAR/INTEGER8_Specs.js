@@ -18,7 +18,7 @@ describe("OTYPE VAR", function() {
             dtype: "INTEGER8",
             value: "42",
             data: "&Obj.Count",
-          }
+          };
           indexes = getUsedIndexes(od);
         });
       

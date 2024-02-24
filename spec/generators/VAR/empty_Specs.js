@@ -19,7 +19,7 @@ xdescribe("OTYPE VAR", function() {
           //   dtype: "INT8",
           //   value: "42",
           //   data: "&Obj.Count",
-          // }
+          // };
           indexes = getUsedIndexes(od);
       });
       

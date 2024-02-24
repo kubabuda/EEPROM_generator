@@ -776,7 +776,7 @@ extern _Objects Obj;
     </Devices>
   </Descriptions>
 </EtherCATInfo>`;
-          expect(result.slice(9000)).toEqual(expectedesi.slice(9000));
+          expect(result).toEqual(expectedesi);
       });
 
       it("hex_generator should generate config data", function() {
@@ -1255,8 +1255,5 @@ extern _Objects Obj;
             expect(result.slice(9000)).toEqual(expectedesi.slice(9000));
         });
       });
-    });
-
-    xdescribe("for example CiA 402 CSP application", function() {
     });
 });
