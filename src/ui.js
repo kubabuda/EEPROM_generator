@@ -588,12 +588,32 @@ function editSubitemClick(odSectionName, indexValue, subindex, actionName = "Edi
 	document.getElementById('modalInputObjectName').focus();
 }
 
+function checkIsSubitemNameFree(objd, subIndex, newName) {
+	const names = new Set();
+	for (let i = 0; i < objd.items.length; ++i) {
+		if (i != subIndex) {
+			const n = objd.items[i].name;
+			if (names.has(n)) { 
+				alert(`Object ${objd.name} (${objd.otype}) has duplicate name subitems ${n}`);
+			}
+			names.add(n);
+		}
+	}
+	return !names.has(newName);
+}
+
 function onEditSubitemSubmit(modalSubitem) {
 	const odSection = getObjDictSection(modalSubitem.odSectionName);
 	const objd = odSection[modalSubitem.index];
 	const subitem = objd.items[modalSubitem.subindex];
+	const newName = odModal.form.ObjectName.value;
 
-	subitem.name =  odModal.form.ObjectName.value;
+	if (!checkIsSubitemNameFree(objd, modalSubitem.subindex, newName)) {
+		alert(`Name ${newName} already used by another subitem, pick another name`);
+		return false;
+	}
+
+	subitem.name =  newName;
 	subitem.value = odModal.form.InitalValue.value;
 	if (objd.otype == OTYPE.RECORD) {
 		subitem.dtype = odModal.form.DTYPE.value;
