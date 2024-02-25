@@ -6,12 +6,15 @@ describe("hex_generator given SPImode", function () {
     { mode: 3 },
   ];
   let form;
+  let odSections;
+  
   let od;
   let indexes;
   
   beforeEach(function() {
       form = buildMockFormHelper();
-      od = buildObjectDictionary(form);
+      odSections = getObjDict();// TODO
+      od = buildObjectDictionary(form, odSections);
       indexes = getUsedIndexes(od);
   });
 

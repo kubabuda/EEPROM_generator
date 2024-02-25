@@ -2,12 +2,14 @@ describe("OTYPE VAR", function() {
   describe("DTYPE INT8", function() {
     describe("for default empty project with INT8 as TXPDO", function() {
       let form;
+      let odSections;
       let od;
       let indexes;
       
       beforeEach(function() {
         form = buildMockFormHelper();
-        od = buildObjectDictionary(form);
+        odSections = getObjDict();// TODO
+        od = buildObjectDictionary(form, odSections);
         od['6000'] = {
           otype: "VAR",
           name: "Count",

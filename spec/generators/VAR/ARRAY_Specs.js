@@ -6,12 +6,15 @@ describe("OTYPE VAR", function() {
   describe("DTYPE ARRAY", function() {
     describe("for default empty project with ARRAY INT8[2] as TXPDO", function() {
       let form;
+      let odSections;
+      
       let od;
       let indexes;
       
       beforeEach(function() {
         form = buildMockFormHelper();
-        od = buildObjectDictionary(form);
+        odSections = getObjDict();// TODO
+        od = buildObjectDictionary(form, odSections);
         od['6000'] = {
           otype: "ARRAY",
           name: "CountArr",

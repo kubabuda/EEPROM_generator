@@ -6,11 +6,13 @@ describe("generators", function() {
   describe("ESC-specific generators", function() {
     describe("for AX58100 project", function() {
       let form;
+      let odSections;
       
       beforeEach(function() {
         form = buildMockFormHelper();
         form.ESC.value = SupportedESC.AX58100
-        od = buildObjectDictionary(form);
+        odSections = getObjDict();// TODO
+        od = buildObjectDictionary(form, odSections);
       });
 
       it("hex_generator should generate config data 050603446400000000001A000000", function() {
@@ -45,11 +47,13 @@ describe("generators", function() {
 
     describe("for LAN9252 project", function() {
       let form;
+      let odSections;
       
       beforeEach(function() {
         form = buildMockFormHelper();
         form.ESC.value = SupportedESC.LAN9252
-        od = buildObjectDictionary(form);
+        odSections = getObjDict();// TODO
+        od = buildObjectDictionary(form, odSections);
       });
 
       it("hex_generator should generate config data 80060344640000", function() {

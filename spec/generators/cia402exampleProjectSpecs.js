@@ -285,7 +285,7 @@ xdescribe("generators", function() {
       dc = [];
 
       restoreBackup(cia_esi_json, form, odSections, dc);
-      od = buildObjectDictionary(form);
+      od = buildObjectDictionary(form, odSections);
       indexes = getUsedIndexes(od);
     });
     

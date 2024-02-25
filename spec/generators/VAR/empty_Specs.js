@@ -7,12 +7,14 @@ xdescribe("OTYPE VAR", function() {
   describe("DTYPE none", function() {
     describe("for default empty project with no variable in SDO or PDO", function() {
       let form;
+      let odSections;
       let od;
       let indexes;
       
       beforeEach(function() {
         form = buildMockFormHelper();
-        od = buildObjectDictionary(form);
+        odSections = getObjDict();// TODO
+        od = buildObjectDictionary(form, odSections);
         // od['6000'] = {
         //   otype: "VAR",
         //   name: "Count",

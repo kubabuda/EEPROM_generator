@@ -10,9 +10,9 @@ describe("generators", function() {
       jasmine.addMatchers(customMatchers);
 
       form = buildMockFormHelper();
-      odSections = getObjDict(); // TODO use emptyObjDict
+      odSections = getEmptyObjDict();
       dc = [];
-      od = buildObjectDictionary(form);
+      od = buildObjectDictionary(form, odSections);
       indexes = getUsedIndexes(od);
     });
     
@@ -495,7 +495,7 @@ extern _Objects Obj;
         
         restoreBackup(etherCATeepromGeneratorBackup, form, odSections, dc);
 
-        od = buildObjectDictionary(form);
+        od = buildObjectDictionary(form, odSections);
         indexes = getUsedIndexes(od);
       });
       
@@ -977,7 +977,7 @@ extern _Objects Obj;
       
         setFormValues(form, getFormDefaultValues()); // restore like its done in app - hides serialization problem
         restoreBackup(etherCATeepromGeneratorBackup, form, odSections,  dc);
-        od = buildObjectDictionary(form);
+        od = buildObjectDictionary(form, odSections);
         indexes = getUsedIndexes(od);
       });
         

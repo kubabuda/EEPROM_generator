@@ -6,12 +6,14 @@ describe("OTYPE VAR", function() {
   describe("DTYPE VISIBLE_STRING", function() {
     describe("for project with single VISIBLE_STRING variable in SDO", function() {
       let form;
+      let odSections;
       let od;
       let indexes;
       
       beforeEach(function() {
         form = buildMockFormHelper();
-        od = buildObjectDictionary(form);
+        odSections = getObjDict();// TODO
+        od = buildObjectDictionary(form, odSections);
         od['2000'] = {
           otype: "VAR",
           name: "New",
@@ -514,12 +516,14 @@ extern _Objects Obj;
 
     describe("for project with single VISIBLE_STRING variable in PDO", function() {
       let form;
+      let odSections;
       let od;
       let indexes;
       
       beforeEach(function() {
         form = buildMockFormHelper();
-        od = buildObjectDictionary(form);
+        odSections = getObjDict();// TODO
+        od = buildObjectDictionary(form, odSections);
         od['7000'] = {
           otype: "VAR",
           name: "News",

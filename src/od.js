@@ -31,12 +31,8 @@ function getObjDict() {
     return _odSections;
 }
 
-function getObjDictSection(odSectionName) {
-	return _odSections[odSectionName];
-}
 
-function objectExists(odSectionName, index) {
-	const odSection = getObjDictSection(odSectionName);
+function objectExists(odSection, index) {
 	return index && odSection[index];
 }
 
@@ -72,9 +68,9 @@ function isInArray(array, seekValue) {
 }
 
 // returns index of object with given name, or null
-function findObjectIndexByName(name) {
-	for(let s = 0; s < OD_sections.length; ++s) {
-		const sdoSection = getObjDictSection(OD_sections[s]);
+function findObjectIndexByName(odSections, name) {
+	for(let sectionName of OD_sections) {
+		const sdoSection = odSections[sectionName];
 		const indexes = getUsedIndexes(sdoSection);
 		
 		for(let i = 0; i < indexes.length; ++i) {
@@ -90,8 +86,8 @@ function findObjectIndexByName(name) {
 // ####################### Building Object Dictionary model ####################### //
 
 /** Takes OD entries from UI SDO section and adds to given OD */
-function addSDOitems(od) {
-	const sdoSection = getObjDictSection(sdo);
+function addSDOitems(odSections, od) {
+	const sdoSection = odSections.sdo;
 	const indexes = getUsedIndexes(sdoSection);
 
 	indexes.forEach(index => {
@@ -120,8 +116,8 @@ function getSM2_MappingOffset(form) {
 	return	parseInt(form.SM2Offset.value);
 }
 /** Takes OD entries from UI RXPDO section and adds to given OD */
-function addRXPDOitems(form, od, booleanPaddingCount) {
-	const rxpdoSection = getObjDictSection(rxpdo);
+function addRXPDOitems(form, odSections, od, booleanPaddingCount) {
+	const rxpdoSection = odSections.rxpdo;
 	const pdo = {
 		name : rxpdo,
 		SMassignmentIndex : '1C12',
@@ -130,8 +126,8 @@ function addRXPDOitems(form, od, booleanPaddingCount) {
 	return addPdoObjectsSection(od, rxpdoSection, pdo, booleanPaddingCount);
 }
 /** Takes OD entries from UI TXPDO section and adds to given OD */
-function addTXPDOitems(form, od, booleanPaddingCount) {
-	const txpdoSection = getObjDictSection(txpdo);
+function addTXPDOitems(form, odSections, od, booleanPaddingCount) {
+	const txpdoSection = odSections.txpdo;
 	const pdo = {
 		name : txpdo,
 		SMassignmentIndex : '1C13',
@@ -268,13 +264,13 @@ function populateMandatoryObjectValues(form, od) {
 	}
 }
 /** builds complete object dictionary, with values from UI */
-function buildObjectDictionary(form) {
+function buildObjectDictionary(form, odSections) {
 	const od = getMandatoryObjects();
 	populateMandatoryObjectValues(form, od);
 	// populate custom objects
-	addSDOitems(od);
-	let booleanPaddingCount = addTXPDOitems(form, od, 0);
-	addRXPDOitems(form, od, booleanPaddingCount);
+	addSDOitems(odSections, od);
+	let booleanPaddingCount = addTXPDOitems(form, odSections, od, 0);
+	addRXPDOitems(form, odSections, od, booleanPaddingCount);
 
 	return od;
 }
@@ -303,14 +299,14 @@ function getUsedIndexes(od) {
 
 // ####################### Object Dictionary edition ####################### //
 
-function getFirstFreeIndex(odSectionName) {
+function getFirstFreeIndex(odSections, odSectionName) {
 	const addressRangeStart = {
 		"sdo": 0x2000,
 		"txpdo": 0x6000,
 		"rxpdo": 0x7000,
 	}
 	let result = addressRangeStart[odSectionName];
-	const odSection = getObjDictSection(odSectionName);
+	const odSection = odSections[odSectionName];
 	while (odSection[indexToString(result)]) {
 		result++;
 	}
