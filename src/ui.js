@@ -61,6 +61,7 @@ const odSections = {
 	txpdo : {}, // addding PDO requires matching SDO in Sync Manager, and PDO mapping
 	rxpdo : {}, // this will be done when stitching sections during code generation
 };
+const _dc = []
 
 window.onload = (event) => {
 	odModalSetup();
@@ -607,7 +608,6 @@ function reloadOD_Section(odSectionName) {
 // ####################### Synchronization settings UI ####################### //
 
 var syncModal = {};
-var _dc = []
 
 function syncModalSetup() {
 	// Get the modal

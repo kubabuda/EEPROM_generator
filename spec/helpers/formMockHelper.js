@@ -7,7 +7,7 @@ function buildMockFormHelper(formValues = null) {
         formValues = defaultFormValues;
     }
     
-    formMock = { }
+    formMock = { };
 
     Object.keys(defaultFormValues).forEach(formControlName => {
         const formControl = { 

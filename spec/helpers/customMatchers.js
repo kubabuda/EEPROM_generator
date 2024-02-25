@@ -1,8 +1,8 @@
-var customMatchers = {
+const customMatchers = {
     toEqualLines: function() {
         return {
             compare: function(actual, expected) {
-                var result = {
+                const result = {
                     pass: true,
                     message: ''
                 }
