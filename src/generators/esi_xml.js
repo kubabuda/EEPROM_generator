@@ -53,7 +53,7 @@ function esi_generator(form, od, indexes, dc)
 	function addObjectDictionaryDataType(od, index) {
 		const objd = od[index];
 		const dtName = esiDtName(objd, index);
-		var result = '';
+		let result = '';
 
 		if (objd.otype == OTYPE.VAR) {
 			addVariableType(objd); // variable types will have to be be done later anyway, add to that queue
@@ -163,7 +163,7 @@ function esi_generator(form, od, indexes, dc)
 
 		function addDictionaryObjectSubitems(element_items) {
 			const max_subindex_value = element_items.length - 1;
-			var result = ""
+			let result = ""
 			let subindex = 0;
 			element_items.forEach(subitem => {
 				var defaultValue = (subindex > 0) ? subitem.value : max_subindex_value;
@@ -325,7 +325,7 @@ function esi_generator(form, od, indexes, dc)
 	//See Table 40 ETG2000
 	function getCoEString(form)
 	{
-		var result = ""
+		let result = ""
 	//	if(form.CoeDetailsEnableSDO.checked) 
 	//		result += 'SdoInfo="true" ';
 	//	else

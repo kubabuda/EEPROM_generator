@@ -236,7 +236,7 @@ function addPdoObjectsSection(od, odSection, pdo){
 	
 	function getPdoMappingValue(index, subindex, dtype) {
 		function toByte(value) {
-			var result = value.toString(16).slice(0, 2);
+			let result = value.toString(16).slice(0, 2);
 			while (result.length < 2) {
 				result = `0${result}`;
 			}
@@ -305,7 +305,7 @@ function getFirstFreeIndex(odSectionName) {
 		"txpdo": 0x6000,
 		"rxpdo": 0x7000,
 	}
-	var result = addressRangeStart[odSectionName];
+	let result = addressRangeStart[odSectionName];
 	var odSection = getObjDictSection(odSectionName);
 	while (odSection[indexToString(result)]) {
 		result++;

@@ -128,7 +128,7 @@ function getProjectName(form) {
 function onGenerateDownloadClick()
 {
 	const form = getForm();
-	var result = processForm(form);
+	const result = processForm(form);
 	downloadGeneratedFilesZipped(form, result);
 
 	function downloadGeneratedFilesZipped(form, result) {
