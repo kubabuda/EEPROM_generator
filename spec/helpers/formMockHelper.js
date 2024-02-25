@@ -66,7 +66,6 @@ function getEmptyFrom() {
 }
 
 function validateResultLines(result, expected) {
-    console.log(result);
     resultLines = result.split('\n');
     expectedLines = expected.split('\n');
     for (const [index, expectedLine] of expectedLines.entries()) {

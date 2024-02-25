@@ -1307,7 +1307,7 @@ describe("generators", function() {
           </Entry>
         </TxPdo>
         <Mailbox DataLinkLayer="true">
-          <CoE SdoInfo="true" PdoAssign="false" PdoConfig="false" PdoUpload="true" CompleteAccess="false" />
+          <CoE SdoInfo="false" PdoAssign="false" PdoConfig="false" PdoUpload="false" CompleteAccess="false" />
         </Mailbox>
         <Dc>
           <OpMode>
