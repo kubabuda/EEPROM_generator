@@ -269,18 +269,22 @@ const cia_esi_json = `{
   ]
 }`;
 
-describe("generators", function() {
-  xdescribe("for example CiA 402 CSP application", function() {
+xdescribe("generators", function() {
+  describe("for example CiA 402 CSP application", function() {
     let form;
+    let odSections;
+    let dc;
+    
     let od;
     let indexes;
-    let dc;
 
     beforeEach(function() {
       jasmine.addMatchers(customMatchers);
       form = getEmptyFrom();
+      odSections = getObjDict(); // todo odSections = getEmptyObjDict();
       dc = [];
-      restoreBackup(cia_esi_json, form, dc);
+
+      restoreBackup(cia_esi_json, form, odSections, dc);
       od = buildObjectDictionary(form);
       indexes = getUsedIndexes(od);
     });
@@ -1331,7 +1335,7 @@ describe("generators", function() {
     </Devices>
   </Descriptions>
 </EtherCATInfo>`;
-      expect(result).toEqual(expectedesi);
+      expect(result).toEqualLines(expectedesi);
     });
 
     it("hex_generator should generate config data", function() {
@@ -1341,7 +1345,7 @@ describe("generators", function() {
       
       // assert
       const configData = `050600446400000000001A000000`;
-      expect(result).toEqual(configData);
+      expect(result).toEqualLines(configData);
     });
 
     it("ecat_options_generator should generate config data", function() {
@@ -1394,7 +1398,7 @@ describe("generators", function() {
 
 #endif /* __ECAT_OPTIONS_H__ */
 `;
-      expect(result).toEqual(ecat_options);
+      expect(result).toEqualLines(ecat_options);
     });
 
     it("objectlist_generator should generate config data", function() {
@@ -1621,7 +1625,7 @@ const _objectlist SDOobjects[] =
   {0xffff, 0xff, 0xff, 0xff, NULL, NULL}
 };
 `;
-      expect(result).toEqual(objectlist);
+      expect(result).toEqualLines(objectlist);
     });
 
     it("utypes_generator should generate expected code", function() {
@@ -1687,7 +1691,7 @@ extern _Objects Obj;
 
 #endif /* __UTYPES_H__ */
 `;
-    expect(result).toEqual(expectedUtypes);
+    expect(result).toEqualLines(expectedUtypes);
     });
   });
 });

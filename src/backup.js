@@ -26,7 +26,7 @@ function isBackedUp(formControl) {
 	return formControl.type != "button";
 }
 
-function prepareBackupObject(form, dc) {
+function prepareBackupObject(form, odSections, dc) {
 	const formValues = {};
 	if (form) {
 		Object.entries(form).forEach(formEntry => {
@@ -38,22 +38,22 @@ function prepareBackupObject(form, dc) {
 	}
 	const backup = {
 		form: formValues,
-		od: getObjDict(),
+		od: odSections,
 		dc: dc,
 	};
 
 	return backup;
 }
 
-function loadBackup(backupObject, form, _dc) {
+function loadBackup(backupObject, form, odSections, dc) {
 	if (backupObject.od) {
-		setObjDictSection(sdo, backupObject.od.sdo);
-		setObjDictSection(txpdo, backupObject.od.txpdo);
-		setObjDictSection(rxpdo, backupObject.od.rxpdo);
+		odSections.sdo = backupObject.od.sdo;
+		odSections.txpdo = backupObject.od.txpdo;
+		odSections.rxpdo = backupObject.od.rxpdo;
 	}
 
 	if (backupObject.dc) {
-		backupObject.dc.forEach(dc => _dc.push(dc));
+		backupObject.dc.forEach(d => dc.push(d));
 	}
 	
 	setFormValues(form, backupObject);
@@ -94,8 +94,8 @@ function setFormControlValue(formControl, formControlValue) {
 	}
 }
 
-function prepareBackupFileContent(form, _dc) {
-	const backupObject = prepareBackupObject(form, _dc);
+function prepareBackupFileContent(form, odSections, dc) {
+	const backupObject = prepareBackupObject(form, odSections, dc);
 	const backupFileContent = JSON.stringify(backupObject, null, 2); // pretty print
 	return backupFileContent;
 }
@@ -104,28 +104,28 @@ function prepareBackupFileContent(form, _dc) {
 
 // Localstorage limit is usually 5MB, super large object dictionaries on older browsers might be problematic
 
-function downloadBackupFile(form, _dc) {
-	const backupFileContent = prepareBackupFileContent(form, _dc); // pretty print
+function downloadBackupFile(form, odSections, dc) {
+	const backupFileContent = prepareBackupFileContent(form, odSections, dc); // pretty print
 	downloadFile(backupFileContent, 'esi.json', 'text/json');
 }
 
-function restoreBackup(fileContent, form, _dc) {
+function restoreBackup(fileContent, form, odSections, dc) {
 	const backup = JSON.parse(fileContent);
 	if (isValidBackup(backup)) {
-		loadBackup(backup, form, _dc);
+		loadBackup(backup, form, odSections, dc);
 	}
 }
 
 // ####################### Backup using browser localstorage ####################### //
 
 /** persist OD and settings changes over page reload */
-function saveLocalBackup(form) {
-	localStorage.etherCATeepromGeneratorBackup = prepareBackupFileContent(form);
+function saveLocalBackup(form, odSections, dc) {
+	localStorage.etherCATeepromGeneratorBackup = prepareBackupFileContent(form, odSections, dc);
 }
 
-function tryRestoreLocalBackup(form, _dc) {
+function tryRestoreLocalBackup(form, odSections, dc) {
 	if (localStorage.etherCATeepromGeneratorBackup)  {
-		restoreBackup(localStorage.etherCATeepromGeneratorBackup, form, _dc);
+		restoreBackup(localStorage.etherCATeepromGeneratorBackup, form, odSections, dc);
 	}	
 }
 

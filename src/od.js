@@ -19,16 +19,20 @@ const _odSections = {
 	rxpdo : {}, // this will be done when stitching sections during code generation
 };
 
+function getEmptyObjDict() {
+	return {
+		sdo : {},
+		txpdo : {}, // addding PDO requires matching SDO in Sync Manager, and PDO mapping
+		rxpdo : {}, // this will be done when stitching sections during code generation
+	};
+}
+
 function getObjDict() {
     return _odSections;
 }
 
 function getObjDictSection(odSectionName) {
 	return _odSections[odSectionName];
-}
-
-function setObjDictSection(odSectionName, backupValue) {
-	_odSections[odSectionName] = backupValue;
 }
 
 function objectExists(odSectionName, index) {

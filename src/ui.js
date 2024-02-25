@@ -23,7 +23,8 @@ function getOutputForm() {
 
 function onFormChanged() {
 	const form = getForm();
-	saveLocalBackup(form);
+	const odSections = getObjDict();
+	saveLocalBackup(form, odSections, _dc);
 	processForm(form);
 }
 
@@ -61,7 +62,8 @@ window.onload = (event) => {
 	syncModalSetup();
 	const form = getForm();
 	setFormValues(form, getFormDefaultValues());
-	tryRestoreLocalBackup(form, _dc);
+	const odSections = getObjDict();
+	tryRestoreLocalBackup(form, odSections, _dc);
 	reloadOD_Sections();
 	reloadSyncModes();
 	// for convinience during tool development, trigger codegen on page refresh
@@ -104,6 +106,7 @@ function toggleDarkMode() {
 /** Code generation method, triggered by UI */
 function processForm(form)
 {
+	const odSections = getObjDict();
 	const od = buildObjectDictionary(form);
 	const indexes = getUsedIndexes(od);
 	const outputCtl = getOutputForm();
@@ -115,7 +118,7 @@ function processForm(form)
 	outputCtl.HEX.value = toIntelHex(outputCtl.HEX.hexData);
 	outputCtl.ESI.value = esi_generator(form, od, indexes, _dc);
 	
-	saveLocalBackup(form);
+	saveLocalBackup(form, odSections, _dc);
 
 	return outputCtl;
 }
@@ -167,8 +170,9 @@ function onGenerateClick() {
 
 function onSaveClick() {
 	const form = getForm();
-	downloadBackupFile(form, _dc);
-	saveLocalBackup(form);
+	const odSections = getObjDict();
+	downloadBackupFile(form, odSections, _dc);
+	saveLocalBackup(form, odSections, _dc);
 }
 
 function onRestoreClick() {
@@ -178,7 +182,8 @@ function onRestoreClick() {
 
 function onRestoreComplete(fileContent) {
 	const form = getForm();
-	restoreBackup(fileContent, form, _dc);
+	const odSections = getObjDict();
+	restoreBackup(fileContent, form, odSections, _dc);
 	reloadOD_Sections();
 	reloadSyncModes();
 	processForm(form);

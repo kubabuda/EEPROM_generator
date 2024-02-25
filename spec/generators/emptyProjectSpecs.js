@@ -1,19 +1,23 @@
 describe("generators", function() {    
   describe("for default, empty project", function() {
     let form;
+    let odSections;
+    let dc;
     let od;
     let indexes;
     
     beforeEach(function() {
       jasmine.addMatchers(customMatchers);
+
       form = buildMockFormHelper();
+      odSections = getObjDict(); // TODO use emptyObjDict
+      dc = [];
       od = buildObjectDictionary(form);
       indexes = getUsedIndexes(od);
     });
     
     it("esi_generator should generate expected code", function() {
       // arrange
-      const dc = [];
       // act
       const result = esi_generator(form, od, indexes, dc);
 
@@ -301,7 +305,7 @@ describe("generators", function() {
     </Devices>
   </Descriptions>
 </EtherCATInfo>`;
-      expect(result).toEqual(expectedesi);
+      expect(result).toEqualLines(expectedesi);
     });
 
     it("hex_generator should generate config data", function() {
@@ -311,7 +315,7 @@ describe("generators", function() {
       
       // assert
       const configData = `05060344640000`;
-      expect(result).toEqual(configData);
+      expect(result).toEqualLines(configData);
     });
 
     it("ecat_options_generator should generate config data", function() {
@@ -364,7 +368,7 @@ describe("generators", function() {
 
 #endif /* __ECAT_OPTIONS_H__ */
 `;
-      expect(result).toEqual(ecat_options);
+      expect(result).toEqualLines(ecat_options);
     });
 
     it("objectlist_generator should generate config data", function() {
@@ -440,7 +444,7 @@ const _objectlist SDOobjects[] =
   {0xffff, 0xff, 0xff, 0xff, NULL, NULL}
 };
 `;
-      expect(result).toEqual(objectlist);
+      expect(result).toEqualLines(objectlist);
     });
 
     it("utypes_generator should generate expected code", function() {
@@ -469,22 +473,28 @@ extern _Objects Obj;
 
 #endif /* __UTYPES_H__ */
 `;
-        expect(result).toEqual(expectedUtypes);
+        expect(result).toEqualLines(expectedUtypes);
       });
     });
 
     describe("for default, empty project restored from localstorage backup", function() {
       const etherCATeepromGeneratorBackup = '{\n  "form": {\n    "VendorName": "ACME EtherCAT Devices",\n    "VendorID": "0x000",\n    "ProductCode": "0x00ab123",\n    "ProfileNo": "5001",\n    "RevisionNumber": "0x002",\n    "SerialNumber": "0x001",\n    "HWversion": "0.0.1",\n    "SWversion": "0.0.1",\n    "EEPROMsize": "2048",\n    "RxMailboxOffset": "0x1000",\n    "TxMailboxOffset": "0x1200",\n    "MailboxSize": "512",\n    "SM2Offset": "0x1600",\n    "SM3Offset": "0x1A00",\n    "TextGroupType": "DigIn",\n    "TextGroupName5": "Digital input",\n    "ImageName": "IMGCBY",\n    "TextDeviceType": "DigIn2000",\n    "TextDeviceName": "2-channel Hypergalactic input superimpermanator",\n    "Port0Physical": "Y",\n    "Port1Physical": "Y",\n    "Port2Physical": " ",\n    "Port3Physical": " ",\n    "ESC": "ET1100",\n    "SPImode": "3",\n    "CoeDetailsEnableSDO": "EnableSDO",\n    "CoeDetailsEnableSDOInfo": "EnableSDOInfo",\n    "CoeDetailsEnablePDOAssign": "EnablePDOAssign",\n    "CoeDetailsEnablePDOConfiguration": "EnablePDOConfiguration",\n    "CoeDetailsEnableUploadAtStartup": "EnableUploadAtStartup",\n    "CoeDetailsEnableSDOCompleteAccess": "EnableSDOCompleteAccess"\n  },\n  "od": {\n    "sdo": {},\n    "txpdo": {},\n    "rxpdo": {}\n  },\n  "dc": []\n}';
       let form;
+      let odSections;
+      let dc;
+
       let od;
       let indexes;
-      let _dc;
 
       beforeEach(function() {
         jasmine.addMatchers(customMatchers);
+        
         form = getEmptyFrom();
-        _dc = [];
-        restoreBackup(etherCATeepromGeneratorBackup, form, _dc);
+        odSections = getEmptyObjDict();
+        dc = [];
+        
+        restoreBackup(etherCATeepromGeneratorBackup, form, odSections, dc);
+
         od = buildObjectDictionary(form);
         indexes = getUsedIndexes(od);
       });
@@ -492,7 +502,7 @@ extern _Objects Obj;
       it("esi_generator should generate expected code", function() {
         // arrange
         // act
-        const result = esi_generator(form, od, indexes, _dc);
+        const result = esi_generator(form, od, indexes, dc);
 
         // assert
         const expectedesi = 
@@ -778,7 +788,7 @@ extern _Objects Obj;
     </Devices>
   </Descriptions>
 </EtherCATInfo>`;
-        expect(result).toEqual(expectedesi);
+        expect(result).toEqualLines(expectedesi);
       });
 
       it("hex_generator should generate config data", function() {
@@ -788,7 +798,7 @@ extern _Objects Obj;
         
         // assert
         const configData = `05060344640000`;
-        expect(result).toEqual(configData);
+        expect(result).toEqualLines(configData);
       });
 
       it("ecat_options_generator should generate config data", function() {
@@ -841,7 +851,7 @@ extern _Objects Obj;
 
 #endif /* __ECAT_OPTIONS_H__ */
 `;
-          expect(result).toEqual(ecat_options);
+          expect(result).toEqualLines(ecat_options);
       });
 
       it("objectlist_generator should generate config data", function() {
@@ -917,7 +927,7 @@ const _objectlist SDOobjects[] =
   {0xffff, 0xff, 0xff, 0xff, NULL, NULL}
 };
 `;
-      expect(result).toEqual(objectlist);
+      expect(result).toEqualLines(objectlist);
     });
 
     it("utypes_generator should generate expected code", function() {
@@ -946,22 +956,27 @@ extern _Objects Obj;
 
 #endif /* __UTYPES_H__ */
 `;
-      expect(result).toEqual(expectedUtypes);
+      expect(result).toEqualLines(expectedUtypes);
     });
 
     xdescribe("when restored form checks are not overwritten with default settings", function() {
       const etherCATeepromGeneratorBackup = '{\n  "form": {\n    "VendorName": "ACME EtherCAT Devices",\n    "VendorID": "0x000",\n    "ProductCode": "0x00ab123",\n    "ProfileNo": "5001",\n    "RevisionNumber": "0x002",\n    "SerialNumber": "0x001",\n    "HWversion": "0.0.1",\n    "SWversion": "0.0.1",\n    "EEPROMsize": "2048",\n    "RxMailboxOffset": "0x1000",\n    "TxMailboxOffset": "0x1200",\n    "MailboxSize": "512",\n    "SM2Offset": "0x1600",\n    "SM3Offset": "0x1A00",\n    "TextGroupType": "DigIn",\n    "TextGroupName5": "Digital input",\n    "ImageName": "IMGCBY",\n    "TextDeviceType": "DigIn2000",\n    "TextDeviceName": "2-channel Hypergalactic input superimpermanator",\n    "Port0Physical": "Y",\n    "Port1Physical": "Y",\n    "Port2Physical": " ",\n    "Port3Physical": " ",\n    "ESC": "ET1100",\n    "SPImode": "3",\n    "CoeDetailsEnableSDO": "EnableSDO",\n    "CoeDetailsEnableSDOInfo": "EnableSDOInfo",\n    "CoeDetailsEnablePDOAssign": "EnablePDOAssign",\n    "CoeDetailsEnablePDOConfiguration": "EnablePDOConfiguration",\n    "CoeDetailsEnableUploadAtStartup": "EnableUploadAtStartup",\n    "CoeDetailsEnableSDOCompleteAccess": "EnableSDOCompleteAccess"\n  },\n  "od": {\n    "sdo": {},\n    "txpdo": {},\n    "rxpdo": {}\n  },\n  "dc": []\n}';
       let form;
+      let odSections;        
+      let dc;
+
       let od;
       let indexes;
-      let dc;
       
       beforeEach(function() {
         jasmine.addMatchers(customMatchers);
+      
         form = getEmptyFrom();
+        odSections = getEmptyObjDict();
         dc = [];
+      
         setFormValues(form, getFormDefaultValues()); // restore like its done in app - hides serialization problem
-        restoreBackup(etherCATeepromGeneratorBackup, form, dc);
+        restoreBackup(etherCATeepromGeneratorBackup, form, odSections,  dc);
         od = buildObjectDictionary(form);
         indexes = getUsedIndexes(od);
       });
@@ -1255,7 +1270,7 @@ extern _Objects Obj;
       </Devices>
     </Descriptions>
   </EtherCATInfo>`;
-        expect(result).toEqual(expectedesi);
+        expect(result).toEqualLines(expectedesi);
       });
     });
   });
