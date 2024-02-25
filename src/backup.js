@@ -26,7 +26,7 @@ function isBackedUp(formControl) {
 	return formControl.type != "button";
 }
 
-function prepareBackupObject(form, _dc) {
+function prepareBackupObject(form, dc) {
 	const formValues = {};
 	if (form) {
 		Object.entries(form).forEach(formEntry => {
@@ -39,7 +39,7 @@ function prepareBackupObject(form, _dc) {
 	const backup = {
 		form: formValues,
 		od: getObjDict(),
-		dc: _dc,
+		dc: dc,
 	};
 
 	return backup;
