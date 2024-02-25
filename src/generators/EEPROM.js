@@ -331,8 +331,8 @@ function hex_generator(form, stringOnly=false)
 	function getConfigDataString(record, esc) {
 		const configdata_bytecount = new Set(configOnReservedBytes).has(esc) ? 14 : 7;
 
-		var configdata = '';
-		for (var bytecount = 0; bytecount < configdata_bytecount; bytecount++) {
+		let configdata = '';
+		for (let bytecount = 0; bytecount < configdata_bytecount; bytecount++) {
 			configdata += (record[bytecount] + 0x100).toString(16).slice(-2).toUpperCase();
 		}
 		return configdata;

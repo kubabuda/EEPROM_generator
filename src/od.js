@@ -32,13 +32,13 @@ function setObjDictSection(odSectionName, backupValue) {
 }
 
 function objectExists(odSectionName, index) {
-	var odSection = getObjDictSection(odSectionName);
+	const odSection = getObjDictSection(odSectionName);
 	return index && odSection[index];
 }
 
 function checkObjectType(expected, objd) {
 	if (objd.otype != expected) {
-		var msg = `Object ${objd.name} was expected to be OTYPE ${expected} but is ${objd.otype}`;
+		const msg = `Object ${objd.name} was expected to be OTYPE ${expected} but is ${objd.otype}`;
 		alert(msg);
 		throw new Exception(msg);
 	}
@@ -144,7 +144,7 @@ var _booleanPaddingCount = 0;
  * Available sections are 'sdo', 'txpdo', 'rxpdo'
  */
 function addPdoObjectsSection(od, odSection, pdo){
-	var currentSMoffsetValue = pdo.smOffset;
+	let currentSMoffsetValue = pdo.smOffset;
 	const indexes = getUsedIndexes(odSection);
 	
 	if (indexes.length) {
@@ -173,7 +173,7 @@ function addPdoObjectsSection(od, odSection, pdo){
 				break;
 			} 
 			case OTYPE.ARRAY: {
-				var subindex = 1;
+				let subindex = 1;
 				objd.items.slice(subindex).forEach(subitem => { 
 					// create PDO mappings
 					pdoMappingObj.items.push({ name: subitem.name, dtype: DTYPE.UNSIGNED32, value: getPdoMappingValue(index, subindex , objd.dtype) });
@@ -183,7 +183,7 @@ function addPdoObjectsSection(od, odSection, pdo){
 				break;
 			}
 			case OTYPE.RECORD: {
-				var subindex = 1;
+				let subindex = 1;
 				objd.items.slice(subindex).forEach(subitem => {
 					// create PDO mappings
 					pdoMappingObj.items.push({ name: subitem.name, dtype: DTYPE.UNSIGNED32, value: getPdoMappingValue(index, subindex , subitem.dtype) });
@@ -224,7 +224,7 @@ function addPdoObjectsSection(od, odSection, pdo){
 	}
 	
 	function ensurePDOAssignmentExists(od, index) {	
-		var pdoAssignments = od[index];
+		let pdoAssignments = od[index];
 		if (!pdoAssignments) {
 			pdoAssignments = { otype: OTYPE.ARRAY, dtype: DTYPE.UNSIGNED16, name: `Sync Manager ${index[3]} PDO Assignment`, items: [
 				{ name: 'Max SubIndex' },
@@ -242,7 +242,7 @@ function addPdoObjectsSection(od, odSection, pdo){
 			}
 			return result;
 		}
-		var bitsize = esiDTbitsize(dtype);
+		const bitsize = esiDTbitsize(dtype);
 		
 		return `0x${index}${toByte(subindex)}${toByte(bitsize)}`;
 	}	
@@ -278,7 +278,7 @@ function buildObjectDictionary(form) {
 // ####################### Object Dictionary index manipulation ####################### //
 
 function indexToString(index) {
-	var indexValue = parseInt(index);
+	const indexValue = parseInt(index);
 	return indexValue.toString(16).toUpperCase();
 }
 /** returns list of indexes that are used in given OD, as array of integer values */
@@ -300,13 +300,13 @@ function getUsedIndexes(od) {
 // ####################### Object Dictionary edition ####################### //
 
 function getFirstFreeIndex(odSectionName) {
-	var addressRangeStart = {
+	const addressRangeStart = {
 		"sdo": 0x2000,
 		"txpdo": 0x6000,
 		"rxpdo": 0x7000,
 	}
 	let result = addressRangeStart[odSectionName];
-	var odSection = getObjDictSection(odSectionName);
+	const odSection = getObjDictSection(odSectionName);
 	while (odSection[indexToString(result)]) {
 		result++;
 	}

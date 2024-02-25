@@ -94,7 +94,7 @@ function setupDarkMode() {
 }
 
 function toggleDarkMode() {
-	var newMode = (localStorage.darkMode == 'dark') ? "light" : "dark"
+	let newMode = (localStorage.darkMode == 'dark') ? "light" : "dark"
 	localStorage.darkMode = newMode;
 	document.documentElement.setAttribute("data-theme", localStorage.darkMode);
 }
@@ -106,7 +106,7 @@ function processForm(form)
 {
 	const od = buildObjectDictionary(form);
 	const indexes = getUsedIndexes(od);
-	var outputCtl = getOutputForm();
+	const outputCtl = getOutputForm();
 	
 	outputCtl.objectlist.value = objectlist_generator(form, od, indexes);
 	outputCtl.ecat_options.value = ecat_options_generator(form, od, indexes);
@@ -132,7 +132,7 @@ function onGenerateDownloadClick()
 	downloadGeneratedFilesZipped(form, result);
 
 	function downloadGeneratedFilesZipped(form, result) {
-		var zip = new JSZip();
+		const zip = new JSZip();
 		const projectName = getProjectName(form);
 		zip.file(`${projectName}.xml`, result.ESI.value);
 		zip.file('eeprom.hex', result.HEX.value);
