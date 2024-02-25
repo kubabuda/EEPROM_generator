@@ -278,15 +278,15 @@ function odModalHideControls() {
 
 function editExistingOD_ObjectDialog(odSectionName, index, otype) {
 	const od = getObjDictSection(odSectionName);
-	var objd = od[index]; 
+	const objd = od[index]; 
 	odModal.index_initial_value = index;
 	checkObjectType(otype, objd);
 	odModalUpdate(index, objd);
 }
 
 function addNewOD_ObjectDialog(odSectionName, otype) {
-	var objd = getNewObjd(odSectionName, otype);
-	var index = getFirstFreeIndex(odSectionName);
+	const objd = getNewObjd(odSectionName, otype);
+	const index = getFirstFreeIndex(odSectionName);
 	delete odModal.index_initial_value; // add new object, not replace edited one 
 	odModalUpdate(index, objd);
 }
@@ -328,7 +328,7 @@ function odModalSetTitle(message) {
 function editVAR_Click(odSectionName, indexValue = null) {
 	const otype = OTYPE.VAR;
 	const index = indexToString(indexValue);
-	var actionName = "Edit";
+	const actionName = "Edit";
 	odModal.odSectionName = odSectionName;
 
 	if (objectExists(odSectionName, index)) {
@@ -345,7 +345,7 @@ function editVAR_Click(odSectionName, indexValue = null) {
 function editARRAY_Click(odSectionName, indexValue = null) {
 	const otype = OTYPE.ARRAY;
 	const index = indexToString(indexValue);
-	var actionName = "Edit";
+	const actionName = "Edit";
 	odModal.odSectionName = odSectionName;
 	odModal.form.Access
 
@@ -363,7 +363,7 @@ function editARRAY_Click(odSectionName, indexValue = null) {
 function editRECORD_Click(odSectionName, indexValue = null) {
 	const otype = OTYPE.RECORD;
 	const index = indexToString(indexValue);
-	var actionName = "Edit";
+	const actionName = "Edit";
 	odModal.odSectionName = odSectionName;
 
 	if (objectExists(odSectionName, index)) {
@@ -569,8 +569,8 @@ function reloadOD_Sections() {
 
 function reloadOD_Section(odSectionName) {
 	const odSection = getObjDictSection(odSectionName);
-	var indexes = getUsedIndexes(odSection);
-	var section = '';
+	const indexes = getUsedIndexes(odSection);
+	let section = '';
 	indexes.forEach(index => {
 		const objd = odSection[index];
 		section += `<div class="odItem"><span class="odItemContent"><strong>0x${index}</strong> &nbsp; &nbsp; "${objd.name}" ${objd.otype} ${objd.dtype ?? ''}</span><span>`;
@@ -581,9 +581,9 @@ function reloadOD_Section(odSectionName) {
 		section += `<button onClick='edit${objd.otype}_Click(${odSectionName}, 0x${index})'>&nbsp; 🛠️ &nbsp; Edit &nbsp;</button>`;
 		section += `</span></div>`;
 		if (objd.items) {
-			var subindex = 1; // skip Max Subindex
+			let subindex = 1; // skip Max Subindex
 			objd.items.slice(subindex).forEach(subitem => {
-				var subindexHex = subindex < 16 ? `0${subindex.toString(16)}` : subindex.toString(16);
+				const subindexHex = subindex < 16 ? `0${subindex.toString(16)}` : subindex.toString(16);
 				section += `<div class="odSubitem"><span class="odSubitemContent"><strong>:0x${subindexHex}</strong>&nbsp;&nbsp; "${subitem.name}" ${subitem.dtype ?? ''}</span>`;
 				section += `<span><button onClick='onRemoveClick(${odSectionName}, 0x${index}, ${subindex})'>&nbsp; ❌ Remove &nbsp;</button>`;
 				section += `<button onClick='editSubitemClick(${odSectionName}, 0x${index}, ${subindex})'>&nbsp; 🛠️ &nbsp; Edit &nbsp;</button>`;
@@ -682,8 +682,8 @@ function onRemoveSyncClick(i) {
 // ####################### Synchronization settings UI ####################### //
 
 function reloadSyncModes() {
-	var section = '';
-	var i = 0;
+	let section = '';
+	let i = 0;
 	_dc.forEach(sync => {
 		section += `<div class="odItem"><span class="odItemContent"><strong>${sync.Name}</strong> &nbsp; &nbsp; ${sync.Description} &nbsp; [${sync.AssignActivate}]</span><span>`;
 		section += `<button onClick='onRemoveSyncClick(${i})'>&nbsp; ❌ Remove &nbsp;</button>`;

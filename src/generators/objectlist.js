@@ -33,7 +33,7 @@ function objectlist_link_utypes(objd) {
 			break;
 		} 
 		case OTYPE.ARRAY: {
-			var subindex = 1;
+			let subindex = 1;
 			objd.items.slice(subindex).forEach(subitem => {
 				subitem.data = objectlist_ARRAY_data(objd, subindex);
 				++subindex;
@@ -41,7 +41,7 @@ function objectlist_link_utypes(objd) {
 			break;
 		}
 		case OTYPE.RECORD: {
-			var subindex = 1;
+			let subindex = 1;
 			objd.items.slice(subindex).forEach(subitem => {
 				subitem.data = objectlist_RECORD_data(objd, subitem);
 				++subindex;
@@ -65,7 +65,7 @@ function objectlist_link_utypes(objd) {
 
 function objectlist_generator(form, od, indexes)
 {
-	var objectlist  = '#include "esc_coe.h"\n#include "utypes.h"\n#include <stddef.h>\n\n';
+	let objectlist  = '#include "esc_coe.h"\n#include "utypes.h"\n#include <stddef.h>\n\n';
 
 	//Variable names
 	indexes.forEach(index => {
@@ -91,7 +91,7 @@ function objectlist_generator(form, od, indexes)
 	return objectlist;
 
 	function objectlist_variableName(index, objd) {
-		var objectlist = `\nstatic const char acName${index}[] = "${objd.name}";`;
+		let objectlist = `\nstatic const char acName${index}[] = "${objd.name}";`;
 		switch (objd.otype) {
 			case OTYPE.VAR:
 				break;
@@ -110,7 +110,7 @@ function objectlist_generator(form, od, indexes)
 	}
 
 	function objectlist_SdoObjectDeclaration(index, objd) {
-		var objectlist = `\nconst _objd SDO${index}[] =\n{`;
+		let objectlist = `\nconst _objd SDO${index}[] =\n{`;
 
 		switch (objd.otype) {
 			case OTYPE.VAR: {
@@ -123,7 +123,7 @@ function objectlist_generator(form, od, indexes)
 				const bitsize = dtype_bitsize[objd.dtype]; /* TODO what if it is array of strings? */
 				let subindex = 1;
 				objd.items.slice(subindex).forEach(subitem => {
-					var subi = subindex_padded(subindex);
+					let subi = subindex_padded(subindex);
 					const value = objectlist_getItemValue(subitem, objd.dtype);
 					objectlist += `\n  {0x${subi}, DTYPE_${objd.dtype}, ${bitsize}, ${objectlist_objdFlags(objd)}, acName${index}_${subi}, ${value}, ${subitem.data || 'NULL'}},`;
 					subindex++;
@@ -134,7 +134,7 @@ function objectlist_generator(form, od, indexes)
 				objectlist += `\n  {0x00, DTYPE_${DTYPE.UNSIGNED8}, ${8}, ATYPE_RO, acName${index}_00, ${objd.items.length - 1}, NULL},`; // max subindex
 				let subindex = 1;
 				objd.items.slice(subindex).forEach(subitem => {
-					var subi = subindex_padded(subindex);
+					const subi = subindex_padded(subindex);
 					const bitsize = dtype_bitsize[subitem.dtype];
 					const value = objectlist_getItemValue(subitem, subitem.dtype);
 					const atypeflag = objectlist_objdFlags(subitem);
@@ -154,7 +154,7 @@ function objectlist_generator(form, od, indexes)
 	}
 
 	function objectlist_DictionaryDeclaration(index, objd) {
-		var objectlist = ``;
+		let objectlist = ``;
 		switch (objd.otype) {
 			case OTYPE.VAR:
 			case OTYPE.ARRAY:
@@ -175,7 +175,7 @@ function objectlist_generator(form, od, indexes)
 	function float32ToHex(float32) {
 	// made by: Jozo132 (https://github.com/Jozo132)
 		const getHex = i => ('00' + i.toString(16)).slice(-2);
-		var view = new DataView(new ArrayBuffer(4))
+		let view = new DataView(new ArrayBuffer(4))
 		view.setFloat32(0, float32);
 		return Array.apply(null, { length: 4 }).map((_, i) => getHex(view.getUint8(i))).join('');
 	}

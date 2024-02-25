@@ -101,7 +101,7 @@ function sanitizeString(value) {
 }
 
 function variableName(objectName) {
-	var variableName = sanitizeString(objectName);
+	let variableName = sanitizeString(objectName);
 	charsToReplace.forEach(c => {
 		variableName = variableName.replaceAll(c, '_');
 	});

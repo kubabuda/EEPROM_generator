@@ -16,14 +16,14 @@
 function hex_generator(form, stringOnly=false)
 {
 	//WORD ADDRESS 0-7
-	var record = getConfigDataBytes(form);
+	let record = getConfigDataBytes(form);
 	if (stringOnly) { return getConfigDataString(record, form.ESC.value); }
 
 	/** Takes form, returns config data: 
 	 * first 16 bytes (8 words) with check sum */
 	function getConfigDataBytes(form) {
 		const recordLength = parseInt(form.EEPROMsize.value);
-		var record = new Uint8Array(recordLength);
+		let record = new Uint8Array(recordLength);
 		record.fill(0xFF);
 		//Start of EEPROM contents; A lot of information can be found in 5.4 of ETG1000.6
 		let pdiControl = 0x05;
@@ -92,7 +92,7 @@ function hex_generator(form, stringOnly=false)
 	writeEEPROMword_wordaddress(parseInt(form.TxMailboxOffset.value),26,record); //Standard Tx mailbox offset
 	writeEEPROMword_wordaddress(parseInt(form.MailboxSize.value),27,record); //Standard Tx mailbox size
 	writeEEPROMword_wordaddress(0x04,28,record); //CoE protocol, see Table18 in ETG1000.6
-	for (var count = 29; count <= 61; count++) {		//fill reserved area with zeroes
+	for (let count = 29; count <= 61; count++) {		//fill reserved area with zeroes
 		writeEEPROMword_wordaddress(0,count,record);
 	}
 	writeEEPROMword_wordaddress((Math.floor(parseInt(form.EEPROMsize.value)/128))-1,62,record); //EEPROM size
@@ -102,8 +102,8 @@ function hex_generator(form, stringOnly=false)
 	////////////////////////////////////
 	
 	//Strings
-	var array_of_strings = [form.TextDeviceType.value, form.TextGroupType.value, form.ImageName.value, form.TextDeviceName.value];
-	var offset = 0;
+	let array_of_strings = [form.TextDeviceType.value, form.TextGroupType.value, form.ImageName.value, form.TextDeviceName.value];
+	let offset = 0;
 	offset = writeEEPROMstrings(record, 0x80, array_of_strings); //See ETG1000.6 Table20
 	//General info
 	offset = writeEEPROMgeneral_settings(form,offset,record); //See ETG1000.6 Table21
@@ -119,10 +119,10 @@ function hex_generator(form, stringOnly=false)
 	/** See ETG1000.6 Table20 for Category string */
 	function writeEEPROMstrings(record, offset, a_strings)
 	{
-		var number_of_strings = a_strings.length;
-		var total_string_data_length = 0;
-		var length_is_even;
-		for(var strcounter = 0; strcounter < number_of_strings ; strcounter++)
+		let number_of_strings = a_strings.length;
+		let total_string_data_length = 0;
+		let length_is_even;
+		for(let strcounter = 0; strcounter < number_of_strings ; strcounter++)
 		{
 			total_string_data_length += a_strings[strcounter].length //add length of strings
 		}
@@ -136,10 +136,10 @@ function hex_generator(form, stringOnly=false)
 		writeEEPROMword_wordaddress(Math.ceil(total_string_data_length/2), (offset/2) + 1, record); //write length of complete package
 		offset += 4; //2 words written
 		writeEEPROMbyte_byteaddress(number_of_strings, offset++, record);
-		for(var strcounter = 0; strcounter < number_of_strings ; strcounter++)
+		for(let strcounter = 0; strcounter < number_of_strings ; strcounter++)
 		{
 			writeEEPROMbyte_byteaddress(a_strings[strcounter].length, offset++, record);
-			for(var charcounter = 0 ; charcounter < a_strings[strcounter].length ; charcounter++)
+			for(let charcounter = 0 ; charcounter < a_strings[strcounter].length ; charcounter++)
 			{
 				writeEEPROMbyte_byteaddress(a_strings[strcounter].charCodeAt(charcounter), offset++, record);
 			}	
@@ -264,7 +264,7 @@ function hex_generator(form, stringOnly=false)
 	{
 		let portinfo = 0;
 		let physicals = [form.Port3Physical.value, form.Port2Physical.value, form.Port1Physical.value, form.Port0Physical.value];
-		for (var physicalcounter = 0; physicalcounter < physicals.length ; physicalcounter++)
+		for (let physicalcounter = 0; physicalcounter < physicals.length ; physicalcounter++)
 		{
 			portinfo = (portinfo << 4); //shift previous result
 			switch(physicals[physicalcounter])

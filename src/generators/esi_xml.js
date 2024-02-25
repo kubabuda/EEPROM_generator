@@ -21,7 +21,7 @@ function esiDTbitsize(dtype) {
 function esi_generator(form, od, indexes, dc)
 {
 	//VendorID
-	var esi =`<?xml version="1.0" encoding="UTF-8"?>\n<EtherCATInfo>\n  <Vendor>\n    <Id>${parseInt(form.VendorID.value).toString()}</Id>\n`;
+	let esi =`<?xml version="1.0" encoding="UTF-8"?>\n<EtherCATInfo>\n  <Vendor>\n    <Id>${parseInt(form.VendorID.value).toString()}</Id>\n`;
 	//VendorName
 	esi += `    <Name LcId="1033">${form.VendorName.value}</Name>\n  </Vendor>\n  <Descriptions>\n`;
 	//Groups
@@ -151,7 +151,7 @@ function esi_generator(form, od, indexes, dc)
 			result += addDictionaryObjectSubitems(objd.items);
 		}
 	
-		var flags = `\n                  <Access>ro</Access>`;
+		let flags = `\n                  <Access>ro</Access>`;
 		if (objd.otype == OTYPE.VAR) {
 			flags += getPdoMappingFlags(objd);
 		}
@@ -166,7 +166,7 @@ function esi_generator(form, od, indexes, dc)
 			let result = ""
 			let subindex = 0;
 			element_items.forEach(subitem => {
-				var defaultValue = (subindex > 0) ? subitem.value : max_subindex_value;
+				let defaultValue = (subindex > 0) ? subitem.value : max_subindex_value;
 				result += `\n                  <SubItem>\n                    <Name>${subitem.name}</Name>\n                    <Info>\n                      <DefaultValue>${toEsiHexValue(defaultValue)}</DefaultValue>\n                    </Info>\n                  </SubItem>`;
 				subindex++;
 			});
@@ -187,7 +187,7 @@ function esi_generator(form, od, indexes, dc)
 	//Add SM3
 	esi += `        <Sm StartAddress="#x${indexToString(form.SM3Offset.value)}" ControlByte="#x20" Enable="${is_txpdo ? 1 : 0}">Inputs</Sm>\n`;
 	if (is_rxpdo) {
-		var memOffset = getSM2_MappingOffset(form);
+		let memOffset = getSM2_MappingOffset(form);
 		indexes.forEach(index => {
 			const objd = od[index];
 			
@@ -198,7 +198,7 @@ function esi_generator(form, od, indexes, dc)
 		});
 	}
 	if (is_txpdo) {
-		var memOffset = form.SM3Offset.value;
+		let memOffset = form.SM3Offset.value;
 		indexes.forEach(index => {
 			const objd = od[index];
 			if (isInArray(objd.pdo_mappings, txpdo)) {
@@ -221,12 +221,12 @@ function esi_generator(form, od, indexes, dc)
 	return esi;	
 
 	function addEsiDevicePDO(objd, index, pdo, memOffset) {
-		var esi = '';
+		let esi = '';
 		const PdoName = pdo[0].toUpperCase();
 		const SmNo = (pdo == txpdo) ? 3 : 2;
 		const memoryOffset = indexToString(memOffset);
 		esi += `        <${PdoName}xPdo Fixed="true" Mandatory="true" Sm="${SmNo}">\n          <Index>#x${memoryOffset}</Index>\n          <Name>${objd.name}</Name>`;
-		var subindex = 0;
+		let subindex = 0;
 		switch (objd.otype) {
 		case OTYPE.VAR: {
 			const esiType = esiVariableTypeName(objd);
@@ -284,7 +284,7 @@ function esi_generator(form, od, indexes, dc)
 	}
 
 	function getPdoMappingFlags(item) {
-		var flags = '';
+		let flags = '';
 		if (item.pdo_mappings) {
 			if (item.pdo_mappings.length > 1) { 
 				alert(`Object ${index} "${objd.name}" has multiple PDO mappings, that is not supported by this version of tool`
