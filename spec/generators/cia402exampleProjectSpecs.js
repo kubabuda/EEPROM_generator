@@ -1,9 +1,9 @@
 const cia_esi_json = `{
   "form": {
-    "VendorName": "ACME EtherCAT Devices",
+    "VendorName": "kubabuda",
     "VendorID": "0x1337",
     "ProductCode": "0x20192",
-    "ProfileNo": "5001",
+    "ProfileNo": "402",
     "RevisionNumber": "0x001",
     "SerialNumber": "0x001",
     "HWversion": "0.0.1",
@@ -14,17 +14,17 @@ const cia_esi_json = `{
     "MailboxSize": "512",
     "SM2Offset": "0x1600",
     "SM3Offset": "0x1A00",
-    "TextGroupType": "DigIn",
-    "TextGroupName5": "Digital input",
+    "TextGroupType": "Servodrives",
+    "TextGroupName5": "CiA402-compatible",
     "ImageName": "IMGCBY",
-    "TextDeviceType": "DigIn2000",
+    "TextDeviceType": "AC servodrive",
     "TextDeviceName": "STMBL ECAT",
     "Port0Physical": "Y",
     "Port1Physical": "Y",
     "Port2Physical": " ",
     "Port3Physical": " ",
-    "ESC": "ET1100",
-    "SPImode": "3",
+    "ESC": "AX58100",
+    "SPImode": "0",
     "CoeDetailsEnableSDO": "EnableSDO",
     "CoeDetailsEnableSDOInfo": "EnableSDOInfo",
     "CoeDetailsEnablePDOAssign": "EnablePDOAssign",
@@ -270,7 +270,7 @@ const cia_esi_json = `{
 }`;
 
 describe("generators", function() {    
-    describe("for example CiA 402 application", function() {
+    describe("for example CiA 402 CSP application", function() {
       var form;
       var od;
       var indexes;
@@ -278,39 +278,38 @@ describe("generators", function() {
       beforeEach(function() {
           form = getEmptyFrom();
           _dc = [];
-	        restoreBackup(cia_esi_json, form);//   restoreBackup(esi_json, form);
+	        restoreBackup(cia_esi_json, form);
           od = buildObjectDictionary(form);
           indexes = getUsedIndexes(od);
       });
       
       it("esi_generator should generate expected code", function() {
           // arrange
-          const dc = [];
           // act
-          var result = esi_generator(form, od, indexes, dc);
+          var result = esi_generator(form, od, indexes, _dc);
 
           // assert
           const expectedesi = 
 `<?xml version="1.0" encoding="UTF-8"?>
 <EtherCATInfo>
   <Vendor>
-    <Id>0</Id>
-    <Name LcId="1033">ACME EtherCAT Devices</Name>
+    <Id>4919</Id>
+    <Name LcId="1033">kubabuda</Name>
   </Vendor>
   <Descriptions>
     <Groups>
       <Group>
-        <Type>DigIn</Type>
-        <Name LcId="1033">Digital input</Name>
+        <Type>Servodrives</Type>
+        <Name LcId="1033">CiA402-compatible</Name>
       </Group>
     </Groups>
     <Devices>
       <Device Physics="YY ">
-        <Type ProductCode="#x20192" RevisionNo="#x1">DigIn2000</Type>
+        <Type ProductCode="#x20192" RevisionNo="#x1">AC servodrive</Type>
         <Name LcId="1033">STMBL ECAT</Name>
-        <GroupType>DigIn</GroupType>
+        <GroupType>Servodrives</GroupType>
         <Profile>
-          <ProfileNo>5001</ProfileNo>
+          <ProfileNo>402</ProfileNo>
           <AddInfo>0</AddInfo>
           <Dictionary>
             <DataTypes>
@@ -731,8 +730,8 @@ describe("generators", function() {
                 <BitSize>8</BitSize>
               </DataType>
               <DataType>
-                <Name>STRING(47)</Name>
-                <BitSize>376</BitSize>
+                <Name>STRING(10)</Name>
+                <BitSize>80</BitSize>
               </DataType>
               <DataType>
                 <Name>STRING(5)</Name>
@@ -776,8 +775,8 @@ describe("generators", function() {
               <Object>
                 <Index>#x1008</Index>
                 <Name>Device Name</Name>
-                <Type>STRING(47)</Type>
-                <BitSize>376</BitSize>
+                <Type>STRING(10)</Type>
+                <BitSize>80</BitSize>
                 <Info>
                   <DefaultString>STMBL ECAT</DefaultString>
                 </Info>
@@ -825,19 +824,19 @@ describe("generators", function() {
                   <SubItem>
                     <Name>Vendor ID</Name>
                     <Info>
-                      <DefaultValue>0</DefaultValue>
+                      <DefaultValue>4919</DefaultValue>
                     </Info>
                   </SubItem>
                   <SubItem>
                     <Name>Product Code</Name>
                     <Info>
-                      <DefaultValue>700707</DefaultValue>
+                      <DefaultValue>131474</DefaultValue>
                     </Info>
                   </SubItem>
                   <SubItem>
                     <Name>Revision Number</Name>
                     <Info>
-                      <DefaultValue>2</DefaultValue>
+                      <DefaultValue>1</DefaultValue>
                     </Info>
                   </SubItem>
                   <SubItem>
@@ -1308,13 +1307,23 @@ describe("generators", function() {
           </Entry>
         </TxPdo>
         <Mailbox DataLinkLayer="true">
-          <CoE SdoInfo="false" PdoAssign="false" PdoConfig="false" PdoUpload="false" CompleteAccess="false" />
+          <CoE SdoInfo="true" PdoAssign="false" PdoConfig="false" PdoUpload="true" CompleteAccess="false" />
         </Mailbox>
         <Dc>
+          <OpMode>
+            <Name>SM-Synchron</Name>
+            <Desc>SM-Synchron</Desc>
+            <AssignActivate>#x000</AssignActivate>
+          </OpMode>
+          <OpMode>
+            <Name>DC</Name>
+            <Desc>DC-Synchron</Desc>
+            <AssignActivate>#x300</AssignActivate>
+          </OpMode>
         </Dc>
         <Eeprom>
           <ByteSize>2048</ByteSize>
-          <ConfigData>05060344640000</ConfigData>
+          <ConfigData>050600446400000000001A000000</ConfigData>
         </Eeprom>
       </Device>
     </Devices>
@@ -1330,7 +1339,7 @@ describe("generators", function() {
           var result = hex_generator(form, true);
           
           // assert
-          const configData = `05060344640000`;
+          const configData = `050600446400000000001A000000`;
           expect(result).toEqual(configData);
       });
 
