@@ -12,7 +12,7 @@ describe("OTYPE VAR", function() {
       
       beforeEach(function() {
         form = buildMockFormHelper();
-        odSections = getObjDict();// TODO
+        odSections = getEmptyObjDict();
         od = buildObjectDictionary(form, odSections);
         od['2000'] = {
           otype: "VAR",
@@ -522,7 +522,7 @@ extern _Objects Obj;
       
       beforeEach(function() {
         form = buildMockFormHelper();
-        odSections = getObjDict();// TODO
+        odSections = getEmptyObjDict();
         od = buildObjectDictionary(form, odSections);
         od['7000'] = {
           otype: "VAR",

@@ -11,7 +11,7 @@ describe("generators", function() {
       beforeEach(function() {
         form = buildMockFormHelper();
         form.ESC.value = SupportedESC.AX58100
-        odSections = getObjDict();// TODO
+        odSections = getEmptyObjDict();
         od = buildObjectDictionary(form, odSections);
       });
 
@@ -52,7 +52,7 @@ describe("generators", function() {
       beforeEach(function() {
         form = buildMockFormHelper();
         form.ESC.value = SupportedESC.LAN9252
-        odSections = getObjDict();// TODO
+        odSections = getEmptyObjDict();
         od = buildObjectDictionary(form, odSections);
       });
 

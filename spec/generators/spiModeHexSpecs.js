@@ -13,7 +13,7 @@ describe("hex_generator given SPImode", function () {
   
   beforeEach(function() {
       form = buildMockFormHelper();
-      odSections = getObjDict();// TODO
+      odSections = getEmptyObjDict();
       od = buildObjectDictionary(form, odSections);
       indexes = getUsedIndexes(od);
   });

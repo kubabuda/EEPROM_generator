@@ -269,7 +269,7 @@ const cia_esi_json = `{
   ]
 }`;
 
-xdescribe("generators", function() {
+describe("generators", function() {
   describe("for example CiA 402 CSP application", function() {
     let form;
     let odSections;
@@ -281,7 +281,7 @@ xdescribe("generators", function() {
     beforeEach(function() {
       jasmine.addMatchers(customMatchers);
       form = getEmptyFrom();
-      odSections = getObjDict(); // todo odSections = getEmptyObjDict();
+      odSections = getEmptyObjDict();
       dc = [];
 
       restoreBackup(cia_esi_json, form, odSections, dc);

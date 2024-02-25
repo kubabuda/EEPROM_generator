@@ -23,7 +23,6 @@ function getOutputForm() {
 
 function onFormChanged() {
 	const form = getForm();
-	const odSections = getObjDict();
 	saveLocalBackup(form, odSections, _dc);
 	processForm(form);
 }
@@ -57,12 +56,17 @@ window.onclick = function(event) {
 	}
 }
 
+const odSections = {
+	sdo : {},
+	txpdo : {}, // addding PDO requires matching SDO in Sync Manager, and PDO mapping
+	rxpdo : {}, // this will be done when stitching sections during code generation
+};
+
 window.onload = (event) => {
 	odModalSetup();
 	syncModalSetup();
 	const form = getForm();
 	setFormValues(form, getFormDefaultValues());
-	const odSections = getObjDict();
 	tryRestoreLocalBackup(form, odSections, _dc);
 	reloadOD_Sections();
 	reloadSyncModes();
@@ -106,7 +110,6 @@ function toggleDarkMode() {
 /** Code generation method, triggered by UI */
 function processForm(form)
 {
-	const odSections = getObjDict();
 	const od = buildObjectDictionary(form, odSections);
 	const indexes = getUsedIndexes(od);
 	const outputCtl = getOutputForm();
@@ -170,7 +173,6 @@ function onGenerateClick() {
 
 function onSaveClick() {
 	const form = getForm();
-	const odSections = getObjDict();
 	downloadBackupFile(form, odSections, _dc);
 	saveLocalBackup(form, odSections, _dc);
 }
@@ -182,7 +184,6 @@ function onRestoreClick() {
 
 function onRestoreComplete(fileContent) {
 	const form = getForm();
-	const odSections = getObjDict();
 	restoreBackup(fileContent, form, odSections, _dc);
 	reloadOD_Sections();
 	reloadSyncModes();
@@ -282,16 +283,14 @@ function odModalHideControls() {
 // ####################### Modal dialogs for OD edition ####################### //
 
 function editExistingOD_ObjectDialog(odSectionName, index, otype) {
-	const odSections = getObjDict();
-	const ods = odSections[odSectionName];
-	const objd = ods[index]; 
+	const odSection = odSections[odSectionName];
+	const objd = odSection[index]; 
 	odModal.index_initial_value = index;
 	checkObjectType(otype, objd);
 	odModalUpdate(index, objd);
 }
 
 function addNewOD_ObjectDialog(odSectionName, otype) {
-	const odSections = getObjDict();
 	const objd = getNewObjd(odSectionName, otype);
 	const index = getFirstFreeIndex(odSections, odSectionName);
 	delete odModal.index_initial_value; // add new object, not replace edited one 
@@ -333,7 +332,6 @@ function odModalSetTitle(message) {
 // ####################### Edit Object Dictionary UI logic ####################### //
 
 function editVAR_Click(odSectionName, indexValue = null) {
-	const odSections = getObjDict();
 	const otype = OTYPE.VAR;
 	const index = indexToString(indexValue);
 	const actionName = "Edit";
@@ -351,7 +349,6 @@ function editVAR_Click(odSectionName, indexValue = null) {
 }
 
 function editARRAY_Click(odSectionName, indexValue = null) {
-	const odSections = getObjDict();
 	const otype = OTYPE.ARRAY;
 	const index = indexToString(indexValue);
 	const actionName = "Edit";
@@ -370,7 +367,6 @@ function editARRAY_Click(odSectionName, indexValue = null) {
 }
 
 function editRECORD_Click(odSectionName, indexValue = null) {
-	const odSections = getObjDict();
 	const otype = OTYPE.RECORD;
 	const index = indexToString(indexValue);
 	const actionName = "Edit";
@@ -399,8 +395,7 @@ function sanitizeModalValues(modalform) {
 function odModalSaveChanges() {
 	const modalform = odModal.form;
 	sanitizeModalValues(modalform);
-	const odSections = getObjDict();
-
+	
 	if (odModal.subitem) {
 		onEditSubitemSubmit(odModal.subitem);
 		delete odModal.subitem;
@@ -463,7 +458,7 @@ function odModalSaveChanges() {
 
 function onRemoveClick(odSectionName, indexValue, subindex = null) {
 	const index = indexToString(indexValue);
-	const odSection = getObjDict()[odSectionName];
+	const odSection = odSections[odSectionName];
 	const objd = odSection[index];
 	if(!objd) { alert(`${odSectionName.toUpperCase()} object ${index} does not exist!`); return; }
 
@@ -496,7 +491,7 @@ function onRemoveClick(odSectionName, indexValue, subindex = null) {
 
 function addSubitemClick(odSectionName, indexValue) {
 	const index = indexToString(indexValue);
-	const odSection = getObjDict()[odSectionName];
+	const odSection = odSections[odSectionName];
 	const objd = odSection[index];
 	const dtypeDefault = DTYPE.UNSIGNED8
 
@@ -522,7 +517,7 @@ function addSubitemClick(odSectionName, indexValue) {
 
 function editSubitemClick(odSectionName, indexValue, subindex, actionName = "Edit") {
 	const index = indexToString(indexValue);
-	const odSection = getObjDict()[odSectionName];
+	const odSection = odSections[odSectionName];
 	const objd = odSection[index];
 
 	if(!objd.items || objd.items.length <= subindex ) { alert(`Object ${index} "${objd.name}" does not have ${subindex} subitems!`); return; }
@@ -549,7 +544,7 @@ function editSubitemClick(odSectionName, indexValue, subindex, actionName = "Edi
 }
 
 function onEditSubitemSubmit(modalSubitem) {
-	const odSection = getObjDict()[modalSubitem.odSectionName];
+	const odSection = odSections[modalSubitem.odSectionName];
 	const objd = odSection[modalSubitem.index];
 	const subitem = objd.items[modalSubitem.subindex];
 	const newName = odModal.form.ObjectName.value;
@@ -579,7 +574,7 @@ function reloadOD_Sections() {
 }
 
 function reloadOD_Section(odSectionName) {
-	const odSection = getObjDict()[odSectionName];
+	const odSection = odSections[odSectionName];
 	const indexes = getUsedIndexes(odSection);
 	let section = '';
 	indexes.forEach(index => {

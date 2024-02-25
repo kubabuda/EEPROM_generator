@@ -13,11 +13,6 @@
 
 /** Object Dictionary sections edited by UI
  * Assumption: single non dynamic PDO */
-const _odSections = {
-	sdo : {},
-	txpdo : {}, // addding PDO requires matching SDO in Sync Manager, and PDO mapping
-	rxpdo : {}, // this will be done when stitching sections during code generation
-};
 
 function getEmptyObjDict() {
 	return {
@@ -26,11 +21,6 @@ function getEmptyObjDict() {
 		rxpdo : {}, // this will be done when stitching sections during code generation
 	};
 }
-
-function getObjDict() {
-    return _odSections;
-}
-
 
 function objectExists(odSection, index) {
 	return index && odSection[index];
