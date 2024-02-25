@@ -269,28 +269,29 @@ const cia_esi_json = `{
   ]
 }`;
 
-xdescribe("generators", function() {
-    describe("for example CiA 402 CSP application", function() {
-      let form;
-      let od;
-      let indexes;
-      let dc;
+describe("generators", function() {
+  xdescribe("for example CiA 402 CSP application", function() {
+    let form;
+    let od;
+    let indexes;
+    let dc;
 
-      beforeEach(function() {
-          form = getEmptyFrom();
-          dc = [];
-	        restoreBackup(cia_esi_json, form, dc);
-          od = buildObjectDictionary(form);
-          indexes = getUsedIndexes(od);
-      });
-      
-      it("esi_generator should generate expected code", function() {
-          // arrange
-          // act
-          const result = esi_generator(form, od, indexes, dc);
+    beforeEach(function() {
+      jasmine.addMatchers(customMatchers);
+      form = getEmptyFrom();
+      dc = [];
+      restoreBackup(cia_esi_json, form, dc);
+      od = buildObjectDictionary(form);
+      indexes = getUsedIndexes(od);
+    });
+    
+    it("esi_generator should generate expected code", function() {
+      // arrange
+      // act
+      const result = esi_generator(form, od, indexes, dc);
 
-          // assert
-          const expectedesi = 
+      // assert
+      const expectedesi = 
 `<?xml version="1.0" encoding="UTF-8"?>
 <EtherCATInfo>
   <Vendor>
@@ -1330,26 +1331,26 @@ xdescribe("generators", function() {
     </Devices>
   </Descriptions>
 </EtherCATInfo>`;
-          expect(result).toEqual(expectedesi);
-      });
+      expect(result).toEqual(expectedesi);
+    });
 
-      it("hex_generator should generate config data", function() {
-          // arrange
-          // act
-          const result = hex_generator(form, true);
-          
-          // assert
-          const configData = `050600446400000000001A000000`;
-          expect(result).toEqual(configData);
-      });
+    it("hex_generator should generate config data", function() {
+      // arrange
+      // act
+      const result = hex_generator(form, true);
+      
+      // assert
+      const configData = `050600446400000000001A000000`;
+      expect(result).toEqual(configData);
+    });
 
-      it("ecat_options_generator should generate config data", function() {
-          // arrange
-          // act
-          const result = ecat_options_generator(form, od, indexes);
-          
-          // assert
-          const ecat_options = 
+    it("ecat_options_generator should generate config data", function() {
+      // arrange
+      // act
+      const result = ecat_options_generator(form, od, indexes);
+      
+      // assert
+      const ecat_options = 
 `#ifndef __ECAT_OPTIONS_H__
 #define __ECAT_OPTIONS_H__
 
@@ -1393,16 +1394,16 @@ xdescribe("generators", function() {
 
 #endif /* __ECAT_OPTIONS_H__ */
 `;
-          expect(result).toEqual(ecat_options);
-      });
+      expect(result).toEqual(ecat_options);
+    });
 
-      it("objectlist_generator should generate config data", function() {
-          // arrange
-          // act
-          const result = objectlist_generator(form, od, indexes);
-          
-          // assert
-          const objectlist = 
+    it("objectlist_generator should generate config data", function() {
+      // arrange
+      // act
+      const result = objectlist_generator(form, od, indexes);
+      
+      // assert
+      const objectlist = 
 `#include "esc_coe.h"
 #include "utypes.h"
 #include <stddef.h>
@@ -1620,16 +1621,16 @@ const _objectlist SDOobjects[] =
   {0xffff, 0xff, 0xff, 0xff, NULL, NULL}
 };
 `;
-          expect(result).toEqual(objectlist);
-      });
+      expect(result).toEqual(objectlist);
+    });
 
-      it("utypes_generator should generate expected code", function() {
-          // arrange
-          // act
-          const result = utypes_generator(form, od, indexes);
+    it("utypes_generator should generate expected code", function() {
+      // arrange
+      // act
+      const result = utypes_generator(form, od, indexes);
 
-          // assert
-          const expectedUtypes = 
+      // assert
+      const expectedUtypes = 
 `#ifndef __UTYPES_H__
 #define __UTYPES_H__
 
@@ -1686,7 +1687,7 @@ extern _Objects Obj;
 
 #endif /* __UTYPES_H__ */
 `;
-      expect(result).toEqual(expectedUtypes);
-      });
+    expect(result).toEqual(expectedUtypes);
     });
+  });
 });

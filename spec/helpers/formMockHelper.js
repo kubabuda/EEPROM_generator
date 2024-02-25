@@ -64,18 +64,4 @@ function getEmptyFrom() {
         Reset: { name: "Reset", },
     }
 }
-
-function validateResultLines(result, expected) {
-    resultLines = result.split('\n');
-    expectedLines = expected.split('\n');
-    for (const [index, expectedLine] of expectedLines.entries()) {
-        if(index > resultLines.length) {
-            expect(resultLines.length).toEqual(expectedLines.length);
-            break;
-        }
-        expect(resultLines[index]).toEqual(expectedLine);
-        // if (resultLines[index] != expectedLine) {
-        //     break;
-        // }
-    }
-}
+  

@@ -1,23 +1,24 @@
 describe("generators", function() {    
-    describe("for default, empty project", function() {
-        let form;
-        let od;
-        let indexes;
-        
-        beforeEach(function() {
-            form = buildMockFormHelper();
-            od = buildObjectDictionary(form);
-            indexes = getUsedIndexes(od);
-        });
-        
-        it("esi_generator should generate expected code", function() {
-            // arrange
-            const dc = [];
-            // act
-            const result = esi_generator(form, od, indexes, dc);
+  describe("for default, empty project", function() {
+    let form;
+    let od;
+    let indexes;
+    
+    beforeEach(function() {
+      jasmine.addMatchers(customMatchers);
+      form = buildMockFormHelper();
+      od = buildObjectDictionary(form);
+      indexes = getUsedIndexes(od);
+    });
+    
+    it("esi_generator should generate expected code", function() {
+      // arrange
+      const dc = [];
+      // act
+      const result = esi_generator(form, od, indexes, dc);
 
-            // assert
-            const expectedesi = 
+      // assert
+      const expectedesi = 
 `<?xml version="1.0" encoding="UTF-8"?>
 <EtherCATInfo>
   <Vendor>
@@ -300,26 +301,26 @@ describe("generators", function() {
     </Devices>
   </Descriptions>
 </EtherCATInfo>`;
-            expect(result).toEqual(expectedesi);
-        });
+      expect(result).toEqual(expectedesi);
+    });
 
-        it("hex_generator should generate config data", function() {
-            // arrange
-            // act
-            const result = hex_generator(form, true);
-            
-            // assert
-            const configData = `05060344640000`;
-            expect(result).toEqual(configData);
-        });
+    it("hex_generator should generate config data", function() {
+      // arrange
+      // act
+      const result = hex_generator(form, true);
+      
+      // assert
+      const configData = `05060344640000`;
+      expect(result).toEqual(configData);
+    });
 
-        it("ecat_options_generator should generate config data", function() {
-            // arrange
-            // act
-            const result = ecat_options_generator(form, od, indexes);
-            
-            // assert
-            const ecat_options = 
+    it("ecat_options_generator should generate config data", function() {
+      // arrange
+      // act
+      const result = ecat_options_generator(form, od, indexes);
+      
+      // assert
+      const ecat_options = 
 `#ifndef __ECAT_OPTIONS_H__
 #define __ECAT_OPTIONS_H__
 
@@ -363,16 +364,16 @@ describe("generators", function() {
 
 #endif /* __ECAT_OPTIONS_H__ */
 `;
-            expect(result).toEqual(ecat_options);
-        });
+      expect(result).toEqual(ecat_options);
+    });
 
-        it("objectlist_generator should generate config data", function() {
-            // arrange
-            // act
-            const result = objectlist_generator(form, od, indexes);
-            
-            // assert
-            const objectlist = 
+    it("objectlist_generator should generate config data", function() {
+      // arrange
+      // act
+      const result = objectlist_generator(form, od, indexes);
+      
+      // assert
+      const objectlist = 
 `#include "esc_coe.h"
 #include "utypes.h"
 #include <stddef.h>
@@ -439,16 +440,16 @@ const _objectlist SDOobjects[] =
   {0xffff, 0xff, 0xff, 0xff, NULL, NULL}
 };
 `;
-            expect(result).toEqual(objectlist);
-        });
+      expect(result).toEqual(objectlist);
+    });
 
-        it("utypes_generator should generate expected code", function() {
-            // arrange
-            // act
-            const result = utypes_generator(form, od, indexes);
+    it("utypes_generator should generate expected code", function() {
+      // arrange
+      // act
+      const result = utypes_generator(form, od, indexes);
 
-            // assert
-            const expectedUtypes = 
+      // assert
+      const expectedUtypes = 
 `#ifndef __UTYPES_H__
 #define __UTYPES_H__
 
@@ -469,7 +470,7 @@ extern _Objects Obj;
 #endif /* __UTYPES_H__ */
 `;
         expect(result).toEqual(expectedUtypes);
-        });
+      });
     });
 
     describe("for default, empty project restored from localstorage backup", function() {
@@ -480,20 +481,21 @@ extern _Objects Obj;
       let _dc;
 
       beforeEach(function() {
-          form = getEmptyFrom();
-          _dc = [];
-	        restoreBackup(etherCATeepromGeneratorBackup, form, _dc);
-          od = buildObjectDictionary(form);
-          indexes = getUsedIndexes(od);
+        jasmine.addMatchers(customMatchers);
+        form = getEmptyFrom();
+        _dc = [];
+        restoreBackup(etherCATeepromGeneratorBackup, form, _dc);
+        od = buildObjectDictionary(form);
+        indexes = getUsedIndexes(od);
       });
       
       it("esi_generator should generate expected code", function() {
-          // arrange
-          // act
-          const result = esi_generator(form, od, indexes, _dc);
+        // arrange
+        // act
+        const result = esi_generator(form, od, indexes, _dc);
 
-          // assert
-          const expectedesi = 
+        // assert
+        const expectedesi = 
 `<?xml version="1.0" encoding="UTF-8"?>
 <EtherCATInfo>
   <Vendor>
@@ -776,26 +778,26 @@ extern _Objects Obj;
     </Devices>
   </Descriptions>
 </EtherCATInfo>`;
-          expect(result).toEqual(expectedesi);
+        expect(result).toEqual(expectedesi);
       });
 
       it("hex_generator should generate config data", function() {
-          // arrange
-          // act
-          const result = hex_generator(form, true);
-          
-          // assert
-          const configData = `05060344640000`;
-          expect(result).toEqual(configData);
+        // arrange
+        // act
+        const result = hex_generator(form, true);
+        
+        // assert
+        const configData = `05060344640000`;
+        expect(result).toEqual(configData);
       });
 
       it("ecat_options_generator should generate config data", function() {
-          // arrange
-          // act
-          const result = ecat_options_generator(form, od, indexes);
-          
-          // assert
-          const ecat_options = 
+        // arrange
+        // act
+        const result = ecat_options_generator(form, od, indexes);
+        
+        // assert
+        const ecat_options = 
 `#ifndef __ECAT_OPTIONS_H__
 #define __ECAT_OPTIONS_H__
 
@@ -843,12 +845,12 @@ extern _Objects Obj;
       });
 
       it("objectlist_generator should generate config data", function() {
-          // arrange
-          // act
-          const result = objectlist_generator(form, od, indexes);
-          
-          // assert
-          const objectlist = 
+        // arrange
+        // act
+        const result = objectlist_generator(form, od, indexes);
+        
+        // assert
+        const objectlist = 
 `#include "esc_coe.h"
 #include "utypes.h"
 #include <stddef.h>
@@ -915,16 +917,16 @@ const _objectlist SDOobjects[] =
   {0xffff, 0xff, 0xff, 0xff, NULL, NULL}
 };
 `;
-          expect(result).toEqual(objectlist);
-      });
+      expect(result).toEqual(objectlist);
+    });
 
-      it("utypes_generator should generate expected code", function() {
-          // arrange
-          // act
-          const result = utypes_generator(form, od, indexes);
+    it("utypes_generator should generate expected code", function() {
+      // arrange
+      // act
+      const result = utypes_generator(form, od, indexes);
 
-          // assert
-          const expectedUtypes = 
+      // assert
+      const expectedUtypes = 
 `#ifndef __UTYPES_H__
 #define __UTYPES_H__
 
@@ -945,31 +947,32 @@ extern _Objects Obj;
 #endif /* __UTYPES_H__ */
 `;
       expect(result).toEqual(expectedUtypes);
-      });
+    });
 
-      xdescribe("when restored form checks are not overwritten with default settings", function() {
-        const etherCATeepromGeneratorBackup = '{\n  "form": {\n    "VendorName": "ACME EtherCAT Devices",\n    "VendorID": "0x000",\n    "ProductCode": "0x00ab123",\n    "ProfileNo": "5001",\n    "RevisionNumber": "0x002",\n    "SerialNumber": "0x001",\n    "HWversion": "0.0.1",\n    "SWversion": "0.0.1",\n    "EEPROMsize": "2048",\n    "RxMailboxOffset": "0x1000",\n    "TxMailboxOffset": "0x1200",\n    "MailboxSize": "512",\n    "SM2Offset": "0x1600",\n    "SM3Offset": "0x1A00",\n    "TextGroupType": "DigIn",\n    "TextGroupName5": "Digital input",\n    "ImageName": "IMGCBY",\n    "TextDeviceType": "DigIn2000",\n    "TextDeviceName": "2-channel Hypergalactic input superimpermanator",\n    "Port0Physical": "Y",\n    "Port1Physical": "Y",\n    "Port2Physical": " ",\n    "Port3Physical": " ",\n    "ESC": "ET1100",\n    "SPImode": "3",\n    "CoeDetailsEnableSDO": "EnableSDO",\n    "CoeDetailsEnableSDOInfo": "EnableSDOInfo",\n    "CoeDetailsEnablePDOAssign": "EnablePDOAssign",\n    "CoeDetailsEnablePDOConfiguration": "EnablePDOConfiguration",\n    "CoeDetailsEnableUploadAtStartup": "EnableUploadAtStartup",\n    "CoeDetailsEnableSDOCompleteAccess": "EnableSDOCompleteAccess"\n  },\n  "od": {\n    "sdo": {},\n    "txpdo": {},\n    "rxpdo": {}\n  },\n  "dc": []\n}';
-        let form;
-        let od;
-        let indexes;
-        let dc;
+    xdescribe("when restored form checks are not overwritten with default settings", function() {
+      const etherCATeepromGeneratorBackup = '{\n  "form": {\n    "VendorName": "ACME EtherCAT Devices",\n    "VendorID": "0x000",\n    "ProductCode": "0x00ab123",\n    "ProfileNo": "5001",\n    "RevisionNumber": "0x002",\n    "SerialNumber": "0x001",\n    "HWversion": "0.0.1",\n    "SWversion": "0.0.1",\n    "EEPROMsize": "2048",\n    "RxMailboxOffset": "0x1000",\n    "TxMailboxOffset": "0x1200",\n    "MailboxSize": "512",\n    "SM2Offset": "0x1600",\n    "SM3Offset": "0x1A00",\n    "TextGroupType": "DigIn",\n    "TextGroupName5": "Digital input",\n    "ImageName": "IMGCBY",\n    "TextDeviceType": "DigIn2000",\n    "TextDeviceName": "2-channel Hypergalactic input superimpermanator",\n    "Port0Physical": "Y",\n    "Port1Physical": "Y",\n    "Port2Physical": " ",\n    "Port3Physical": " ",\n    "ESC": "ET1100",\n    "SPImode": "3",\n    "CoeDetailsEnableSDO": "EnableSDO",\n    "CoeDetailsEnableSDOInfo": "EnableSDOInfo",\n    "CoeDetailsEnablePDOAssign": "EnablePDOAssign",\n    "CoeDetailsEnablePDOConfiguration": "EnablePDOConfiguration",\n    "CoeDetailsEnableUploadAtStartup": "EnableUploadAtStartup",\n    "CoeDetailsEnableSDOCompleteAccess": "EnableSDOCompleteAccess"\n  },\n  "od": {\n    "sdo": {},\n    "txpdo": {},\n    "rxpdo": {}\n  },\n  "dc": []\n}';
+      let form;
+      let od;
+      let indexes;
+      let dc;
+      
+      beforeEach(function() {
+        jasmine.addMatchers(customMatchers);
+        form = getEmptyFrom();
+        dc = [];
+        setFormValues(form, getFormDefaultValues()); // restore like its done in app - hides serialization problem
+        restoreBackup(etherCATeepromGeneratorBackup, form, dc);
+        od = buildObjectDictionary(form);
+        indexes = getUsedIndexes(od);
+      });
         
-        beforeEach(function() {
-            form = getEmptyFrom();
-            dc = [];
-            setFormValues(form, getFormDefaultValues()); // restore like its done in app - hides serialization problem
-            restoreBackup(etherCATeepromGeneratorBackup, form, dc);
-            od = buildObjectDictionary(form);
-            indexes = getUsedIndexes(od);
-        });
-        
-        it("esi_generator should generate expected code", function() {
-            // arrange
-            // act
-            const result = esi_generator(form, od, indexes, dc);
-  
-            // assert
-            const expectedesi = 
+      it("esi_generator should generate expected code", function() {
+        // arrange
+        // act
+        const result = esi_generator(form, od, indexes, dc);
+
+        // assert
+        const expectedesi = 
   `<?xml version="1.0" encoding="UTF-8"?>
   <EtherCATInfo>
     <Vendor>
@@ -1252,8 +1255,8 @@ extern _Objects Obj;
       </Devices>
     </Descriptions>
   </EtherCATInfo>`;
-            expect(result.slice(9000)).toEqual(expectedesi.slice(9000));
-        });
+        expect(result).toEqual(expectedesi);
       });
     });
+  });
 });

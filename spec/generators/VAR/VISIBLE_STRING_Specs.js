@@ -1,4 +1,8 @@
 describe("OTYPE VAR", function() {
+  beforeEach(function() {
+    jasmine.addMatchers(customMatchers);
+  });
+  
   describe("DTYPE VISIBLE_STRING", function() {
     describe("for project with single VISIBLE_STRING variable in SDO", function() {
       let form;
@@ -6,29 +10,29 @@ describe("OTYPE VAR", function() {
       let indexes;
       
       beforeEach(function() {
-          form = buildMockFormHelper();
-          od = buildObjectDictionary(form);
-          od['2000'] = {
-            otype: "VAR",
-            name: "New",
-            access: "RO",
-            dtype: "VISIBLE_STRING",
-            value: "FooBar",
-            isSDOitem: true,
-            data: "&Obj.New",
-            size: "6",
-          };
-          indexes = getUsedIndexes(od);
+        form = buildMockFormHelper();
+        od = buildObjectDictionary(form);
+        od['2000'] = {
+          otype: "VAR",
+          name: "New",
+          access: "RO",
+          dtype: "VISIBLE_STRING",
+          value: "FooBar",
+          isSDOitem: true,
+          data: "&Obj.New",
+          size: "6",
+        };
+        indexes = getUsedIndexes(od);
       });
       
       it("esi_generator should generate expected code", function() {
-          // arrange
-          const dc = [];
-          // act
-          const result = esi_generator(form, od, indexes, dc);
+        // arrange
+        const dc = [];
+        // act
+        const result = esi_generator(form, od, indexes, dc);
 
-          // assert
-          const expectedesi = 
+        // assert
+        const expectedesi = 
 `<?xml version="1.0" encoding="UTF-8"?>
 <EtherCATInfo>
   <Vendor>
@@ -327,26 +331,26 @@ describe("OTYPE VAR", function() {
     </Devices>
   </Descriptions>
 </EtherCATInfo>`;
-          expect(result).toEqual(expectedesi);
+        expect(result).toEqual(expectedesi);
       });
 
       it("hex_generator should generate config data", function() {
-          // arrange
-          // act
-          const result = hex_generator(form, true);
-          
-          // assert
-          const configData = `05060344640000`;
-          expect(result).toEqual(configData);
+        // arrange
+        // act
+        const result = hex_generator(form, true);
+        
+        // assert
+        const configData = `05060344640000`;
+        expect(result).toEqual(configData);
       });
 
       it("ecat_options_generator should generate config data", function() {
-          // arrange
-          // act
-          const result = ecat_options_generator(form, od, indexes);
-          
-          // assert
-          const ecat_options = 
+        // arrange
+        // act
+        const result = ecat_options_generator(form, od, indexes);
+        
+        // assert
+        const ecat_options = 
 `#ifndef __ECAT_OPTIONS_H__
 #define __ECAT_OPTIONS_H__
 
@@ -390,16 +394,16 @@ describe("OTYPE VAR", function() {
 
 #endif /* __ECAT_OPTIONS_H__ */
 `;
-          expect(result).toEqual(ecat_options);
+        expect(result).toEqual(ecat_options);
       });
 
       it("objectlist_generator should generate config data", function() {
-          // arrange
-          // act
-          const result = objectlist_generator(form, od, indexes);
-          
-          // assert
-          const objectlist = 
+        // arrange
+        // act
+        const result = objectlist_generator(form, od, indexes);
+        
+        // assert
+        const objectlist = 
 `#include "esc_coe.h"
 #include "utypes.h"
 #include <stddef.h>
@@ -472,16 +476,16 @@ const _objectlist SDOobjects[] =
   {0xffff, 0xff, 0xff, 0xff, NULL, NULL}
 };
 `;
-          expect(result).toEqual(objectlist);
+        expect(result).toEqual(objectlist);
       });
 
       it("utypes_generator should generate expected code", function() {
-          // arrange
-          // act
-          const result = utypes_generator(form, od, indexes);
+        // arrange
+        // act
+        const result = utypes_generator(form, od, indexes);
 
-          // assert
-          const expectedUtypes = 
+        // assert
+        const expectedUtypes = 
 `#ifndef __UTYPES_H__
 #define __UTYPES_H__
 
@@ -504,7 +508,7 @@ extern _Objects Obj;
 
 #endif /* __UTYPES_H__ */
 `;
-      expect(result).toEqual(expectedUtypes);
+        expect(result).toEqual(expectedUtypes);
       });
     });
 
@@ -514,31 +518,31 @@ extern _Objects Obj;
       let indexes;
       
       beforeEach(function() {
-          form = buildMockFormHelper();
-          od = buildObjectDictionary(form);
-          od['7000'] = {
-            otype: "VAR",
-            name: "News",
-            access: "RO",
-            pdo_mappings: [
-              "rxpdo",
-            ],
-            dtype: "VISIBLE_STRING",
-            value: "foo",
-            data: "&Obj.News",
-            size: "5",
-          }
-          indexes = getUsedIndexes(od);
+        form = buildMockFormHelper();
+        od = buildObjectDictionary(form);
+        od['7000'] = {
+          otype: "VAR",
+          name: "News",
+          access: "RO",
+          pdo_mappings: [
+            "rxpdo",
+          ],
+          dtype: "VISIBLE_STRING",
+          value: "foo",
+          data: "&Obj.News",
+          size: "5",
+        }
+        indexes = getUsedIndexes(od);
       });
       
       it("esi_generator should generate expected code", function() {
-          // arrange
-          const dc = [];
-          // act
-          const result = esi_generator(form, od, indexes, dc);
+        // arrange
+        const dc = [];
+        // act
+        const result = esi_generator(form, od, indexes, dc);
 
-          // assert
-          const expectedesi = 
+        // assert
+        const expectedesi = 
 `<?xml version="1.0" encoding="UTF-8"?>
 <EtherCATInfo>
   <Vendor>
@@ -845,26 +849,26 @@ extern _Objects Obj;
     </Devices>
   </Descriptions>
 </EtherCATInfo>`;
-          expect(result).toEqual(expectedesi);
+        expect(result).toEqual(expectedesi);
       });
 
       it("hex_generator should generate config data", function() {
-          // arrange
-          // act
-          const result = hex_generator(form, true);
-          
-          // assert
-          const configData = `05060344640000`;
-          expect(result).toEqual(configData);
+        // arrange
+        // act
+        const result = hex_generator(form, true);
+        
+        // assert
+        const configData = `05060344640000`;
+        expect(result).toEqual(configData);
       });
 
       it("ecat_options_generator should generate config data", function() {
-          // arrange
-          // act
-          const result = ecat_options_generator(form, od, indexes);
-          
-          // assert
-          const ecat_options = 
+        // arrange
+        // act
+        const result = ecat_options_generator(form, od, indexes);
+        
+        // assert
+        const ecat_options = 
 `#ifndef __ECAT_OPTIONS_H__
 #define __ECAT_OPTIONS_H__
 
@@ -908,16 +912,16 @@ extern _Objects Obj;
 
 #endif /* __ECAT_OPTIONS_H__ */
 `;
-          expect(result).toEqual(ecat_options);
+        expect(result).toEqual(ecat_options);
       });
 
       it("objectlist_generator should generate config data", function() {
-          // arrange
-          // act
-          const result = objectlist_generator(form, od, indexes);
-          
-          // assert
-          const objectlist = 
+        // arrange
+        // act
+        const result = objectlist_generator(form, od, indexes);
+        
+        // assert
+        const objectlist = 
 `#include "esc_coe.h"
 #include "utypes.h"
 #include <stddef.h>
@@ -990,21 +994,16 @@ const _objectlist SDOobjects[] =
   {0xffff, 0xff, 0xff, 0xff, NULL, NULL}
 };
 `;
-          expect(result).toEqual(objectlist);
-          // expectedLines = objectlist.split('\n');
-          // resultLines = result.split('\n');
-          // for (const [index, expectedLine] of expectedLines.entries()) {
-          //     expect(resultLines[index]).toEqual(expectedLine);
-          // }
+        expect(result).toEqual(objectlist);
       });
 
       it("utypes_generator should generate expected code", function() {
-          // arrange
-          // act
-          const result = utypes_generator(form, od, indexes);
+        // arrange
+        // act
+        const result = utypes_generator(form, od, indexes);
 
-          // assert
-          const expectedUtypes = 
+        // assert
+        const expectedUtypes = 
 `#ifndef __UTYPES_H__
 #define __UTYPES_H__
 
@@ -1028,7 +1027,7 @@ extern _Objects Obj;
 
 #endif /* __UTYPES_H__ */
 `;
-          expect(result).toEqual(expectedUtypes);
+        expect(result).toEqual(expectedUtypes);
       });
     });
   });

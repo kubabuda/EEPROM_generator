@@ -1,5 +1,9 @@
 // TODO other DTYPES
 xdescribe("OTYPE VAR", function() {
+  beforeEach(function() {
+    jasmine.addMatchers(customMatchers);
+  });
+
   describe("DTYPE none", function() {
     describe("for default empty project with no variable in SDO or PDO", function() {
       let form;
@@ -7,30 +11,30 @@ xdescribe("OTYPE VAR", function() {
       let indexes;
       
       beforeEach(function() {
-          form = buildMockFormHelper();
-          od = buildObjectDictionary(form);
-          // od['6000'] = {
-          //   otype: "VAR",
-          //   name: "Count",
-          //   access: "RO",
-          //   pdo_mappings: [
-          //     "txpdo",
-          //   ],
-          //   dtype: "INT8",
-          //   value: "42",
-          //   data: "&Obj.Count",
-          // };
-          indexes = getUsedIndexes(od);
+        form = buildMockFormHelper();
+        od = buildObjectDictionary(form);
+        // od['6000'] = {
+        //   otype: "VAR",
+        //   name: "Count",
+        //   access: "RO",
+        //   pdo_mappings: [
+        //     "txpdo",
+        //   ],
+        //   dtype: "INT8",
+        //   value: "42",
+        //   data: "&Obj.Count",
+        // };
+        indexes = getUsedIndexes(od);
       });
       
       it("esi_generator should generate expected code", function() {
-          // arrange
-          const dc = [];
-          // act
-          const result = esi_generator(form, od, indexes, dc);
+        // arrange
+        const dc = [];
+        // act
+        const result = esi_generator(form, od, indexes, dc);
 
-          // assert
-          const expectedesi = 
+        // assert
+        const expectedesi = 
 `<?xml version="1.0" encoding="UTF-8"?>
 <EtherCATInfo>
   <Vendor>
@@ -313,26 +317,26 @@ xdescribe("OTYPE VAR", function() {
     </Devices>
   </Descriptions>
 </EtherCATInfo>`;
-          expect(result).toEqual(expectedesi);
-      });
+        expect(result).toEqual(expectedesi);
+    });
 
-      it("hex_generator should generate config data", function() {
-          // arrange
-          // act
-          const result = hex_generator(form, true);
-          
-          // assert
-          const configData = `05060344640000`;
-          expect(result).toEqual(configData);
-      });
+    it("hex_generator should generate config data", function() {
+      // arrange
+      // act
+      const result = hex_generator(form, true);
+      
+      // assert
+      const configData = `05060344640000`;
+      expect(result).toEqual(configData);
+    });
 
-      it("ecat_options_generator should generate config data", function() {
-          // arrange
-          // act
-          const result = ecat_options_generator(form, od, indexes);
-          
-          // assert
-          const ecat_options = 
+    it("ecat_options_generator should generate config data", function() {
+      // arrange
+      // act
+      const result = ecat_options_generator(form, od, indexes);
+      
+      // assert
+      const ecat_options = 
 `#ifndef __ECAT_OPTIONS_H__
 #define __ECAT_OPTIONS_H__
 
@@ -376,16 +380,16 @@ xdescribe("OTYPE VAR", function() {
 
 #endif /* __ECAT_OPTIONS_H__ */
 `;
-          expect(result).toEqual(ecat_options);
-      });
+      expect(result).toEqual(ecat_options);
+    });
 
-      it("objectlist_generator should generate config data", function() {
-          // arrange
-          // act
-          const result = objectlist_generator(form, od, indexes);
-          
-          // assert
-          const objectlist = 
+    it("objectlist_generator should generate config data", function() {
+      // arrange
+      // act
+      const result = objectlist_generator(form, od, indexes);
+      
+      // assert
+      const objectlist = 
 `#include "esc_coe.h"
 #include "utypes.h"
 #include <stddef.h>
@@ -452,16 +456,16 @@ const _objectlist SDOobjects[] =
   {0xffff, 0xff, 0xff, 0xff, NULL, NULL}
 };
 `;
-          expect(result).toEqual(objectlist);
-      });
+      expect(result).toEqual(objectlist);
+    });
 
-      it("utypes_generator should generate expected code", function() {
-          // arrange
-          // act
-          const result = utypes_generator(form, od, indexes);
+    it("utypes_generator should generate expected code", function() {
+      // arrange
+      // act
+      const result = utypes_generator(form, od, indexes);
 
-          // assert
-          const expectedUtypes = 
+      // assert
+      const expectedUtypes = 
 `#ifndef __UTYPES_H__
 #define __UTYPES_H__
 
