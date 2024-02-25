@@ -287,7 +287,7 @@ xdescribe("generators", function() {
       it("esi_generator should generate expected code", function() {
           // arrange
           // act
-          var result = esi_generator(form, od, indexes, dc);
+          const result = esi_generator(form, od, indexes, dc);
 
           // assert
           const expectedesi = 
@@ -1336,7 +1336,7 @@ xdescribe("generators", function() {
       it("hex_generator should generate config data", function() {
           // arrange
           // act
-          var result = hex_generator(form, true);
+          const result = hex_generator(form, true);
           
           // assert
           const configData = `050600446400000000001A000000`;
@@ -1346,7 +1346,7 @@ xdescribe("generators", function() {
       it("ecat_options_generator should generate config data", function() {
           // arrange
           // act
-          var result = ecat_options_generator(form, od, indexes);
+          const result = ecat_options_generator(form, od, indexes);
           
           // assert
           const ecat_options = 
@@ -1399,7 +1399,7 @@ xdescribe("generators", function() {
       it("objectlist_generator should generate config data", function() {
           // arrange
           // act
-          var result = objectlist_generator(form, od, indexes);
+          const result = objectlist_generator(form, od, indexes);
           
           // assert
           const objectlist = 
@@ -1626,7 +1626,7 @@ const _objectlist SDOobjects[] =
       it("utypes_generator should generate expected code", function() {
           // arrange
           // act
-          var result = utypes_generator(form, od, indexes);
+          const result = utypes_generator(form, od, indexes);
 
           // assert
           const expectedUtypes = 

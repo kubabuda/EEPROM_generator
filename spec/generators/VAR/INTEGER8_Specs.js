@@ -26,7 +26,7 @@ describe("OTYPE VAR", function() {
           // arrange
           const dc = [];
           // act
-          var result = esi_generator(form, od, indexes, dc);
+          const result = esi_generator(form, od, indexes, dc);
 
           // assert
           const expectedesi = 
@@ -346,7 +346,7 @@ describe("OTYPE VAR", function() {
       it("hex_generator should generate config data", function() {
           // arrange
           // act
-          var result = hex_generator(form, true);
+          const result = hex_generator(form, true);
           
           // assert
           const configData = `05060344640000`;
@@ -356,7 +356,7 @@ describe("OTYPE VAR", function() {
       it("ecat_options_generator should generate config data", function() {
           // arrange
           // act
-          var result = ecat_options_generator(form, od, indexes);
+          const result = ecat_options_generator(form, od, indexes);
           
           // assert
           const ecat_options = 
@@ -409,7 +409,7 @@ describe("OTYPE VAR", function() {
       it("objectlist_generator should generate config data", function() {
           // arrange
           // act
-          var result = objectlist_generator(form, od, indexes);
+          const result = objectlist_generator(form, od, indexes);
           
           // assert
           const objectlist = 
@@ -491,7 +491,7 @@ const _objectlist SDOobjects[] =
       it("utypes_generator should generate expected code", function() {
           // arrange
           // act
-          var result = utypes_generator(form, od, indexes);
+          const result = utypes_generator(form, od, indexes);
 
           // assert
           const expectedUtypes = 

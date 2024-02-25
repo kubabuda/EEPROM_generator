@@ -7,7 +7,7 @@ describe("backup", function() {
     // arrange
     const control = { type: 'button' };
     // act
-    var result = isBackedUp(control);
+    const result = isBackedUp(control);
     // assert
     expect(result).toEqual(false);
     });

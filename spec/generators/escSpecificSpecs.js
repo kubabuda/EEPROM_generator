@@ -15,7 +15,7 @@ describe("generators", function() {
       it("hex_generator should generate config data 050603446400000000001A000000", function() {
         // arrange
         // act
-        var result = hex_generator(form, true);
+        const result = hex_generator(form, true);
         
         // assert
         const configData = `050603446400000000001A000000`;
@@ -24,9 +24,9 @@ describe("generators", function() {
     });
 
     describe("for ET1100 project", function() {
-      var form;
-      var od;
-      var indexes;
+      let form;
+      let od;
+      let indexes;
       
       beforeEach(function() {
           form = buildMockFormHelper();
@@ -38,7 +38,7 @@ describe("generators", function() {
       it("hex_generator should generate config data 05060344640000", function() {
         // arrange
         // act
-        var result = hex_generator(form, true);
+        const result = hex_generator(form, true);
         
         // assert
         const configData = `05060344640000`;
@@ -47,9 +47,9 @@ describe("generators", function() {
     });
 
     describe("for LAN9252 project", function() {
-      var form;
-      var od;
-      var indexes;
+      let form;
+      let od;
+      let indexes;
       
       beforeEach(function() {
           form = buildMockFormHelper();
@@ -61,7 +61,7 @@ describe("generators", function() {
       it("hex_generator should generate config data 80060344640000", function() {
         // arrange
         // act
-        var result = hex_generator(form, true);
+        const result = hex_generator(form, true);
         
         // assert
         const configData = `80060344640000`;
@@ -70,9 +70,9 @@ describe("generators", function() {
     });
 
     describe("for LAN9253_Beckhoff project", function() {
-      var form;
-      var od;
-      var indexes;
+      let form;
+      let od;
+      let indexes;
       
       beforeEach(function() {
           form = buildMockFormHelper();
@@ -84,7 +84,7 @@ describe("generators", function() {
       it("hex_generator should generate config data 0506034464000000000040C00000", function() {
         // arrange
         // act
-        var result = hex_generator(form, true);
+        const result = hex_generator(form, true);
         
         // assert
         const configData = `0506034464000000000040C00000`;
@@ -93,9 +93,9 @@ describe("generators", function() {
     });
 
     describe("for LAN9253_Direct project", function() {
-      var form;
-      var od;
-      var indexes;
+      let form;
+      let od;
+      let indexes;
       
       beforeEach(function() {
           form = buildMockFormHelper();
@@ -107,7 +107,7 @@ describe("generators", function() {
       it("hex_generator should generate config data 8206034464000000000040C00000", function() {
         // arrange
         // act
-        var result = hex_generator(form, true);
+        const result = hex_generator(form, true);
         
         // assert
         const configData = `8206034464000000000040C00000`;
@@ -116,9 +116,9 @@ describe("generators", function() {
     });
 
     describe("for LAN9253_Indirect project", function() {
-      var form;
-      var od;
-      var indexes;
+      let form;
+      let od;
+      let indexes;
       
       beforeEach(function() {
           form = buildMockFormHelper();
@@ -130,7 +130,7 @@ describe("generators", function() {
       it("hex_generator should generate config data 8006034464000000000040C00000", function() {
         // arrange
         // act
-        var result = hex_generator(form, true);
+        const result = hex_generator(form, true);
         
         // assert
         const configData = `8006034464000000000040C00000`;

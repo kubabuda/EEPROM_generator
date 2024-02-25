@@ -21,7 +21,7 @@ describe("hex_generator given SPImode", function () {
       form.SPImode.value = test.mode;
       
       // act
-      var result = hex_generator(form, true);
+      const result = hex_generator(form, true);
       
       // assert
       expect(result).toEqual(`05060${test.mode}44640000`);
