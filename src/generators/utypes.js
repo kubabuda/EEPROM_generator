@@ -14,13 +14,13 @@
 // ####################### utypes.h generation ####################### //
 
 function utypes_generator(form, od, indexes) {
-	var utypes = '#ifndef __UTYPES_H__\n#define __UTYPES_H__\n\n#include "cc.h"\n\n/* Object dictionary storage */\n\ntypedef struct\n{\n   /* Identity */\n'
+	let utypes = '#ifndef __UTYPES_H__\n#define __UTYPES_H__\n\n#include "cc.h"\n\n/* Object dictionary storage */\n\ntypedef struct\n{\n   /* Identity */\n'
 	utypes += '\n   uint32_t serial;\n';
 	
-	var utypesInputs = '\n   /* Inputs */\n'; 
-	var utypesOutputs = '\n   /* Outputs */\n';
-	var hasInputs = isPdoWithVariables(od, indexes, txpdo); 
-	var hasOutputs = isPdoWithVariables(od, indexes, rxpdo);
+	let utypesInputs = '\n   /* Inputs */\n'; 
+	let utypesOutputs = '\n   /* Outputs */\n';
+	let hasInputs = isPdoWithVariables(od, indexes, txpdo); 
+	let hasOutputs = isPdoWithVariables(od, indexes, rxpdo);
 
 	indexes.forEach(index => {
 		const objd = od[index];
@@ -40,17 +40,17 @@ function utypes_generator(form, od, indexes) {
 	if (hasInputs) { utypes += utypesInputs + '\n'; }
 	if (hasOutputs) { utypes += utypesOutputs + '\n'; }
 	
-	var utypesOutputs = '\n   /* Parameters */\n';
-	var anyParameters = false;
+	let parameters = '\n   /* Parameters */\n';
+	let anyParameters = false;
 	indexes.forEach(index => {
 		const objd = od[index];
 		if (objd.isSDOitem) {
-			utypesOutputs += getUtypesDeclaration(objd);
+			parameters += getUtypesDeclaration(objd);
 			anyParameters = true;
 		}
 	});
 	if (anyParameters)  { 
-		utypes += utypesOutputs;
+		utypes += parameters;
 	}
 
 	utypes += '\n} _Objects;\n\nextern _Objects Obj;\n\n#endif /* __UTYPES_H__ */\n';
@@ -73,7 +73,7 @@ function utypes_generator(form, od, indexes) {
 				return `\n   ${ctype} ${varName}[${objd.items.length - 1}];`
 			}
 			case OTYPE.RECORD: {
-				var section = `\n   struct\n   {`;
+				let section = `\n   struct\n   {`;
 				/* TODO test */
 				objd.items.slice(1).forEach(subitem => {
 					const subitemCType = ESI_DT[subitem.dtype].ctype;

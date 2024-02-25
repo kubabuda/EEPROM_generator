@@ -95,8 +95,8 @@ function setFormControlValue(formControl, formControlValue) {
 }
 
 function prepareBackupFileContent(form, _dc) {
-	var backupObject = prepareBackupObject(form, _dc);
-	var backupFileContent = JSON.stringify(backupObject, null, 2); // pretty print
+	const backupObject = prepareBackupObject(form, _dc);
+	const backupFileContent = JSON.stringify(backupObject, null, 2); // pretty print
 	return backupFileContent;
 }
 
@@ -110,7 +110,7 @@ function downloadBackupFile(form, _dc) {
 }
 
 function restoreBackup(fileContent, form, _dc) {
-	var backup = JSON.parse(fileContent);
+	const backup = JSON.parse(fileContent);
 	if (isValidBackup(backup)) {
 		loadBackup(backup, form, _dc);
 	}

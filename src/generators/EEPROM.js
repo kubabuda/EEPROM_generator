@@ -285,10 +285,10 @@ function hex_generator(form, stringOnly=false)
 
 	/** computes crc value */
 	function FindCRC(data,datalen) {
-		var i,j;
-		var c;
-		var CRC=0xFF;
-		var genPoly = 0x07;
+		let i,j;
+		let c;
+		let CRC=0xFF;
+		const genPoly = 0x07;
 		for (j=0; j<datalen; j++)
 		{
 			c = data[j];

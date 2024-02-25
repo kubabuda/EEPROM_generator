@@ -300,7 +300,7 @@ function esi_generator(form, od, indexes, dc)
 		if (!dc) {
 			return '';
 		}
-		var dcSection = '        <Dc>';
+		let dcSection = '        <Dc>';
 		dc.forEach(opMode => {
 			dcSection += `\n          <OpMode>\n            <Name>${opMode.Name}</Name>\n            <Desc>${opMode.Description}</Desc>\n            <AssignActivate>${opMode.AssignActivate}</AssignActivate>`;
 			if (opMode.Sync0cycleTime && opMode.Sync0cycleTime != 0) { 
