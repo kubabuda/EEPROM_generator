@@ -1,9 +1,9 @@
 describe("OTYPE VAR", function() {
   describe("DTYPE ARRAY", function() {
     describe("for default empty project with ARRAY INT8[2] as TXPDO", function() {
-      var form;
-      var od;
-      var indexes;
+      let form;
+      let od;
+      let indexes;
       
       beforeEach(function() {
           form = buildMockFormHelper();

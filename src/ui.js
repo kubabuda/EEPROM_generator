@@ -61,7 +61,7 @@ window.onload = (event) => {
 	syncModalSetup();
 	const form = getForm();
 	setFormValues(form, getFormDefaultValues());
-	tryRestoreLocalBackup(form);
+	tryRestoreLocalBackup(form, _dc);
 	reloadOD_Sections();
 	reloadSyncModes();
 	// for convinience during tool development, trigger codegen on page refresh
@@ -178,7 +178,7 @@ function onRestoreClick() {
 
 function onRestoreComplete(fileContent) {
 	const form = getForm();
-	restoreBackup(fileContent, form);
+	restoreBackup(fileContent, form, _dc);
 	reloadOD_Sections();
 	reloadSyncModes();
 	processForm(form);

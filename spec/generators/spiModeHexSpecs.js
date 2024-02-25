@@ -5,9 +5,9 @@ describe("hex_generator given SPImode", function () {
     { mode: 2 },
     { mode: 3 },
   ];
-  var form;
-  var od;
-  var indexes;
+  let form;
+  let od;
+  let indexes;
   
   beforeEach(function() {
       form = buildMockFormHelper();

@@ -45,7 +45,7 @@ function prepareBackupObject(form, dc) {
 	return backup;
 }
 
-function loadBackup(backupObject, form) {
+function loadBackup(backupObject, form, _dc) {
 	if (backupObject.od) {
 		setObjDictSection(sdo, backupObject.od.sdo);
 		setObjDictSection(txpdo, backupObject.od.txpdo);
@@ -53,7 +53,7 @@ function loadBackup(backupObject, form) {
 	}
 
 	if (backupObject.dc) {
-		_dc = backupObject.dc;
+		backupObject.dc.forEach(dc => _dc.push(dc));
 	}
 	
 	setFormValues(form, backupObject);
@@ -104,15 +104,15 @@ function prepareBackupFileContent(form, _dc) {
 
 // Localstorage limit is usually 5MB, super large object dictionaries on older browsers might be problematic
 
-function downloadBackupFile(form) {
+function downloadBackupFile(form, _dc) {
 	const backupFileContent = prepareBackupFileContent(form, _dc); // pretty print
 	downloadFile(backupFileContent, 'esi.json', 'text/json');
 }
 
-function restoreBackup(fileContent, form) {
+function restoreBackup(fileContent, form, _dc) {
 	var backup = JSON.parse(fileContent);
 	if (isValidBackup(backup)) {
-		loadBackup(backup, form);
+		loadBackup(backup, form, _dc);
 	}
 }
 
@@ -123,9 +123,9 @@ function saveLocalBackup(form) {
 	localStorage.etherCATeepromGeneratorBackup = prepareBackupFileContent(form);
 }
 
-function tryRestoreLocalBackup(form) {
+function tryRestoreLocalBackup(form, _dc) {
 	if (localStorage.etherCATeepromGeneratorBackup)  {
-		restoreBackup(localStorage.etherCATeepromGeneratorBackup, form);
+		restoreBackup(localStorage.etherCATeepromGeneratorBackup, form, _dc);
 	}	
 }
 

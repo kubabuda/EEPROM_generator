@@ -1,9 +1,9 @@
 describe("generators", function() {
   describe("ESC-specific generators", function() {
     describe("for AX58100 project", function() {
-      var form;
-      var od;
-      var indexes;
+      let form;
+      let od;
+      let indexes;
       
       beforeEach(function() {
           form = buildMockFormHelper();

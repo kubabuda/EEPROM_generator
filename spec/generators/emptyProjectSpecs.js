@@ -1,8 +1,8 @@
 describe("generators", function() {    
     describe("for default, empty project", function() {
-        var form;
-        var od;
-        var indexes;
+        let form;
+        let od;
+        let indexes;
         
         beforeEach(function() {
             form = buildMockFormHelper();
@@ -477,20 +477,20 @@ extern _Objects Obj;
       var form;
       var od;
       var indexes;
-      
+      var _dc;
+
       beforeEach(function() {
           form = getEmptyFrom();
           _dc = [];
-	        restoreBackup(etherCATeepromGeneratorBackup, form);
+	        restoreBackup(etherCATeepromGeneratorBackup, form, _dc);
           od = buildObjectDictionary(form);
           indexes = getUsedIndexes(od);
       });
       
       it("esi_generator should generate expected code", function() {
           // arrange
-          const dc = [];
           // act
-          var result = esi_generator(form, od, indexes, dc);
+          var result = esi_generator(form, od, indexes, _dc);
 
           // assert
           const expectedesi = 
@@ -949,22 +949,22 @@ extern _Objects Obj;
 
       xdescribe("when restored form checks are not overwritten with default settings", function() {
         const etherCATeepromGeneratorBackup = '{\n  "form": {\n    "VendorName": "ACME EtherCAT Devices",\n    "VendorID": "0x000",\n    "ProductCode": "0x00ab123",\n    "ProfileNo": "5001",\n    "RevisionNumber": "0x002",\n    "SerialNumber": "0x001",\n    "HWversion": "0.0.1",\n    "SWversion": "0.0.1",\n    "EEPROMsize": "2048",\n    "RxMailboxOffset": "0x1000",\n    "TxMailboxOffset": "0x1200",\n    "MailboxSize": "512",\n    "SM2Offset": "0x1600",\n    "SM3Offset": "0x1A00",\n    "TextGroupType": "DigIn",\n    "TextGroupName5": "Digital input",\n    "ImageName": "IMGCBY",\n    "TextDeviceType": "DigIn2000",\n    "TextDeviceName": "2-channel Hypergalactic input superimpermanator",\n    "Port0Physical": "Y",\n    "Port1Physical": "Y",\n    "Port2Physical": " ",\n    "Port3Physical": " ",\n    "ESC": "ET1100",\n    "SPImode": "3",\n    "CoeDetailsEnableSDO": "EnableSDO",\n    "CoeDetailsEnableSDOInfo": "EnableSDOInfo",\n    "CoeDetailsEnablePDOAssign": "EnablePDOAssign",\n    "CoeDetailsEnablePDOConfiguration": "EnablePDOConfiguration",\n    "CoeDetailsEnableUploadAtStartup": "EnableUploadAtStartup",\n    "CoeDetailsEnableSDOCompleteAccess": "EnableSDOCompleteAccess"\n  },\n  "od": {\n    "sdo": {},\n    "txpdo": {},\n    "rxpdo": {}\n  },\n  "dc": []\n}';
-        var form;
-        var od;
-        var indexes;
+        let form;
+        let od;
+        let indexes;
+        let dc;
         
         beforeEach(function() {
             form = getEmptyFrom();
-            _dc = [];
+            dc = [];
             setFormValues(form, getFormDefaultValues()); // restore like its done in app - hides serialization problem
-            restoreBackup(etherCATeepromGeneratorBackup, form);
+            restoreBackup(etherCATeepromGeneratorBackup, form, dc);
             od = buildObjectDictionary(form);
             indexes = getUsedIndexes(od);
         });
         
         it("esi_generator should generate expected code", function() {
             // arrange
-            const dc = [];
             // act
             var result = esi_generator(form, od, indexes, dc);
   

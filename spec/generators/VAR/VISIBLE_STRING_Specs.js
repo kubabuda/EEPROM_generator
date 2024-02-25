@@ -1,9 +1,9 @@
 describe("OTYPE VAR", function() {
   describe("DTYPE VISIBLE_STRING", function() {
     describe("for project with single VISIBLE_STRING variable in SDO", function() {
-      var form;
-      var od;
-      var indexes;
+      let form;
+      let od;
+      let indexes;
       
       beforeEach(function() {
           form = buildMockFormHelper();

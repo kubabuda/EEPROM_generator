@@ -2,9 +2,9 @@
 xdescribe("OTYPE VAR", function() {
   describe("DTYPE none", function() {
     describe("for default empty project with no variable in SDO or PDO", function() {
-      var form;
-      var od;
-      var indexes;
+      let form;
+      let od;
+      let indexes;
       
       beforeEach(function() {
           form = buildMockFormHelper();
