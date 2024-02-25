@@ -116,34 +116,33 @@ function getSM2_MappingOffset(form) {
 	return	parseInt(form.SM2Offset.value);
 }
 /** Takes OD entries from UI RXPDO section and adds to given OD */
-function addRXPDOitems(form, od) {
+function addRXPDOitems(form, od, booleanPaddingCount) {
 	const rxpdoSection = getObjDictSection(rxpdo);
 	const pdo = {
 		name : rxpdo,
 		SMassignmentIndex : '1C12',
 		smOffset : getSM2_MappingOffset(form), // usually 0x1600
 	};
-	addPdoObjectsSection(od, rxpdoSection, pdo);
+	return addPdoObjectsSection(od, rxpdoSection, pdo, booleanPaddingCount);
 }
 /** Takes OD entries from UI TXPDO section and adds to given OD */
-function addTXPDOitems(form, od) {
+function addTXPDOitems(form, od, booleanPaddingCount) {
 	const txpdoSection = getObjDictSection(txpdo);
 	const pdo = {
 		name : txpdo,
 		SMassignmentIndex : '1C13',
 		smOffset : parseInt(form.SM3Offset.value), // usually 0x1A00
 	};
-	addPdoObjectsSection(od, txpdoSection, pdo);
+	return addPdoObjectsSection(od, txpdoSection, pdo, booleanPaddingCount);
 }
 
-var _booleanPaddingCount = 0;
 /** 
  * Takes OD entries from given UI SDO/PDO section and adds to given OD
  * using provided SM offset, and SM assignment address.
  
  * Available sections are 'sdo', 'txpdo', 'rxpdo'
  */
-function addPdoObjectsSection(od, odSection, pdo){
+function addPdoObjectsSection(od, odSection, pdo, booleanPaddingCount) {
 	let currentSMoffsetValue = pdo.smOffset;
 	const indexes = getUsedIndexes(odSection);
 	
@@ -168,7 +167,7 @@ function addPdoObjectsSection(od, odSection, pdo){
 				// create PDO mapping
 				pdoMappingObj.items.push({ name: objd.name, dtype: DTYPE.UNSIGNED32, value: getPdoMappingValue(index, 0, objd.dtype) });
 				if (objd.dtype == DTYPE.BOOLEAN) { 
-					addBooleanPadding(pdoMappingObj.items, ++_booleanPaddingCount);
+					addBooleanPadding(pdoMappingObj.items, ++booleanPaddingCount);
 				}
 				break;
 			} 
@@ -188,7 +187,7 @@ function addPdoObjectsSection(od, odSection, pdo){
 					// create PDO mappings
 					pdoMappingObj.items.push({ name: subitem.name, dtype: DTYPE.UNSIGNED32, value: getPdoMappingValue(index, subindex , subitem.dtype) });
 					if (subitem.dtype == DTYPE.BOOLEAN) { 
-						addBooleanPadding(pdoMappingObj.items, ++_booleanPaddingCount);
+						addBooleanPadding(pdoMappingObj.items, ++booleanPaddingCount);
 					}
 					++subindex;
 				});
@@ -206,6 +205,8 @@ function addPdoObjectsSection(od, odSection, pdo){
 
 			++currentSMoffsetValue;
 		});
+
+		return booleanPaddingCount;
 
 		function addBooleanPadding(mappingOjbItems, paddingCount) {
 			mappingOjbItems.push({ name: `Padding ${paddingCount}`, dtype: DTYPE.UNSIGNED32, value: `0x0000000${booleanPaddingBitsize}` });
@@ -268,9 +269,8 @@ function buildObjectDictionary(form) {
 	populateMandatoryObjectValues(form, od);
 	// populate custom objects
 	addSDOitems(od);
-	addTXPDOitems(form, od);
-	addRXPDOitems(form, od);
-	_booleanPaddingCount = 0;
+	let booleanPaddingCount = addTXPDOitems(form, od, 0);
+	addRXPDOitems(form, od, booleanPaddingCount);
 
 	return od;
 }
