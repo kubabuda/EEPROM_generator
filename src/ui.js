@@ -426,7 +426,7 @@ function odModalSaveChanges() {
 				objd.size = modalform.Size.value;
 			} else {
 				// validate initial value for numeric type
-				if (modalform.InitalValue.value != '0' && !isNaN(modalform.InitalValue.value)) {
+				if (modalform.InitalValue.value != '0' && isNaN(modalform.InitalValue.value)) {
 					alert(`Initial value '${modalform.InitalValue.value}' is invalid for data type ${objd.dtype}`);
 					return false;
 				}
