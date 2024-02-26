@@ -959,7 +959,7 @@ extern _Objects Obj;
       expect(result).toEqualLines(expectedUtypes);
     });
 
-    xdescribe("when restored form checks are not overwritten with default settings", function() {
+    describe("when restored form checks are not overwritten with default settings", function() {
       const etherCATeepromGeneratorBackup = '{\n  "form": {\n    "VendorName": "ACME EtherCAT Devices",\n    "VendorID": "0x000",\n    "ProductCode": "0x00ab123",\n    "ProfileNo": "5001",\n    "RevisionNumber": "0x002",\n    "SerialNumber": "0x001",\n    "HWversion": "0.0.1",\n    "SWversion": "0.0.1",\n    "EEPROMsize": "2048",\n    "RxMailboxOffset": "0x1000",\n    "TxMailboxOffset": "0x1200",\n    "MailboxSize": "512",\n    "SM2Offset": "0x1600",\n    "SM3Offset": "0x1A00",\n    "TextGroupType": "DigIn",\n    "TextGroupName5": "Digital input",\n    "ImageName": "IMGCBY",\n    "TextDeviceType": "DigIn2000",\n    "TextDeviceName": "2-channel Hypergalactic input superimpermanator",\n    "Port0Physical": "Y",\n    "Port1Physical": "Y",\n    "Port2Physical": " ",\n    "Port3Physical": " ",\n    "ESC": "ET1100",\n    "SPImode": "3",\n    "CoeDetailsEnableSDO": "EnableSDO",\n    "CoeDetailsEnableSDOInfo": "EnableSDOInfo",\n    "CoeDetailsEnablePDOAssign": "EnablePDOAssign",\n    "CoeDetailsEnablePDOConfiguration": "EnablePDOConfiguration",\n    "CoeDetailsEnableUploadAtStartup": "EnableUploadAtStartup",\n    "CoeDetailsEnableSDOCompleteAccess": "EnableSDOCompleteAccess"\n  },\n  "od": {\n    "sdo": {},\n    "txpdo": {},\n    "rxpdo": {}\n  },\n  "dc": []\n}';
       let form;
       let odSections;        
@@ -975,7 +975,7 @@ extern _Objects Obj;
         odSections = getEmptyObjDict();
         dc = [];
       
-        setFormValues(form, getFormDefaultValues()); // restore like its done in app - hides serialization problem
+        setFormValues(form, getFormDefaultValues());
         restoreBackup(etherCATeepromGeneratorBackup, form, odSections,  dc);
         od = buildObjectDictionary(form, odSections);
         indexes = getUsedIndexes(od);
@@ -988,288 +988,288 @@ extern _Objects Obj;
 
         // assert
         const expectedesi = 
-  `<?xml version="1.0" encoding="UTF-8"?>
-  <EtherCATInfo>
-    <Vendor>
-      <Id>0</Id>
-      <Name LcId="1033">ACME EtherCAT Devices</Name>
-    </Vendor>
-    <Descriptions>
-      <Groups>
-        <Group>
-          <Type>DigIn</Type>
-          <Name LcId="1033">Digital input</Name>
-        </Group>
-      </Groups>
-      <Devices>
-        <Device Physics="YY ">
-          <Type ProductCode="#xab123" RevisionNo="#x2">DigIn2000</Type>
-          <Name LcId="1033">2-channel Hypergalactic input superimpermanator</Name>
-          <GroupType>DigIn</GroupType>
-          <Profile>
-            <ProfileNo>5001</ProfileNo>
-            <AddInfo>0</AddInfo>
-            <Dictionary>
-              <DataTypes>
-                <DataType>
-                  <Name>DT1018</Name>
-                  <BitSize>144</BitSize>
-                  <SubItem>
-                    <SubIdx>0</SubIdx>
-                    <Name>Max SubIndex</Name>
-                    <Type>USINT</Type>
-                    <BitSize>8</BitSize>
-                    <BitOffs>0</BitOffs>
-                    <Flags>
-                      <Access>ro</Access>
-                    </Flags>
-                  </SubItem>
-                  <SubItem>
-                    <SubIdx>1</SubIdx>
-                    <Name>Vendor ID</Name>
-                    <Type>UDINT</Type>
-                    <BitSize>32</BitSize>
-                    <BitOffs>16</BitOffs>
-                    <Flags>
-                      <Access>ro</Access>
-                    </Flags>
-                  </SubItem>
-                  <SubItem>
-                    <SubIdx>2</SubIdx>
-                    <Name>Product Code</Name>
-                    <Type>UDINT</Type>
-                    <BitSize>32</BitSize>
-                    <BitOffs>48</BitOffs>
-                    <Flags>
-                      <Access>ro</Access>
-                    </Flags>
-                  </SubItem>
-                  <SubItem>
-                    <SubIdx>3</SubIdx>
-                    <Name>Revision Number</Name>
-                    <Type>UDINT</Type>
-                    <BitSize>32</BitSize>
-                    <BitOffs>80</BitOffs>
-                    <Flags>
-                      <Access>ro</Access>
-                    </Flags>
-                  </SubItem>
-                  <SubItem>
-                    <SubIdx>4</SubIdx>
-                    <Name>Serial Number</Name>
-                    <Type>UDINT</Type>
-                    <BitSize>32</BitSize>
-                    <BitOffs>112</BitOffs>
-                    <Flags>
-                      <Access>ro</Access>
-                    </Flags>
-                  </SubItem>
-                </DataType>
-                <DataType>
-                  <Name>DT1C00ARR</Name>
-                  <BaseType>USINT</BaseType>
-                  <BitSize>32</BitSize>
-                  <ArrayInfo>
-                    <LBound>1</LBound>
-                    <Elements>4</Elements>
-                  </ArrayInfo>
-                </DataType>
-                <DataType>
-                  <Name>DT1C00</Name>
-                  <BitSize>48</BitSize>
-                  <SubItem>
-                    <SubIdx>0</SubIdx>
-                    <Name>Max SubIndex</Name>
-                    <Type>USINT</Type>
-                    <BitSize>8</BitSize>
-                    <BitOffs>0</BitOffs>
-                    <Flags>
-                      <Access>ro</Access>
-                    </Flags>
-                  </SubItem>
-                  <SubItem>
-                    <Name>Elements</Name>
-                    <Type>DT1C00ARR</Type>
-                    <BitSize>32</BitSize>
-                    <BitOffs>16</BitOffs>
-                    <Flags>
-                      <Access>ro</Access>
-                    </Flags>
-                  </SubItem>
-                </DataType>
-                <DataType>
-                  <Name>UDINT</Name>
-                  <BitSize>32</BitSize>
-                </DataType>
-                <DataType>
-                  <Name>STRING(47)</Name>
-                  <BitSize>376</BitSize>
-                </DataType>
-                <DataType>
-                  <Name>STRING(5)</Name>
-                  <BitSize>40</BitSize>
-                </DataType>
-                <DataType>
-                  <Name>USINT</Name>
+`<?xml version="1.0" encoding="UTF-8"?>
+<EtherCATInfo>
+  <Vendor>
+    <Id>0</Id>
+    <Name LcId="1033">ACME EtherCAT Devices</Name>
+  </Vendor>
+  <Descriptions>
+    <Groups>
+      <Group>
+        <Type>DigIn</Type>
+        <Name LcId="1033">Digital input</Name>
+      </Group>
+    </Groups>
+    <Devices>
+      <Device Physics="YY ">
+        <Type ProductCode="#xab123" RevisionNo="#x2">DigIn2000</Type>
+        <Name LcId="1033">2-channel Hypergalactic input superimpermanator</Name>
+        <GroupType>DigIn</GroupType>
+        <Profile>
+          <ProfileNo>5001</ProfileNo>
+          <AddInfo>0</AddInfo>
+          <Dictionary>
+            <DataTypes>
+              <DataType>
+                <Name>DT1018</Name>
+                <BitSize>144</BitSize>
+                <SubItem>
+                  <SubIdx>0</SubIdx>
+                  <Name>Max SubIndex</Name>
+                  <Type>USINT</Type>
                   <BitSize>8</BitSize>
-                </DataType>
-              </DataTypes>
-              <Objects>
-                <Object>
-                  <Index>#x1000</Index>
-                  <Name>Device Type</Name>
+                  <BitOffs>0</BitOffs>
+                  <Flags>
+                    <Access>ro</Access>
+                  </Flags>
+                </SubItem>
+                <SubItem>
+                  <SubIdx>1</SubIdx>
+                  <Name>Vendor ID</Name>
                   <Type>UDINT</Type>
                   <BitSize>32</BitSize>
-                  <Info>
-                    <DefaultValue>5001</DefaultValue>
-                  </Info>
-                  <Flags>
-                    <Access>ro</Access>
-                    <Category>m</Category>
-                  </Flags>
-                </Object>
-                <Object>
-                  <Index>#x1008</Index>
-                  <Name>Device Name</Name>
-                  <Type>STRING(47)</Type>
-                  <BitSize>376</BitSize>
-                  <Info>
-                    <DefaultString>2-channel Hypergalactic input superimpermanator</DefaultString>
-                  </Info>
+                  <BitOffs>16</BitOffs>
                   <Flags>
                     <Access>ro</Access>
                   </Flags>
-                </Object>
-                <Object>
-                  <Index>#x1009</Index>
-                  <Name>Hardware Version</Name>
-                  <Type>STRING(5)</Type>
-                  <BitSize>40</BitSize>
-                  <Info>
-                    <DefaultString>0.0.1</DefaultString>
-                  </Info>
-                  <Flags>
-                    <Access>ro</Access>
-                    <Category>o</Category>
-                  </Flags>
-                </Object>
-                <Object>
-                  <Index>#x100A</Index>
-                  <Name>Software Version</Name>
-                  <Type>STRING(5)</Type>
-                  <BitSize>40</BitSize>
-                  <Info>
-                    <DefaultString>0.0.1</DefaultString>
-                  </Info>
+                </SubItem>
+                <SubItem>
+                  <SubIdx>2</SubIdx>
+                  <Name>Product Code</Name>
+                  <Type>UDINT</Type>
+                  <BitSize>32</BitSize>
+                  <BitOffs>48</BitOffs>
                   <Flags>
                     <Access>ro</Access>
                   </Flags>
-                </Object>
-                <Object>
-                  <Index>#x1018</Index>
-                  <Name>Identity Object</Name>
-                  <Type>DT1018</Type>
-                  <BitSize>144</BitSize>
-                  <Info>
-                    <SubItem>
-                      <Name>Max SubIndex</Name>
-                      <Info>
-                        <DefaultValue>4</DefaultValue>
-                      </Info>
-                    </SubItem>
-                    <SubItem>
-                      <Name>Vendor ID</Name>
-                      <Info>
-                        <DefaultValue>0</DefaultValue>
-                      </Info>
-                    </SubItem>
-                    <SubItem>
-                      <Name>Product Code</Name>
-                      <Info>
-                        <DefaultValue>700707</DefaultValue>
-                      </Info>
-                    </SubItem>
-                    <SubItem>
-                      <Name>Revision Number</Name>
-                      <Info>
-                        <DefaultValue>2</DefaultValue>
-                      </Info>
-                    </SubItem>
-                    <SubItem>
-                      <Name>Serial Number</Name>
-                      <Info>
-                        <DefaultValue>1</DefaultValue>
-                      </Info>
-                    </SubItem>
-                  </Info>
+                </SubItem>
+                <SubItem>
+                  <SubIdx>3</SubIdx>
+                  <Name>Revision Number</Name>
+                  <Type>UDINT</Type>
+                  <BitSize>32</BitSize>
+                  <BitOffs>80</BitOffs>
                   <Flags>
                     <Access>ro</Access>
                   </Flags>
-                </Object>
-                <Object>
-                  <Index>#x1C00</Index>
-                  <Name>Sync Manager Communication Type</Name>
-                  <Type>DT1C00</Type>
-                  <BitSize>48</BitSize>
-                  <Info>
-                    <SubItem>
-                      <Name>Max SubIndex</Name>
-                      <Info>
-                        <DefaultValue>4</DefaultValue>
-                      </Info>
-                    </SubItem>
-                    <SubItem>
-                      <Name>Communications Type SM0</Name>
-                      <Info>
-                        <DefaultValue>1</DefaultValue>
-                      </Info>
-                    </SubItem>
-                    <SubItem>
-                      <Name>Communications Type SM1</Name>
-                      <Info>
-                        <DefaultValue>2</DefaultValue>
-                      </Info>
-                    </SubItem>
-                    <SubItem>
-                      <Name>Communications Type SM2</Name>
-                      <Info>
-                        <DefaultValue>3</DefaultValue>
-                      </Info>
-                    </SubItem>
-                    <SubItem>
-                      <Name>Communications Type SM3</Name>
-                      <Info>
-                        <DefaultValue>4</DefaultValue>
-                      </Info>
-                    </SubItem>
-                  </Info>
+                </SubItem>
+                <SubItem>
+                  <SubIdx>4</SubIdx>
+                  <Name>Serial Number</Name>
+                  <Type>UDINT</Type>
+                  <BitSize>32</BitSize>
+                  <BitOffs>112</BitOffs>
                   <Flags>
                     <Access>ro</Access>
                   </Flags>
-                </Object>
-              </Objects>
-            </Dictionary>
-          </Profile>
-          <Fmmu>Outputs</Fmmu>
-          <Fmmu>Inputs</Fmmu>
-          <Fmmu>MBoxState</Fmmu>
-          <Sm DefaultSize="512" StartAddress="#x1000" ControlByte="#x26" Enable="1">MBoxOut</Sm>
-          <Sm DefaultSize="512" StartAddress="#x1200" ControlByte="#x22" Enable="1">MBoxIn</Sm>
-          <Sm StartAddress="#x1600" ControlByte="#x24" Enable="0">Outputs</Sm>
-          <Sm StartAddress="#x1A00" ControlByte="#x20" Enable="0">Inputs</Sm>
-          <Mailbox DataLinkLayer="true">
-            <CoE SdoInfo="false" PdoAssign="false" PdoConfig="false" PdoUpload="false" CompleteAccess="false" />
-          </Mailbox>
-          <Dc>
-          </Dc>
-          <Eeprom>
-            <ByteSize>2048</ByteSize>
-            <ConfigData>05060344640000</ConfigData>
-          </Eeprom>
-        </Device>
-      </Devices>
-    </Descriptions>
-  </EtherCATInfo>`;
+                </SubItem>
+              </DataType>
+              <DataType>
+                <Name>DT1C00ARR</Name>
+                <BaseType>USINT</BaseType>
+                <BitSize>32</BitSize>
+                <ArrayInfo>
+                  <LBound>1</LBound>
+                  <Elements>4</Elements>
+                </ArrayInfo>
+              </DataType>
+              <DataType>
+                <Name>DT1C00</Name>
+                <BitSize>48</BitSize>
+                <SubItem>
+                  <SubIdx>0</SubIdx>
+                  <Name>Max SubIndex</Name>
+                  <Type>USINT</Type>
+                  <BitSize>8</BitSize>
+                  <BitOffs>0</BitOffs>
+                  <Flags>
+                    <Access>ro</Access>
+                  </Flags>
+                </SubItem>
+                <SubItem>
+                  <Name>Elements</Name>
+                  <Type>DT1C00ARR</Type>
+                  <BitSize>32</BitSize>
+                  <BitOffs>16</BitOffs>
+                  <Flags>
+                    <Access>ro</Access>
+                  </Flags>
+                </SubItem>
+              </DataType>
+              <DataType>
+                <Name>UDINT</Name>
+                <BitSize>32</BitSize>
+              </DataType>
+              <DataType>
+                <Name>STRING(47)</Name>
+                <BitSize>376</BitSize>
+              </DataType>
+              <DataType>
+                <Name>STRING(5)</Name>
+                <BitSize>40</BitSize>
+              </DataType>
+              <DataType>
+                <Name>USINT</Name>
+                <BitSize>8</BitSize>
+              </DataType>
+            </DataTypes>
+            <Objects>
+              <Object>
+                <Index>#x1000</Index>
+                <Name>Device Type</Name>
+                <Type>UDINT</Type>
+                <BitSize>32</BitSize>
+                <Info>
+                  <DefaultValue>5001</DefaultValue>
+                </Info>
+                <Flags>
+                  <Access>ro</Access>
+                  <Category>m</Category>
+                </Flags>
+              </Object>
+              <Object>
+                <Index>#x1008</Index>
+                <Name>Device Name</Name>
+                <Type>STRING(47)</Type>
+                <BitSize>376</BitSize>
+                <Info>
+                  <DefaultString>2-channel Hypergalactic input superimpermanator</DefaultString>
+                </Info>
+                <Flags>
+                  <Access>ro</Access>
+                </Flags>
+              </Object>
+              <Object>
+                <Index>#x1009</Index>
+                <Name>Hardware Version</Name>
+                <Type>STRING(5)</Type>
+                <BitSize>40</BitSize>
+                <Info>
+                  <DefaultString>0.0.1</DefaultString>
+                </Info>
+                <Flags>
+                  <Access>ro</Access>
+                  <Category>o</Category>
+                </Flags>
+              </Object>
+              <Object>
+                <Index>#x100A</Index>
+                <Name>Software Version</Name>
+                <Type>STRING(5)</Type>
+                <BitSize>40</BitSize>
+                <Info>
+                  <DefaultString>0.0.1</DefaultString>
+                </Info>
+                <Flags>
+                  <Access>ro</Access>
+                </Flags>
+              </Object>
+              <Object>
+                <Index>#x1018</Index>
+                <Name>Identity Object</Name>
+                <Type>DT1018</Type>
+                <BitSize>144</BitSize>
+                <Info>
+                  <SubItem>
+                    <Name>Max SubIndex</Name>
+                    <Info>
+                      <DefaultValue>4</DefaultValue>
+                    </Info>
+                  </SubItem>
+                  <SubItem>
+                    <Name>Vendor ID</Name>
+                    <Info>
+                      <DefaultValue>0</DefaultValue>
+                    </Info>
+                  </SubItem>
+                  <SubItem>
+                    <Name>Product Code</Name>
+                    <Info>
+                      <DefaultValue>700707</DefaultValue>
+                    </Info>
+                  </SubItem>
+                  <SubItem>
+                    <Name>Revision Number</Name>
+                    <Info>
+                      <DefaultValue>2</DefaultValue>
+                    </Info>
+                  </SubItem>
+                  <SubItem>
+                    <Name>Serial Number</Name>
+                    <Info>
+                      <DefaultValue>1</DefaultValue>
+                    </Info>
+                  </SubItem>
+                </Info>
+                <Flags>
+                  <Access>ro</Access>
+                </Flags>
+              </Object>
+              <Object>
+                <Index>#x1C00</Index>
+                <Name>Sync Manager Communication Type</Name>
+                <Type>DT1C00</Type>
+                <BitSize>48</BitSize>
+                <Info>
+                  <SubItem>
+                    <Name>Max SubIndex</Name>
+                    <Info>
+                      <DefaultValue>4</DefaultValue>
+                    </Info>
+                  </SubItem>
+                  <SubItem>
+                    <Name>Communications Type SM0</Name>
+                    <Info>
+                      <DefaultValue>1</DefaultValue>
+                    </Info>
+                  </SubItem>
+                  <SubItem>
+                    <Name>Communications Type SM1</Name>
+                    <Info>
+                      <DefaultValue>2</DefaultValue>
+                    </Info>
+                  </SubItem>
+                  <SubItem>
+                    <Name>Communications Type SM2</Name>
+                    <Info>
+                      <DefaultValue>3</DefaultValue>
+                    </Info>
+                  </SubItem>
+                  <SubItem>
+                    <Name>Communications Type SM3</Name>
+                    <Info>
+                      <DefaultValue>4</DefaultValue>
+                    </Info>
+                  </SubItem>
+                </Info>
+                <Flags>
+                  <Access>ro</Access>
+                </Flags>
+              </Object>
+            </Objects>
+          </Dictionary>
+        </Profile>
+        <Fmmu>Outputs</Fmmu>
+        <Fmmu>Inputs</Fmmu>
+        <Fmmu>MBoxState</Fmmu>
+        <Sm DefaultSize="512" StartAddress="#x1000" ControlByte="#x26" Enable="1">MBoxOut</Sm>
+        <Sm DefaultSize="512" StartAddress="#x1200" ControlByte="#x22" Enable="1">MBoxIn</Sm>
+        <Sm StartAddress="#x1600" ControlByte="#x24" Enable="0">Outputs</Sm>
+        <Sm StartAddress="#x1A00" ControlByte="#x20" Enable="0">Inputs</Sm>
+        <Mailbox DataLinkLayer="true">
+          <CoE SdoInfo="false" PdoAssign="false" PdoConfig="false" PdoUpload="false" CompleteAccess="false" />
+        </Mailbox>
+        <Dc>
+        </Dc>
+        <Eeprom>
+          <ByteSize>2048</ByteSize>
+          <ConfigData>05060344640000</ConfigData>
+        </Eeprom>
+      </Device>
+    </Devices>
+  </Descriptions>
+</EtherCATInfo>`;
         expect(result).toEqualLines(expectedesi);
       });
     });

@@ -26,13 +26,18 @@ function isBackedUp(formControl) {
 	return formControl.type != "button";
 }
 
+function isRadioButton(formControl) {
+	return formControl.name.startsWith('CoeDetailsEnable');
+}
+
 function prepareBackupObject(form, odSections, dc) {
 	const formValues = {};
 	if (form) {
 		Object.entries(form).forEach(formEntry => {
 			const formControl = formEntry[1]; // entry[0] is form control order number
 			if(isBackedUp(formControl) && formControl.value) {
-				formValues[formControl.name] = formControl.value;
+				const name = formControl.name;
+				formValues[name] = isRadioButton(formControl) ? formControl.checked : formControl.value;
 			};
 		});
 	}
@@ -63,9 +68,9 @@ function setFormValues(form, backupObject) {
 	if (form) {
 		Object.entries(form).forEach(formEntry => {
 			const formControl = formEntry[1]; // entry[0] is index
-			const formControlValue = backupObject.form[formControl.name];
-			if (isBackedUp(formControl) && formControlValue) {
-				setFormControlValue(formControl, formControlValue);
+			const value = backupObject.form[formControl.name];
+			if (isBackedUp(formControl) && value != undefined) {
+				setFormControlValue(formControl, value);
 			};
 		});
 	}
@@ -83,14 +88,11 @@ function getEmptyFrom(form) {
 	return emptyForm;
 }
 
-function setFormControlValue(formControl, formControlValue) {
-	if (formControl.name.startsWith('CoeDetailsEnable')) {
-		if (formControlValue == true) {
-			formControl.checked = true;
-		} else {
-		}
+function setFormControlValue(formControl, value) {
+	if (isRadioButton(formControl)) {
+		formControl.checked = (value == true) ? true : false;
 	} else {
-		formControl.value = formControlValue;
+		formControl.value = value;
 	}
 }
 
