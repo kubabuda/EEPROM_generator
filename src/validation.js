@@ -121,13 +121,3 @@ function checkIsSubitemNameFree(objd, newName, subIndex = null) {
 	}
 	return !names.has(newName);
 }
-
-function getNextFreeSubitemName(objd, name) {
-	let newName = name;
-	let i = 1;
-	while (!checkIsSubitemNameFree(objd, newName)) {
-		newName = `${name} ${i}`;
-		i++;
-	}
-	return newName;
-}

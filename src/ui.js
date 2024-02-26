@@ -37,12 +37,12 @@ document.onkeydown = function(e) {
 	const O_keyCode = 79;
 	if (e.ctrlKey){
 		if (e.keyCode === S_keyCode) {
-			event.preventDefault();
+			e.preventDefault();
 			onSaveClick();
 			return false;
 		}
 		else if (e.keyCode == O_keyCode) {
-			event.preventDefault();
+			e.preventDefault();
 			onRestoreClick();
 			return false;
 		}
@@ -62,6 +62,8 @@ const odSections = {
 	rxpdo : {}, // this will be done when stitching sections during code generation
 };
 const _dc = []
+
+const dtypeDefault = DTYPE.UNSIGNED8 // when adding new item or subitem
 
 window.onload = (event) => {
 	odModalSetup();
@@ -292,7 +294,7 @@ function editExistingOD_ObjectDialog(odSectionName, index, otype) {
 }
 
 function addNewOD_ObjectDialog(odSectionName, otype) {
-	const objd = getNewObjd(odSectionName, otype);
+	const objd = getNewObjd(odSections, odSectionName, otype, dtypeDefault);
 	const index = getFirstFreeIndex(odSections, odSectionName);
 	delete odModal.index_initial_value; // add new object, not replace edited one 
 	odModalUpdate(index, objd);
@@ -335,7 +337,7 @@ function odModalSetTitle(message) {
 function editVAR_Click(odSectionName, indexValue = null) {
 	const otype = OTYPE.VAR;
 	const index = indexToString(indexValue);
-	const actionName = "Edit";
+	let actionName = "Edit";
 	odModal.odSectionName = odSectionName;
 
 	if (objectExists(odSections[odSectionName], index)) {
@@ -352,7 +354,7 @@ function editVAR_Click(odSectionName, indexValue = null) {
 function editARRAY_Click(odSectionName, indexValue = null) {
 	const otype = OTYPE.ARRAY;
 	const index = indexToString(indexValue);
-	const actionName = "Edit";
+	let actionName = "Edit";
 	odModal.odSectionName = odSectionName;
 	odModal.form.Access
 
@@ -370,7 +372,7 @@ function editARRAY_Click(odSectionName, indexValue = null) {
 function editRECORD_Click(odSectionName, indexValue = null) {
 	const otype = OTYPE.RECORD;
 	const index = indexToString(indexValue);
-	const actionName = "Edit";
+	let actionName = "Edit";
 	odModal.odSectionName = odSectionName;
 
 	if (objectExists(odSections[odSectionName], index)) {
@@ -494,7 +496,6 @@ function addSubitemClick(odSectionName, indexValue) {
 	const index = indexToString(indexValue);
 	const odSection = odSections[odSectionName];
 	const objd = odSection[index];
-	const dtypeDefault = DTYPE.UNSIGNED8
 
 	// we expect objd to have items array with at least [{ name: 'Max SubIndex' }]
 	if(!objd.items || !objd.items.length ) { alert(`Object ${index} "${objd.name}" has no subitems!`); return; }

@@ -303,19 +303,47 @@ function getFirstFreeIndex(odSections, odSectionName) {
 
 	return indexToString(result);
 }
+
+function getNextFreeItemName(odSections, name) {
+	let i = 0;
+	OD_sections.forEach(section => {
+		Object.entries(odSections[section]).forEach(object => {
+			if (object[1].name == name) {
+				i += 1;
+			}
+		})
+	});
+	if (i == 0) {
+		return name;
+	}
+	return `${name} ${i}`;
+}
+
+function getNextFreeSubitemName(objd, name) {
+	let newName = name;
+	let i = 1;
+	while (!checkIsSubitemNameFree(objd, newName)) {
+		newName = `${name} ${i}`;
+		i++;
+	}
+	return newName;
+}
+
 /** returns new object description for given PDO section  */
-function getNewObjd(odSectionName, otype, dtype) {
+function getNewObjd(odSections, odSectionName, otype, dtype) {
 	if (dtype == undefined) {
-		dtype = DTYPE.UNSIGNED8; // first from list
+		dtype = DTYPE.UNSIGNED8;
 	}
 	const readableNames = {
 		VAR: 'Variable',
 		ARRAY: 'Array',
 		RECORD: 'Record'
 	}
+	let name = getNextFreeItemName(odSections, `New ${readableNames[otype]}`);
+	// get free name 
 	const objd = { 
 		otype: otype,
-		name: `New ${readableNames[otype]}`,
+		name: name,
 		access: 'RO',
 	};
 	switch(otype) {
