@@ -25,12 +25,12 @@ const cia_esi_json = `{
     "Port3Physical": " ",
     "ESC": "AX58100",
     "SPImode": "0",
-    "CoeDetailsEnableSDO": "EnableSDO",
-    "CoeDetailsEnableSDOInfo": "EnableSDOInfo",
-    "CoeDetailsEnablePDOAssign": "EnablePDOAssign",
-    "CoeDetailsEnablePDOConfiguration": "EnablePDOConfiguration",
-    "CoeDetailsEnableUploadAtStartup": "EnableUploadAtStartup",
-    "CoeDetailsEnableSDOCompleteAccess": "EnableSDOCompleteAccess"
+    "CoeDetailsEnableSDO": true,
+    "CoeDetailsEnableSDOInfo": true,
+    "CoeDetailsEnablePDOAssign": false,
+    "CoeDetailsEnablePDOConfiguration": false,
+    "CoeDetailsEnableUploadAtStartup": true,
+    "CoeDetailsEnableSDOCompleteAccess": false
   },
   "od": {
     "sdo": {
@@ -1313,7 +1313,7 @@ describe("generators", function() {
           </Entry>
         </TxPdo>
         <Mailbox DataLinkLayer="true">
-          <CoE SdoInfo="false" PdoAssign="false" PdoConfig="false" PdoUpload="false" CompleteAccess="false" />
+          <CoE SdoInfo="true" PdoAssign="false" PdoConfig="false" PdoUpload="true" CompleteAccess="false" />
         </Mailbox>
         <Dc>
           <OpMode>
