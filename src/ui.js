@@ -266,6 +266,8 @@ function odModalSizeInputChanged(value) {
 function odModalClose() {
 	// TODO clear form 
 	odModal.style.display = "none";
+	delete odModal.subitem;
+	delete odModal.actionName;
 }
 
 /** update control values on OD modal */
@@ -407,7 +409,6 @@ function odModalSaveChanges() {
 	
 	if (odModal.subitem) {
 		onEditSubitemSubmit(odModal.subitem);
-		delete odModal.subitem;
 		return;
 	}
 	const objd = odModal.objd;
@@ -502,17 +503,17 @@ function addSubitemClick(odSectionName, indexValue) {
 	const index = indexToString(indexValue);
 	const odSection = odSections[odSectionName];
 	const objd = odSection[index];
+	let subitem;
 
 	// we expect objd to have items array with at least [{ name: 'Max SubIndex' }]
 	if(!objd.items || !objd.items.length ) { alert(`Object ${index} "${objd.name}" has no subitems!`); return; }
-
 	switch(objd.otype) {
 		case OTYPE.ARRAY: {
-			addArraySubitem(objd, objd.dtype || dtypeDefault);
+			subitem = getNewArraySubitem(objd, objd.dtype || dtypeDefault);
 			break;
 		}
 		case OTYPE.RECORD: {
-			addRecordSubitem(objd, dtypeDefault);
+			subitem = getNewRecordSubitem(objd, dtypeDefault);
 			break;
 		}
 		default: {
@@ -520,20 +521,20 @@ function addSubitemClick(odSectionName, indexValue) {
 		}
 	}
 	const subindex = objd.items.length - 1; // subitem is added to end of items list
-	editSubitemClick(odSectionName, indexValue, subindex, "Add");
+	editSubitemClick(odSectionName, indexValue, subindex, "Add", subitem);
 }
 
-function editSubitemClick(odSectionName, indexValue, subindex, actionName = "Edit") {
+function editSubitemClick(odSectionName, indexValue, subindex, actionName = "Edit", subitem) {
 	const index = indexToString(indexValue);
 	const odSection = odSections[odSectionName];
 	const objd = odSection[index];
-
-	if(!objd.items || objd.items.length <= subindex ) { alert(`Object ${index} "${objd.name}" does not have ${subindex} subitems!`); return; }
+	
+	if (subitem == undefined) {
+		if(!objd.items || objd.items.length <= subindex ) { alert(`Object ${index} "${objd.name}" does not have ${subindex} subitems!`); return; }
+		subitem = objd.items[subindex];
+	}
 	
 	odModalSetTitle(`${actionName} ${odSectionName.toUpperCase()} object 0x${index} "${objd.name}" subitem 0x${indexToString(subindex)}`);
-	
-	const subitem = objd.items[subindex];
-	
 	odModalHideControls();
 	
 	document.getElementById('dialogRowValue').style.display = "";
@@ -546,7 +547,8 @@ function editSubitemClick(odSectionName, indexValue, subindex, actionName = "Edi
 		odModal.form.Access.value = subitem.access || 'RO';
 	}
 	odModal.form.ObjectName.value = subitem.name;
-	odModal.subitem = { odSectionName: odSectionName, index: index, subindex: subindex };
+	odModal.subitem = { odSectionName: odSectionName, index: index, subindex: subindex, subitem: subitem };
+	odModal.actionName = actionName;
 	odModalOpen();
 	document.getElementById('modalInputObjectName').focus();
 }
@@ -554,10 +556,15 @@ function editSubitemClick(odSectionName, indexValue, subindex, actionName = "Edi
 function onEditSubitemSubmit(modalSubitem) {
 	const odSection = odSections[modalSubitem.odSectionName];
 	const objd = odSection[modalSubitem.index];
-	const subitem = objd.items[modalSubitem.subindex];
+	let subindex = modalSubitem.subindex;
+	if (odModal.actionName == 'Add') {
+		objd.items.push(modalSubitem.subitem);
+		subindex++;
+	}
+	const subitem = objd.items[subindex];
 	const newName = odModal.form.ObjectName.value;
 
-	if (!checkIsSubitemNameFree(objd, newName, modalSubitem.subindex)) {
+	if (!checkIsSubitemNameFree(objd, newName, subindex)) {
 		alert(`Name ${newName} already used by another subitem, pick another name`);
 		return false;
 	}
@@ -571,6 +578,7 @@ function onEditSubitemSubmit(modalSubitem) {
 	odModalClose();
 	onFormChanged();
 	reloadOD_Section(modalSubitem.odSectionName);
+	delete odModal.subitem;
 }
 
 // ####################### Display Object Dictionary state ####################### //
