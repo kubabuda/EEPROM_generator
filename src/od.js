@@ -339,8 +339,8 @@ function getNewObjd(odSections, odSectionName, otype, dtype) {
 		ARRAY: 'Array',
 		RECORD: 'Record'
 	}
-	let name = getNextFreeItemName(odSections, `New ${readableNames[otype]}`);
 	// get free name 
+	let name = getNextFreeItemName(odSections, `New ${readableNames[otype]}`);
 	const objd = { 
 		otype: otype,
 		name: name,

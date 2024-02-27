@@ -660,6 +660,9 @@ function syncModeEdit(sync) {
 }
 
 function onSyncSubmit(syncForm) {
+	if (!syncForm) {
+		syncForm = document.getElementById('syncModalForm');
+	}
 
 	syncModal.edited.Name = syncForm.Name.value;
 	syncModal.edited.Description = syncForm.Description.value;

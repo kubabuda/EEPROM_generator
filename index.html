@@ -105,7 +105,7 @@
             <span class="close" onClick="syncModalClose()">&times;</span>
             <h3 id="editObjectTitle">Edit synchronization mode</h3>
 
-            <form name="syncModalForm" id="syncModalForm" action="" onsubmit="onSyncSubmit(this); return false;">
+            <form name="syncModalForm" id="syncModalForm" action="" onsubmit="onEditObjectSubmit(event); return false;">
                <table border="0">
                   <tr>
                      <td>Name:</td>
@@ -139,7 +139,7 @@
                      <td align="center">
                         <button name="Cancel" onClick='syncModalClose();'>✖️ &nbsp; Cancel &nbsp;</button>
                      </td><td>
-                        <input type="submit" name="SaveChanges" value="✔️&nbsp; Save changes &nbsp;">
+                        <button name="SaveChanges" onclick="onSyncSubmit()">✔️&nbsp; Save changes &nbsp;</button>
                      </td>
                   </tr>
                </table>
