@@ -240,20 +240,26 @@ function odModalShowSizeInput(dtype) {
 	}
 }
 
-function odModalDTYPEChanged(dtype) {
-	odModalShowSizeInput(dtype);
-	odModalValueChanged(odModal.form.InitalValue.value);
-}
-
 function odModalIndexChanged(index) {
 	odModal.form.Index.value = sanitize0xHexa(index).slice(0, 6);
 }
 
-function odModalValueChanged(value) {
+function odModalDTYPEChanged(dtype) {
+	odModalShowSizeInput(dtype);
+	odModalInitialValueChanged(odModal.form.InitalValue.value);
+}
+
+function odModalInitialValueChanged(value) {
 	const dtype = odModal.form.DTYPE.value;
 	odModal.form.InitalValue.value = sanitizeInitialValue(value, dtype);
 	if (dtype == DTYPE.VISIBLE_STRING) {
 		odModal.form.Size.value = Math.max(odModal.form.Size.value, value.length);
+	}
+}
+
+function odModalSizeInputChanged(value) {
+	if (value < 1) {
+		odModal.form.Size.value = 1;
 	}
 }
 
