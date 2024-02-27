@@ -659,12 +659,16 @@ function syncModeEdit(sync) {
 	syncModalOpen();
 }
 
-function onSyncSubmit(syncForm) {
-	if (!syncForm) {
-		syncForm = document.getElementById('syncModalForm');
-	}
+function onSyncSubmit() {
+	const syncForm = document.getElementById('syncModalForm');
 	if (syncModal.add) {
-		// TODO validate DC sync name is unique
+		// validate synchronization setting name is unique
+		for (let dc of _dc) {
+			if (dc.Name.toLowerCase() == syncForm.Name.value.toLowerCase()) {
+				alert(`Synchronization mode ${dc.Name} already exist, find another name`);
+				return false;
+			}
+		};
 		_dc.push(syncModal.edited);
 		delete syncModal.add;
 	}
