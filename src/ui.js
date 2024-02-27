@@ -663,6 +663,11 @@ function onSyncSubmit(syncForm) {
 	if (!syncForm) {
 		syncForm = document.getElementById('syncModalForm');
 	}
+	if (syncModal.add) {
+		// TODO validate DC sync name is unique
+		_dc.push(syncModal.edited);
+		delete syncModal.add;
+	}
 
 	syncModal.edited.Name = syncForm.Name.value;
 	syncModal.edited.Description = syncForm.Description.value;
@@ -688,7 +693,7 @@ function addSyncClick() {
 		Sync1cycleTime: 0,
 		Sync1shiftTime: 0,
 	}
-	_dc.push(newSyncMode);
+	syncModal.add = true;
 	syncModeEdit(newSyncMode);
 }
 
