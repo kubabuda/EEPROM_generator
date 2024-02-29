@@ -318,7 +318,7 @@ describe("generators", function() {
       expect(result).toEqualLines(configData);
     });
 
-    it("ecat_options_generator should generate config data", function() {
+    it("ecat_options_generator should generate expected code", function() {
       // arrange
       // act
       const result = ecat_options_generator(form, od, indexes);
@@ -371,7 +371,7 @@ describe("generators", function() {
       expect(result).toEqualLines(ecat_options);
     });
 
-    it("objectlist_generator should generate config data", function() {
+    it("objectlist_generator should generate expected code", function() {
       // arrange
       // act
       const result = objectlist_generator(form, od, indexes);
@@ -791,17 +791,17 @@ extern _Objects Obj;
         expect(result).toEqualLines(expectedesi);
       });
 
-      it("hex_generator should generate config data", function() {
+      it("hex_generator should generate config string when given extra parameter true", function() {
         // arrange
         // act
         const result = hex_generator(form, true);
         
         // assert
         const configData = `05060344640000`;
-        expect(result).toEqualLines(configData);
+        expect(result).toEqual(configData);
       });
 
-      it("ecat_options_generator should generate config data", function() {
+      it("ecat_options_generator should generate expected code", function() {
         // arrange
         // act
         const result = ecat_options_generator(form, od, indexes);
@@ -854,7 +854,7 @@ extern _Objects Obj;
           expect(result).toEqualLines(ecat_options);
       });
 
-      it("objectlist_generator should generate config data", function() {
+      it("objectlist_generator should generate expected code", function() {
         // arrange
         // act
         const result = objectlist_generator(form, od, indexes);

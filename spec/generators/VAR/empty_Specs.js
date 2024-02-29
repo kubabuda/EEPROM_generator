@@ -332,7 +332,7 @@ xdescribe("OTYPE VAR", function() {
       expect(result).toEqual(configData);
     });
 
-    it("ecat_options_generator should generate config data", function() {
+    it("ecat_options_generator should generate expected code", function() {
       // arrange
       // act
       const result = ecat_options_generator(form, od, indexes);
@@ -385,7 +385,7 @@ xdescribe("OTYPE VAR", function() {
       expect(result).toEqual(ecat_options);
     });
 
-    it("objectlist_generator should generate config data", function() {
+    it("objectlist_generator should generate expected code", function() {
       // arrange
       // act
       const result = objectlist_generator(form, od, indexes);
