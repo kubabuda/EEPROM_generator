@@ -106,9 +106,8 @@ function prepareBackupFileContent(form, odSections, dc) {
 
 // Localstorage limit is usually 5MB, super large object dictionaries on older browsers might be problematic
 
-function downloadBackupFile(form, odSections, dc) {
-	const backupFileContent = prepareBackupFileContent(form, odSections, dc); // pretty print
-	downloadFile(backupFileContent, 'esi.json', 'text/json');
+function downloadBackupFile(backupJson) {
+	downloadFile(backupJson, 'esi.json', 'text/json');
 }
 
 function restoreBackup(fileContent, form, odSections, dc) {
@@ -121,8 +120,8 @@ function restoreBackup(fileContent, form, odSections, dc) {
 // ####################### Backup using browser localstorage ####################### //
 
 /** persist OD and settings changes over page reload */
-function saveLocalBackup(form, odSections, dc) {
-	localStorage.etherCATeepromGeneratorBackup = prepareBackupFileContent(form, odSections, dc);
+function saveLocalBackup(backupJson) {
+	localStorage.etherCATeepromGeneratorBackup = backupJson;
 }
 
 function tryRestoreLocalBackup(form, odSections, dc) {

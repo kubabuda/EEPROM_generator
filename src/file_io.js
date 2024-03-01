@@ -33,3 +33,29 @@ function readFile(e) {
   	}
 	reader.readAsText(file);
 }
+
+function downloadGeneratedFilesZipped(result, projectName) {
+	const zip = new JSZip();
+	zip.file(`${projectName}.xml`, result.ESI.value);
+	zip.file('eeprom.hex', result.HEX.value);
+	zip.file('eeprom.bin', result.HEX.hexData);
+	zip.file('ecat_options.h', result.ecat_options.value);
+	zip.file('objectlist.c', result.objectlist.value);
+	zip.file('utypes.h', result.utypes.value);
+	zip.file('esi.json', result.backupJson);
+
+	zip.generateAsync({type:"blob"}).then(function (blob) { // generate the zip file
+		downloadFile(blob, "esi.zip", "application/zip"); // trigger the download
+	}, function (err) {
+		console.log(err);
+	});
+}
+
+function downloadGeneratedFiles(result, projectName) {
+	downloadFile(result.ESI.value, `${projectName}.xml`, 'text/html');
+	downloadFile(result.HEX.value, 'eeprom.hex', 'application/octet-stream');
+	downloadFile(result.ecat_options.value, 'ecat_options.h', 'text/plain');
+	downloadFile(result.objectlist.value, 'objectlist.c', 'text/plain');
+	downloadFile(result.utypes.value, 'utypes.h', 'text/plain');
+	downloadBackupFile(result.backupJson);
+}

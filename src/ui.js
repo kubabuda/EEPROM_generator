@@ -23,7 +23,6 @@ function getOutputForm() {
 
 function onFormChanged() {
 	const form = getForm();
-	saveLocalBackup(form, odSections, _dc);
 	processForm(form);
 }
 
@@ -123,8 +122,9 @@ function processForm(form)
 	outputCtl.HEX.hexData = hex_generator(form);
 	outputCtl.HEX.value = toIntelHex(outputCtl.HEX.hexData);
 	outputCtl.ESI.value = esi_generator(form, od, indexes, _dc);
+	outputCtl.backupJson = prepareBackupFileContent(form, odSections, _dc);
 	
-	saveLocalBackup(form, odSections, _dc);
+	saveLocalBackup(outputCtl.backupJson);
 
 	return outputCtl;
 }
@@ -138,36 +138,8 @@ function onGenerateDownloadClick()
 {
 	const form = getForm();
 	const result = processForm(form);
-	downloadGeneratedFilesZipped(form, result);
-
-	function downloadGeneratedFilesZipped(form, result) {
-		const zip = new JSZip();
-		const projectName = getProjectName(form);
-		zip.file(`${projectName}.xml`, result.ESI.value);
-		zip.file('eeprom.hex', result.HEX.value);
-		zip.file('eeprom.bin', result.HEX.hexData);
-		zip.file('ecat_options.h', result.ecat_options.value);
-		zip.file('objectlist.c', result.objectlist.value);
-		zip.file('utypes.h', result.utypes.value);
-		zip.file('esi.json', prepareBackupFileContent(form));
-
-		zip.generateAsync({type:"blob"}).then(function (blob) { // generate the zip file
-			downloadFile(blob, "esi.zip", "application/zip"); // trigger the download
-		}, function (err) {
-			console.log(err);
-		});
-	}
-
-	function downloadGeneratedFiles(form, result) {
-		const projectName = getProjectName(form);
-		downloadFile(result.ESI.value, `${projectName}.xml`, 'text/html');
-		downloadFile(result.HEX.value, 'eeprom.hex', 'application/octet-stream');
-		downloadFile(result.ecat_options.value, 'ecat_options.h', 'text/plain');
-		downloadFile(result.objectlist.value, 'objectlist.c', 'text/plain');
-		downloadFile(result.utypes.value, 'utypes.h', 'text/plain');
-		downloadBackupFile(form, _dc);
-	
-	}
+	const projectName = getProjectName(form);
+	downloadGeneratedFilesZipped(result, projectName);
 }
 
 function onGenerateClick() {
@@ -176,8 +148,9 @@ function onGenerateClick() {
 
 function onSaveClick() {
 	const form = getForm();
-	downloadBackupFile(form, odSections, _dc);
-	saveLocalBackup(form, odSections, _dc);
+	const backupJson = prepareBackupFileContent(form, odSections, dc);
+	downloadBackupFile(backupJson);
+	saveLocalBackup(backupJson);
 }
 
 function onRestoreClick() {
