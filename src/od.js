@@ -377,7 +377,6 @@ function getNewArraySubitem(objd, dtype) {
 	if (!objd.items) { alert(`${objd} does not have items list, cannot add subitem`); return; }
 	let newName = getNextFreeSubitemName(objd, 'New array subitem');
 	const newSubitem = { name: newName, value: dtype_default_epmty_value[dtype] };
-	// objd.items.push(newSubitem);
 
 	return newSubitem;
 }
@@ -387,7 +386,6 @@ function getNewRecordSubitem(objd, dtype) {
 	if (!objd.items) { alert(`${objd} does not have items list, cannot add subitem`); return; }
 	let newName = getNextFreeSubitemName(objd, 'New record subitem');
 	const newSubitem = { name: newName, dtype: dtype, value: dtype_default_epmty_value[dtype] }
-	// objd.items.push(newSubitem);
 
 	return newSubitem;
 }
