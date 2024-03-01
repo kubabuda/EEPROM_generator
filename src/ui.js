@@ -121,6 +121,7 @@ function processForm(form)
 	outputCtl.utypes.value = utypes_generator(form, od, indexes);
 	outputCtl.HEX.hexData = hex_generator(form);
 	outputCtl.HEX.value = toIntelHex(outputCtl.HEX.hexData);
+	outputCtl.HEX.header = toEsiEepromH(outputCtl.HEX.hexData);
 	outputCtl.ESI.value = esi_generator(form, od, indexes, _dc);
 	outputCtl.backupJson = prepareBackupFileContent(form, odSections, _dc);
 	

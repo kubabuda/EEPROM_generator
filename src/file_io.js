@@ -39,6 +39,7 @@ function downloadGeneratedFilesZipped(result, projectName) {
 	zip.file(`${projectName}.xml`, result.ESI.value);
 	zip.file('eeprom.hex', result.HEX.value);
 	zip.file('eeprom.bin', result.HEX.hexData);
+	zip.file('eeprom.h', result.HEX.header);
 	zip.file('ecat_options.h', result.ecat_options.value);
 	zip.file('objectlist.c', result.objectlist.value);
 	zip.file('utypes.h', result.utypes.value);
@@ -54,6 +55,7 @@ function downloadGeneratedFilesZipped(result, projectName) {
 function downloadGeneratedFiles(result, projectName) {
 	downloadFile(result.ESI.value, `${projectName}.xml`, 'text/html');
 	downloadFile(result.HEX.value, 'eeprom.hex', 'application/octet-stream');
+	downloadFile(result.HEX.header, 'eeprom.h', 'text/plain');
 	downloadFile(result.ecat_options.value, 'ecat_options.h', 'text/plain');
 	downloadFile(result.objectlist.value, 'objectlist.c', 'text/plain');
 	downloadFile(result.utypes.value, 'utypes.h', 'text/plain');
