@@ -69,7 +69,7 @@ function toIntelHex(record) {
 
 /** takes bytes array, returns esi.h equivalent: EEPROM content as C header, as JS string */
 function toEsiEepromH(bytes) {
-	let result = ["\nunsigned char esiEepromData[] = {\n"];
+	let result = ["#ifndef __ESI_EEPROM_H__\n#define __ESI_EEPROM_H__\n\nunsigned char esiEepromData[] = {\n"];
 	let line = 0;
 	const last_i = bytes.length - 1;
 	for (const [i, b] of bytes.entries()) {
@@ -86,7 +86,7 @@ function toEsiEepromH(bytes) {
 			result.push(',');
 		}
 	}
-	result.push('};');
+	result.push('\n};\n#endif __ESI_EEPROM_H__');
 	return result.join('');
 
 	function toByte(b) {
