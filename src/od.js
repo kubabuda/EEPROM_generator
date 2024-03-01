@@ -391,3 +391,13 @@ function getNewRecordSubitem(objd, dtype) {
 
 	return newSubitem;
 }
+
+function setArrayLength(objd, newLength) {
+	const size = newLength + 1; // Max SubIndex + at least 1 item
+	while (objd.items.length > size) { 
+		objd.items.pop();
+	}
+	while (objd.items.length < size) { 
+		objd.items.push(getNewArraySubitem(objd, objd.dtype));
+	}
+}

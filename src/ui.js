@@ -206,12 +206,12 @@ function odModalOpen() {
 	odModal.style.display = "block";
 }
 
-function odModalShowSizeInput(dtype) {
-	if (dtype == DTYPE.VISIBLE_STRING) {
-		document.getElementById('sizeInput').style.display = '';
-	} else {
-		document.getElementById('sizeInput').style.display = 'none';
-	}
+function odModalShowSizeInput(visible=false) {
+	document.getElementById('sizeInput').style.display = visible ? '' : 'none';
+}
+
+function odModalShowSizeInputForDtype(dtype) {
+	odModalShowSizeInput(dtype == DTYPE.VISIBLE_STRING);
 }
 
 function odModalIndexChanged(index) {
@@ -219,7 +219,7 @@ function odModalIndexChanged(index) {
 }
 
 function odModalDTYPEChanged(dtype) {
-	odModalShowSizeInput(dtype);
+	odModalShowSizeInputForDtype(dtype);
 	odModalInitialValueChanged(odModal.form.InitalValue.value);
 }
 
@@ -252,9 +252,12 @@ function odModalUpdate(index, objd) {
 	odModal.form.DTYPE.value = dtype;
 	odModal.form.InitalValue.value = objd.value || dtype_default_epmty_value[dtype];
 	odModal.form.Size.value = objd.size || odModal.form.InitalValue.value.length || 0;
+	if (objd.otype == OTYPE.ARRAY) {
+		odModal.form.Size.value = objd.items.length - 1;
+	}
 	odModal.form.Access.value = objd.access || 'RO';
 	odModal.objd = objd;
-	odModalShowSizeInput(dtype);
+	odModalShowSizeInputForDtype(dtype);
 }
 
 function odModalHideControls() {
@@ -291,11 +294,13 @@ function odModalOpenForObject(otype) {
 		case OTYPE.VAR: {
 			document.getElementById('dialogRowDtype').style.display = '';
 			document.getElementById('dialogRowValue').style.display = '';
-			odModalShowSizeInput(odModal.objd.dtype);
+			odModalShowSizeInputForDtype(odModal.objd.dtype);
 			break;
 		}
 		case OTYPE.ARRAY: {
 			document.getElementById('dialogRowDtype').style.display = "";
+			odModalShowSizeInput(true);
+			// form.Size
 			break;		
 		}
 		case OTYPE.RECORD: {
@@ -416,6 +421,7 @@ function odModalSaveChanges() {
 			break;
 		case OTYPE.ARRAY:
 			objd.dtype = modalform.DTYPE.value;
+			setArrayLength(objd, parseInt(modalform.Size.value));
 			
 			break;
 		case OTYPE.RECORD:
@@ -549,6 +555,7 @@ function onEditSubitemSubmit(modalSubitem) {
 		subitem.dtype = odModal.form.DTYPE.value;
 		subitem.access = odModal.form.Access.value;
 	}
+	// handle subitem array
 	odModalClose();
 	onFormChanged();
 	reloadOD_Section(modalSubitem.odSectionName);
