@@ -10,5 +10,5 @@ describe("backup", function() {
     const result = isBackedUp(control);
     // assert
     expect(result).toEqual(false);
-    });
+  });
 });
