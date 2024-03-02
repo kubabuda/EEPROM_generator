@@ -34,7 +34,7 @@ describe("od", function() {
         const odSections = getEmptyObjDict();
         const form = buildMockFormHelper();
         
-        // const result = toEsiEepromH(bytes);
+        // act
         const  result = buildObjectDictionary(form, odSections);
           
         // assert
@@ -42,13 +42,28 @@ describe("od", function() {
         expect(result).toEqual(expected);
       });
 
-      it("given variable in TXPDO should add Sync Manager 3 PDO assignment, PDO and that variable, in retunred OD", function() {
+      it("given variable in SDO should add that variable in returned OD", function() {
+        // arrange
+        const odSections = getEmptyObjDict();
+        odSections.sdo['2000'] = { dtype: DTYPE.UNSIGNED8, otype: OTYPE.VAR, name: 'SDO', value: 42 };
+        const form = buildMockFormHelper();
+        
+        // act
+        const result = buildObjectDictionary(form, odSections);
+        
+        // assert
+        const expected = getExpectedEmptyOd();
+        expected['2000'] = { dtype: DTYPE.UNSIGNED8, otype: OTYPE.VAR, name: 'SDO', value: 42, isSDOitem: true, data: '&Obj.SDO' };
+        expect(result).toEqual(expected);
+      });
+
+      it("given variable in TXPDO should add Sync Manager 3 PDO assignment, PDO and that variable, in returned OD", function() {
         // arrange
         const odSections = getEmptyObjDict();
         odSections.txpdo['6000'] = { dtype: DTYPE.UNSIGNED8, otype: OTYPE.VAR, name: 'TxPDO', value: 42 };
         const form = buildMockFormHelper();
         
-        // const result = toEsiEepromH(bytes);
+        // act
         const result = buildObjectDictionary(form, odSections);
         
         // assert
@@ -65,13 +80,13 @@ describe("od", function() {
         expect(result).toEqual(expected);
       });
       
-      it("given variable in RXPDO should add Sync Manager 3 PDO assignment, PDO and that variable, in retunred OD", function() {
+      it("given variable in RXPDO should add Sync Manager 3 PDO assignment, PDO and that variable, in returned OD", function() {
         // arrange
         const odSections = getEmptyObjDict();
         odSections.rxpdo['7000'] = { dtype: DTYPE.UNSIGNED8, otype: OTYPE.VAR, name: 'RxPDO', value: 42 };
         const form = buildMockFormHelper();
         
-        // const result = toEsiEepromH(bytes);
+        // act
         const result = buildObjectDictionary(form, odSections);
         
         // assert
