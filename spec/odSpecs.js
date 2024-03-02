@@ -28,19 +28,66 @@ describe("od", function() {
   }
 
   describe('buildObjectDictionary', () => {
-      it("given empty OD sections and form should return expected OD", function() {
-          // arrange
-          const odSections = getEmptyObjDict();
-          const form = buildMockFormHelper();
+    describe('given empty form', () => {
+      it("given empty OD sections should return expected OD", function() {
+        // arrange
+        const odSections = getEmptyObjDict();
+        const form = buildMockFormHelper();
+        
+        // const result = toEsiEepromH(bytes);
+        const  result = buildObjectDictionary(form, odSections);
           
-          // const result = toEsiEepromH(bytes);
-          const  result = buildObjectDictionary(form, odSections);
-          
-          // assert
-          const expected = getExpectedEmptyOd();
-          // console.log(expected);
-          expect(result).toEqual(expected);
+        // assert
+        const expected = getExpectedEmptyOd();
+        expect(result).toEqual(expected);
       });
+
+      it("given variable in TXPDO should add Sync Manager 3 PDO assignment, PDO and that variable, in retunred OD", function() {
+        // arrange
+        const odSections = getEmptyObjDict();
+        odSections.txpdo['6000'] = { dtype: DTYPE.UNSIGNED8, otype: OTYPE.VAR, name: 'TxPDO', value: 42 };
+        const form = buildMockFormHelper();
+        
+        // const result = toEsiEepromH(bytes);
+        const result = buildObjectDictionary(form, odSections);
+        
+        // assert
+        const expected = getExpectedEmptyOd();
+        expected['1C13'] = { otype: 'ARRAY', dtype: 'UNSIGNED16', name: 'Sync Manager 3 PDO Assignment', items: [ 
+            { name: 'Max SubIndex' },
+            { name: 'PDO Mapping', value: '0x1A00' }
+        ]};
+        expected['1A00'] = { otype: 'RECORD', name: 'TxPDO', items: [ 
+            { name: 'Max SubIndex' },
+            { name: 'TxPDO', dtype: 'UNSIGNED32', value: '0x60000008' }
+        ]};
+        expected['6000'] = { dtype: DTYPE.UNSIGNED8, otype: OTYPE.VAR, name: 'TxPDO', value: 42, pdo_mappings: ['txpdo'], data: '&Obj.TxPDO' };
+        expect(result).toEqual(expected);
+      });
+      
+      it("given variable in RXPDO should add Sync Manager 3 PDO assignment, PDO and that variable, in retunred OD", function() {
+        // arrange
+        const odSections = getEmptyObjDict();
+        odSections.rxpdo['7000'] = { dtype: DTYPE.UNSIGNED8, otype: OTYPE.VAR, name: 'RxPDO', value: 42 };
+        const form = buildMockFormHelper();
+        
+        // const result = toEsiEepromH(bytes);
+        const result = buildObjectDictionary(form, odSections);
+        
+        // assert
+        const expected = getExpectedEmptyOd();
+        expected['1C12'] = { otype: 'ARRAY', dtype: 'UNSIGNED16', name: 'Sync Manager 2 PDO Assignment', items: [ 
+            { name: 'Max SubIndex' },
+            { name: 'PDO Mapping', value: '0x1600' }
+        ]};
+        expected['1600'] = { otype: 'RECORD', name: 'RxPDO', items: [ 
+            { name: 'Max SubIndex' },
+            { name: 'RxPDO', dtype: 'UNSIGNED32', value: '0x70000008' }
+        ]};
+        expected['7000'] = { dtype: DTYPE.UNSIGNED8, otype: OTYPE.VAR, name: 'RxPDO', value: 42, pdo_mappings: ['rxpdo'], data: '&Obj.RxPDO' };
+        expect(result).toEqual(expected);
+      });
+    });
   });
 
 });
