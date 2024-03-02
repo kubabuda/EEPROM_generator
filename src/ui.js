@@ -300,7 +300,6 @@ function odModalOpenForObject(otype) {
 		case OTYPE.ARRAY: {
 			document.getElementById('dialogRowDtype').style.display = "";
 			odModalShowSizeInput(true);
-			// form.Size
 			break;		
 		}
 		case OTYPE.RECORD: {
@@ -555,7 +554,6 @@ function onEditSubitemSubmit(modalSubitem) {
 		subitem.dtype = odModal.form.DTYPE.value;
 		subitem.access = odModal.form.Access.value;
 	}
-	// handle subitem array
 	odModalClose();
 	onFormChanged();
 	reloadOD_Section(modalSubitem.odSectionName);
