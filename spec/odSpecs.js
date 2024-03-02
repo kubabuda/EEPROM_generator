@@ -105,4 +105,29 @@ describe("od", function() {
     });
   });
 
+  describe('setArrayLength', () => {
+    const testCases = [ 
+      { given: -1, expected: 1 },
+      { given: 0, expected: 1 },
+      { given: 1, expected: 1 },
+      { given: 2, expected: 2 },
+      { given: 3, expected: 3 },
+      { given: 4, expected: 4 }
+    ];
+    
+    testCases.forEach(({given, expected }) => {
+      it(`given ${given} should add/remove items until there is MaxSubIndex and ${expected} item${ expected == 1 ? '' : 's'}`, function() {
+        // arrange
+        const odSections = getEmptyObjDict();
+        const objd = getNewObjd(odSections, sdo, OTYPE.ARRAY, DTYPE.UNSIGNED8);
+          
+        // act
+        setArrayLength(objd, given);
+          
+        // assert
+        expect(objd.items.length).toEqual(expected + 1);
+        expect(objd.items[0].name).toEqual('Max SubIndex');
+      });
+    });
+  });
 });

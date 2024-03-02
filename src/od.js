@@ -391,6 +391,10 @@ function getNewRecordSubitem(objd, dtype) {
 }
 
 function setArrayLength(objd, newLength) {
+	// sanity checks, TODO what is max array length supported
+	if (newLength < 1) { 
+		return; 
+	}
 	const size = newLength + 1; // Max SubIndex + at least 1 item
 	while (objd.items.length > size) { 
 		objd.items.pop();
