@@ -60,7 +60,7 @@ const odSections = {
 	txpdo : {}, // addding PDO requires matching SDO in Sync Manager, and PDO mapping
 	rxpdo : {}, // this will be done when stitching sections during code generation
 };
-const _dc = []
+const _dc = [];
 
 const dtypeDefault = DTYPE.UNSIGNED8 // when adding new item or subitem
 
@@ -149,22 +149,27 @@ function onGenerateClick() {
 
 function onSaveClick() {
 	const form = getForm();
-	const backupJson = prepareBackupFileContent(form, odSections, dc);
+	const backupJson = prepareBackupFileContent(form, odSections, _dc);
 	downloadBackupFile(backupJson);
 	saveLocalBackup(backupJson);
 }
 
 function onRestoreClick() {
+	// if any changes done to app 
+	// if (confirm("Loading new project will override existing project. Proceed?")) {
 	// trigger file input dialog window
 	document.getElementById('restoreFileInput').click();
+	// }
 }
 
 function onRestoreComplete(fileContent) {
 	const form = getForm();
+	resetLocalBackup();
 	restoreBackup(fileContent, form, odSections, _dc);
 	reloadOD_Sections();
 	reloadSyncModes();
 	processForm(form);
+	// location.reload(true);
 }
 
 function onResetClick() {
