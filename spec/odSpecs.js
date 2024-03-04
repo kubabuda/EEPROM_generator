@@ -103,6 +103,87 @@ describe("od", function() {
         expect(result).toEqual(expected);
       });
     });
+
+    describe('given given CiA 402 application backed up', () => {
+      it("should return populated OD for CiA 402 application", function() {
+        // arrange
+        // const form = buildMockFormHelper();
+        const form = getEmptyFrom();
+        const odSections = getEmptyObjDict();
+        const dc = [];
+        restoreBackup(cia_esi_json, form, odSections, dc);
+
+        // act
+        const  result = buildObjectDictionary(form, odSections);
+          
+        // assert
+        const expected = getExpectedEmptyOd();
+        expected['1001'] = { otype: 'VAR', name: 'Error register', access: 'RO', dtype: 'UNSIGNED8', value: '0', isSDOitem: true, data: '&Obj.Error_register' };
+        expected['1008'] = { otype: 'VAR', dtype: 'VISIBLE_STRING', name: 'Device Name', data: '', value: 'STMBL ECAT', size: 10 },
+        expected['1018'] = { otype: 'RECORD', name: 'Identity Object', items: [ 
+          { name: 'Max SubIndex' }, 
+          { name: 'Vendor ID', dtype: 'UNSIGNED32', value: 4919 }, 
+          { name: 'Product Code', dtype: 'UNSIGNED32', value: 131474 }, 
+          { name: 'Revision Number', dtype: 'UNSIGNED32', value: 1 }, 
+          { name: 'Serial Number', dtype: 'UNSIGNED32', data: '&Obj.serial', value: 1 }
+      ]},
+        expected['1600'] = { otype: 'RECORD', name: 'Control Word', items: [
+          { name: 'Max SubIndex' },
+          { name: 'Control Word', dtype: 'UNSIGNED32', value: '0x60400010' }
+        ] };
+        expected['1601'] = { otype: 'RECORD', name: 'Target position', items: [
+          { name: 'Max SubIndex' },
+          { name: 'Target position', dtype: 'UNSIGNED32', value: '0x607A0020' }
+        ] };
+        expected['10F1'] = { otype: 'RECORD', name: 'Error Settings', access: 'RO', items: [
+          { name: 'Max SubIndex' },
+          { name: 'Local Error Reaction', dtype: 'UNSIGNED32', data: '&Obj.Error_Settings.Local_Error_Reaction', value: '0', access: 'RO' },
+          { name: 'SyncErrorCounterLimit', dtype: 'UNSIGNED32', value: '200', access: 'RO', data: '&Obj.Error_Settings.SyncErrorCounterLimit' } 
+        ], isSDOitem: true };
+        expected['1C32'] = { otype: 'RECORD', name: 'Sync Manager 2 Parameters', access: 'RO', items: [
+          { name: 'Max SubIndex' },
+          { name: 'Sync mode', dtype: 'UNSIGNED16', value: '1', access: 'RWpre', data: '&Obj.Sync_Manager_2_Parameters.Sync_mode' },
+          { name: 'CycleTime', dtype: 'UNSIGNED32', value: '0', data: '&Obj.Sync_Manager_2_Parameters.CycleTime' },
+          { name: 'ShiftTime', dtype: 'UNSIGNED32', value: '0', data: '&Obj.Sync_Manager_2_Parameters.ShiftTime' },
+          { name: 'Sync modes supported', dtype: 'UNSIGNED16', value: '6', data: '&Obj.Sync_Manager_2_Parameters.Sync_modes_supported' },
+          { name: 'Minimum Cycle Time', dtype: 'UNSIGNED32', value: '125000', data: '&Obj.Sync_Manager_2_Parameters.Minimum_Cycle_Time' } 
+        ], isSDOitem: true };
+        expected['1C33'] = { otype: 'RECORD', name: 'Sync Manager 3 Parameters', access: 'RO', items: [
+          { name: 'Max SubIndex' },
+          { name: 'Sync mode', dtype: 'UNSIGNED16', data: '&Obj.Sync_Manager_3_Parameters.Sync_mode', value: '1', access: 'RWpre' },
+          { name: 'CycleTime', dtype: 'UNSIGNED32', value: '0', access: 'RO', data: '&Obj.Sync_Manager_3_Parameters.CycleTime' },
+          { name: 'ShiftTime', dtype: 'UNSIGNED32', value: '0', access: 'RO', data: '&Obj.Sync_Manager_3_Parameters.ShiftTime' },
+          { name: 'Sync modes supported', dtype: 'UNSIGNED16', value: '6', access: 'RO', data: '&Obj.Sync_Manager_3_Parameters.Sync_modes_supported' },
+          { name: 'Minimum Cycle Time', dtype: 'UNSIGNED32', value: '125000', access: 'RO', data: '&Obj.Sync_Manager_3_Parameters.Minimum_Cycle_Time' } 
+        ], isSDOitem: true };
+        expected['1C13'] = { otype: 'ARRAY', dtype: 'UNSIGNED16', name: 'Sync Manager 3 PDO Assignment', items: [
+          { name: 'Max SubIndex' },
+          { name: 'PDO Mapping', value: '0x1A00' },
+          { name: 'PDO Mapping', value: '0x1A01' } 
+        ] };
+        expected['1A00'] = { otype: 'RECORD', name: 'Status Word', items: [
+          { name: 'Max SubIndex' },
+          { name: 'Status Word', dtype: 'UNSIGNED32', value: '0x60410010' } 
+        ] };
+        expected['1A01'] = { otype: 'RECORD', name: 'Position actual', items: [
+          { name: 'Max SubIndex' },
+          { name: 'Position actual', dtype: 'UNSIGNED32', value: '0x60640020' } 
+        ] };
+        expected['1C12'] = { otype: 'ARRAY', dtype: 'UNSIGNED16', name: 'Sync Manager 2 PDO Assignment', items: [
+          { name: 'Max SubIndex' },
+          { name: 'PDO Mapping', value: '0x1600' },
+          { name: 'PDO Mapping', value: '0x1601' } 
+        ] };
+        expected['6040'] = { otype: 'VAR', name: 'Control Word', access: 'RO', pdo_mappings: [ 'rxpdo' ], dtype: 'UNSIGNED16', value: '0', data: '&Obj.Control_Word' };
+        expected['6041'] = { otype: 'VAR', name: 'Status Word', access: 'RO', pdo_mappings: [ 'txpdo' ], dtype: 'UNSIGNED16', value: '0', data: '&Obj.Status_Word' };
+        expected['6060'] = { otype: 'VAR', name: 'Modes of operation', access: 'RO', dtype: 'INTEGER8', value: '0', isSDOitem: true, data: '&Obj.Modes_of_operation' };
+        expected['6061'] = { otype: 'VAR', name: 'Mode of operation display', access: 'RO', dtype: 'INTEGER8', value: '0', isSDOitem: true, data: '&Obj.Mode_of_operation_display' };
+        expected['6064'] = { otype: 'VAR', name: 'Position actual', access: 'RO', pdo_mappings: [ 'txpdo' ], dtype: 'UNSIGNED32', value: '0', data: '&Obj.Position_actual' };
+        expected['6502'] = { otype: 'VAR', name: 'Supported drive modes', access: 'RO', dtype: 'UNSIGNED32', value: '0', isSDOitem: true, data: '&Obj.Supported_drive_modes' };
+        expected['607A'] = { otype: 'VAR', name: 'Target position', access: 'RO', pdo_mappings: [ 'rxpdo' ], dtype: 'UNSIGNED32', value: '0', data: '&Obj.Target_position' };
+        expect(result).toEqual(expected);
+      });
+    });
   });
 
   describe('setArrayLength', () => {
