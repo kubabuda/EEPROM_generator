@@ -231,14 +231,22 @@ function odModalDTYPEChanged(dtype) {
 function odModalInitialValueChanged(value) {
 	const dtype = odModal.form.DTYPE.value;
 	odModal.form.InitalValue.value = sanitizeInitialValue(value, dtype);
-	if (dtype == DTYPE.VISIBLE_STRING) {
-		odModal.form.Size.value = Math.max(odModal.form.Size.value, value.length);
+	if (dtype == DTYPE.VISIBLE_STRING && odModal.form.Size.value < value.length) {
+		odModal.form.Size.value = value.length;
 	}
+}
+
+function getMinimumStringLength(modalform) {
+	return modalform.InitalValue.value.length; // + 1 TODO should I add byte for string termination '\0'? check in twincat
 }
 
 function odModalSizeInputChanged(value) {
 	if (value < 1) {
 		odModal.form.Size.value = 1;
+		
+		if (odModal.form.DTYPE.value == DTYPE.VISIBLE_STRING) {
+			odModal.form.Size.value = getMinimumStringLength(odModal.form);
+		}
 	}
 }
 
@@ -382,12 +390,25 @@ function onEditObjectSubmit(e) {
 	return false;
 }
 
+function validateModalValues(modalform) {
+	if (modalform.DTYPE.value == DTYPE.VISIBLE_STRING) {
+		const lengthForStringValue = getMinimumStringLength(modalform);
+		if (modalform.Size.value < lengthForStringValue) {
+			return !confirm(`Initial value needs ${lengthForStringValue} bytes but only ${modalform.Size.value} specified. Proceed anyway?`);
+		}
+	}
+	return true;
+}
+
 function sanitizeModalValues(modalform) {
 	modalform.ObjectName.value = sanitizeString(modalform.ObjectName.value);
 }
 
 function odModalSaveChanges() {
 	const modalform = odModal.form;
+	if (!validateModalValues(modalform)) {
+		return false;
+	};
 	sanitizeModalValues(modalform);
 	
 	if (odModal.subitem) {
