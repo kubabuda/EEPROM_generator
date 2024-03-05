@@ -503,7 +503,7 @@ typedef struct
 
    /* Parameters */
 
-   char * New[6];
+   char New[6];
 } _Objects;
 
 extern _Objects Obj;
@@ -1023,7 +1023,7 @@ typedef struct
 
    /* Outputs */
 
-   char * News[5];
+   char News[5];
 
 } _Objects;
 

@@ -87,8 +87,10 @@ const ESI_DT = {
 	'UNSIGNED16': { name: 'UINT', bitsize: 16, ctype: 'uint16_t' },
 	'UNSIGNED32': { name: 'UDINT', bitsize: 32, ctype: 'uint32_t' },
 	'UNSIGNED64' : { name: 'ULINT', bitsize: 64, ctype: 'uint64_t' },
-	'VISIBLE_STRING': { name: 'STRING', bitsize: 8, ctype: 'char *' }, // TODO check C type name
+	'VISIBLE_STRING': { name: 'STRING', bitsize: 8, ctype: 'char' },
 };
+
+
 
 /** These are required by minimal CiA 301 device */
 const SDO_category = {
