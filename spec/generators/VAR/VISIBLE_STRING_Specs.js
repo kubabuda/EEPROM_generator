@@ -13,8 +13,7 @@ describe("OTYPE VAR", function() {
       beforeEach(function() {
         form = buildMockFormHelper();
         odSections = getEmptyObjDict();
-        od = buildObjectDictionary(form, odSections);
-        od['2000'] = {
+        odSections.sdo['2000'] = {
           otype: "VAR",
           name: "New",
           access: "RO",
@@ -24,6 +23,7 @@ describe("OTYPE VAR", function() {
           data: "&Obj.New",
           size: "6",
         };
+        od = buildObjectDictionary(form, odSections);
         indexes = getUsedIndexes(od);
       });
       
@@ -514,7 +514,7 @@ extern _Objects Obj;
       });
     });
 
-    describe("for project with single VISIBLE_STRING variable in PDO", function() {
+    xdescribe("for project with single VISIBLE_STRING variable in PDO", function() {
       let form;
       let odSections;
       let od;

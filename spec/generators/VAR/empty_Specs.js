@@ -1,5 +1,5 @@
 // TODO other DTYPES
-xdescribe("OTYPE VAR", function() {
+describe("OTYPE VAR", function() {
   beforeEach(function() {
     jasmine.addMatchers(customMatchers);
   });
@@ -13,9 +13,8 @@ xdescribe("OTYPE VAR", function() {
       
       beforeEach(function() {
         form = buildMockFormHelper();
-        odSections = getEmptyObjDict();
-        od = buildObjectDictionary(form, odSections);
-        // od['6000'] = {
+        odSections = getEmptyObjDict();        
+        // odSections.txpdo['6000'] = {
         //   otype: "VAR",
         //   name: "Count",
         //   access: "RO",
@@ -26,6 +25,7 @@ xdescribe("OTYPE VAR", function() {
         //   value: "42",
         //   data: "&Obj.Count",
         // };
+        od = buildObjectDictionary(form, odSections);
         indexes = getUsedIndexes(od);
       });
       

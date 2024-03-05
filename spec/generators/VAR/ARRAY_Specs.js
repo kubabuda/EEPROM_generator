@@ -14,8 +14,7 @@ describe("OTYPE VAR", function() {
       beforeEach(function() {
         form = buildMockFormHelper();
         odSections = getEmptyObjDict();
-        od = buildObjectDictionary(form, odSections);
-        od['6000'] = {
+        odSections.txpdo['6000'] = {
           otype: "ARRAY",
           name: "CountArr",
           access: "RO",
@@ -41,6 +40,7 @@ describe("OTYPE VAR", function() {
           size: "2",
           data: "&Obj.CountArr",
         };
+        od = buildObjectDictionary(form, odSections);
         indexes = getUsedIndexes(od);
       });
       
@@ -130,6 +130,40 @@ describe("OTYPE VAR", function() {
                 </SubItem>
               </DataType>
               <DataType>
+                <Name>DT1A00</Name>
+                <BitSize>80</BitSize>
+                <SubItem>
+                  <SubIdx>0</SubIdx>
+                  <Name>Max SubIndex</Name>
+                  <Type>USINT</Type>
+                  <BitSize>8</BitSize>
+                  <BitOffs>0</BitOffs>
+                  <Flags>
+                    <Access>ro</Access>
+                  </Flags>
+                </SubItem>
+                <SubItem>
+                  <SubIdx>1</SubIdx>
+                  <Name>New array subitem</Name>
+                  <Type>UDINT</Type>
+                  <BitSize>32</BitSize>
+                  <BitOffs>16</BitOffs>
+                  <Flags>
+                    <Access>ro</Access>
+                  </Flags>
+                </SubItem>
+                <SubItem>
+                  <SubIdx>2</SubIdx>
+                  <Name>New array subitem</Name>
+                  <Type>UDINT</Type>
+                  <BitSize>32</BitSize>
+                  <BitOffs>48</BitOffs>
+                  <Flags>
+                    <Access>ro</Access>
+                  </Flags>
+                </SubItem>
+              </DataType>
+              <DataType>
                 <Name>DT1C00ARR</Name>
                 <BaseType>USINT</BaseType>
                 <BitSize>32</BitSize>
@@ -155,6 +189,38 @@ describe("OTYPE VAR", function() {
                   <Name>Elements</Name>
                   <Type>DT1C00ARR</Type>
                   <BitSize>32</BitSize>
+                  <BitOffs>16</BitOffs>
+                  <Flags>
+                    <Access>ro</Access>
+                  </Flags>
+                </SubItem>
+              </DataType>
+              <DataType>
+                <Name>DT1C13ARR</Name>
+                <BaseType>UINT</BaseType>
+                <BitSize>16</BitSize>
+                <ArrayInfo>
+                  <LBound>1</LBound>
+                  <Elements>1</Elements>
+                </ArrayInfo>
+              </DataType>
+              <DataType>
+                <Name>DT1C13</Name>
+                <BitSize>32</BitSize>
+                <SubItem>
+                  <SubIdx>0</SubIdx>
+                  <Name>Max SubIndex</Name>
+                  <Type>USINT</Type>
+                  <BitSize>8</BitSize>
+                  <BitOffs>0</BitOffs>
+                  <Flags>
+                    <Access>ro</Access>
+                  </Flags>
+                </SubItem>
+                <SubItem>
+                  <Name>Elements</Name>
+                  <Type>DT1C13ARR</Type>
+                  <BitSize>16</BitSize>
                   <BitOffs>16</BitOffs>
                   <Flags>
                     <Access>ro</Access>
@@ -209,6 +275,10 @@ describe("OTYPE VAR", function() {
               <DataType>
                 <Name>USINT</Name>
                 <BitSize>8</BitSize>
+              </DataType>
+              <DataType>
+                <Name>UINT</Name>
+                <BitSize>16</BitSize>
               </DataType>
               <DataType>
                 <Name>SINT</Name>
@@ -308,6 +378,35 @@ describe("OTYPE VAR", function() {
                 </Flags>
               </Object>
               <Object>
+                <Index>#x1A00</Index>
+                <Name>CountArr</Name>
+                <Type>DT1A00</Type>
+                <BitSize>80</BitSize>
+                <Info>
+                  <SubItem>
+                    <Name>Max SubIndex</Name>
+                    <Info>
+                      <DefaultValue>2</DefaultValue>
+                    </Info>
+                  </SubItem>
+                  <SubItem>
+                    <Name>New array subitem</Name>
+                    <Info>
+                      <DefaultValue>#x60000108</DefaultValue>
+                    </Info>
+                  </SubItem>
+                  <SubItem>
+                    <Name>New array subitem</Name>
+                    <Info>
+                      <DefaultValue>#x60000208</DefaultValue>
+                    </Info>
+                  </SubItem>
+                </Info>
+                <Flags>
+                  <Access>ro</Access>
+                </Flags>
+              </Object>
+              <Object>
                 <Index>#x1C00</Index>
                 <Name>Sync Manager Communication Type</Name>
                 <Type>DT1C00</Type>
@@ -341,6 +440,29 @@ describe("OTYPE VAR", function() {
                     <Name>Communications Type SM3</Name>
                     <Info>
                       <DefaultValue>4</DefaultValue>
+                    </Info>
+                  </SubItem>
+                </Info>
+                <Flags>
+                  <Access>ro</Access>
+                </Flags>
+              </Object>
+              <Object>
+                <Index>#x1C13</Index>
+                <Name>Sync Manager 3 PDO Assignment</Name>
+                <Type>DT1C13</Type>
+                <BitSize>32</BitSize>
+                <Info>
+                  <SubItem>
+                    <Name>Max SubIndex</Name>
+                    <Info>
+                      <DefaultValue>1</DefaultValue>
+                    </Info>
+                  </SubItem>
+                  <SubItem>
+                    <Name>PDO Mapping</Name>
+                    <Info>
+                      <DefaultValue>#x1A00</DefaultValue>
                     </Info>
                   </SubItem>
                 </Info>
@@ -506,12 +628,19 @@ static const char acName1018_01[] = "Vendor ID";
 static const char acName1018_02[] = "Product Code";
 static const char acName1018_03[] = "Revision Number";
 static const char acName1018_04[] = "Serial Number";
+static const char acName1A00[] = "CountArr";
+static const char acName1A00_00[] = "Max SubIndex";
+static const char acName1A00_01[] = "New array subitem";
+static const char acName1A00_02[] = "New array subitem";
 static const char acName1C00[] = "Sync Manager Communication Type";
 static const char acName1C00_00[] = "Max SubIndex";
 static const char acName1C00_01[] = "Communications Type SM0";
 static const char acName1C00_02[] = "Communications Type SM1";
 static const char acName1C00_03[] = "Communications Type SM2";
 static const char acName1C00_04[] = "Communications Type SM3";
+static const char acName1C13[] = "Sync Manager 3 PDO Assignment";
+static const char acName1C13_00[] = "Max SubIndex";
+static const char acName1C13_01[] = "PDO Mapping";
 static const char acName6000[] = "CountArr";
 static const char acName6000_00[] = "Max SubIndex";
 static const char acName6000_01[] = "New array subitem";
@@ -541,6 +670,12 @@ const _objd SDO1018[] =
   {0x03, DTYPE_UNSIGNED32, 32, ATYPE_RO, acName1018_03, 2, NULL},
   {0x04, DTYPE_UNSIGNED32, 32, ATYPE_RO, acName1018_04, 1, &Obj.serial},
 };
+const _objd SDO1A00[] =
+{
+  {0x00, DTYPE_UNSIGNED8, 8, ATYPE_RO, acName1A00_00, 2, NULL},
+  {0x01, DTYPE_UNSIGNED32, 32, ATYPE_RO, acName1A00_01, 0x60000108, NULL},
+  {0x02, DTYPE_UNSIGNED32, 32, ATYPE_RO, acName1A00_02, 0x60000208, NULL},
+};
 const _objd SDO1C00[] =
 {
   {0x00, DTYPE_UNSIGNED8, 8, ATYPE_RO, acName1C00_00, 4, NULL},
@@ -549,11 +684,16 @@ const _objd SDO1C00[] =
   {0x03, DTYPE_UNSIGNED8, 8, ATYPE_RO, acName1C00_03, 3, NULL},
   {0x04, DTYPE_UNSIGNED8, 8, ATYPE_RO, acName1C00_04, 4, NULL},
 };
+const _objd SDO1C13[] =
+{
+  {0x00, DTYPE_UNSIGNED8, 8, ATYPE_RO, acName1C13_00, 1, NULL},
+  {0x01, DTYPE_UNSIGNED16, 16, ATYPE_RO, acName1C13_01, 0x1A00, NULL},
+};
 const _objd SDO6000[] =
 {
   {0x00, DTYPE_UNSIGNED8, 8, ATYPE_RO, acName6000_00, 2, NULL},
-  {0x01, DTYPE_INTEGER8, 8, ATYPE_RO | ATYPE_TXPDO, acName6000_01, 0, &Obj.New_Array[0]},
-  {0x02, DTYPE_INTEGER8, 8, ATYPE_RO | ATYPE_TXPDO, acName6000_02, 0, &Obj.New_Array[1]},
+  {0x01, DTYPE_INTEGER8, 8, ATYPE_RO | ATYPE_TXPDO, acName6000_01, 0, &Obj.CountArr[0]},
+  {0x02, DTYPE_INTEGER8, 8, ATYPE_RO | ATYPE_TXPDO, acName6000_02, 0, &Obj.CountArr[1]},
 };
 
 const _objectlist SDOobjects[] =
@@ -563,7 +703,9 @@ const _objectlist SDOobjects[] =
   {0x1009, OTYPE_VAR, 0, 0, acName1009, SDO1009},
   {0x100A, OTYPE_VAR, 0, 0, acName100A, SDO100A},
   {0x1018, OTYPE_RECORD, 4, 0, acName1018, SDO1018},
+  {0x1A00, OTYPE_RECORD, 2, 0, acName1A00, SDO1A00},
   {0x1C00, OTYPE_ARRAY, 4, 0, acName1C00, SDO1C00},
+  {0x1C13, OTYPE_ARRAY, 1, 0, acName1C13, SDO1C13},
   {0x6000, OTYPE_ARRAY, 2, 0, acName6000, SDO6000},
   {0xffff, 0xff, 0xff, 0xff, NULL, NULL}
 };
