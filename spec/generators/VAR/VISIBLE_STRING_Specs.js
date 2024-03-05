@@ -523,8 +523,7 @@ extern _Objects Obj;
       beforeEach(function() {
         form = buildMockFormHelper();
         odSections = getEmptyObjDict();
-        od = buildObjectDictionary(form, odSections);
-        od['7000'] = {
+        odSections.rxpdo['7000'] = {
           otype: "VAR",
           name: "News",
           access: "RO",
@@ -536,6 +535,7 @@ extern _Objects Obj;
           data: "&Obj.News",
           size: "5",
         }
+        od = buildObjectDictionary(form, odSections);
         indexes = getUsedIndexes(od);
       });
       
@@ -625,6 +625,30 @@ extern _Objects Obj;
                 </SubItem>
               </DataType>
               <DataType>
+                <Name>DT1600</Name>
+                <BitSize>48</BitSize>
+                <SubItem>
+                  <SubIdx>0</SubIdx>
+                  <Name>Max SubIndex</Name>
+                  <Type>USINT</Type>
+                  <BitSize>8</BitSize>
+                  <BitOffs>0</BitOffs>
+                  <Flags>
+                    <Access>ro</Access>
+                  </Flags>
+                </SubItem>
+                <SubItem>
+                  <SubIdx>1</SubIdx>
+                  <Name>News</Name>
+                  <Type>UDINT</Type>
+                  <BitSize>32</BitSize>
+                  <BitOffs>16</BitOffs>
+                  <Flags>
+                    <Access>ro</Access>
+                  </Flags>
+                </SubItem>
+              </DataType>
+              <DataType>
                 <Name>DT1C00ARR</Name>
                 <BaseType>USINT</BaseType>
                 <BitSize>32</BitSize>
@@ -657,6 +681,38 @@ extern _Objects Obj;
                 </SubItem>
               </DataType>
               <DataType>
+                <Name>DT1C12ARR</Name>
+                <BaseType>UINT</BaseType>
+                <BitSize>16</BitSize>
+                <ArrayInfo>
+                  <LBound>1</LBound>
+                  <Elements>1</Elements>
+                </ArrayInfo>
+              </DataType>
+              <DataType>
+                <Name>DT1C12</Name>
+                <BitSize>32</BitSize>
+                <SubItem>
+                  <SubIdx>0</SubIdx>
+                  <Name>Max SubIndex</Name>
+                  <Type>USINT</Type>
+                  <BitSize>8</BitSize>
+                  <BitOffs>0</BitOffs>
+                  <Flags>
+                    <Access>ro</Access>
+                  </Flags>
+                </SubItem>
+                <SubItem>
+                  <Name>Elements</Name>
+                  <Type>DT1C12ARR</Type>
+                  <BitSize>16</BitSize>
+                  <BitOffs>16</BitOffs>
+                  <Flags>
+                    <Access>ro</Access>
+                  </Flags>
+                </SubItem>
+              </DataType>
+              <DataType>
                 <Name>UDINT</Name>
                 <BitSize>32</BitSize>
               </DataType>
@@ -671,6 +727,10 @@ extern _Objects Obj;
               <DataType>
                 <Name>USINT</Name>
                 <BitSize>8</BitSize>
+              </DataType>
+              <DataType>
+                <Name>UINT</Name>
+                <BitSize>16</BitSize>
               </DataType>
             </DataTypes>
             <Objects>
@@ -766,6 +826,29 @@ extern _Objects Obj;
                 </Flags>
               </Object>
               <Object>
+                <Index>#x1600</Index>
+                <Name>News</Name>
+                <Type>DT1600</Type>
+                <BitSize>48</BitSize>
+                <Info>
+                  <SubItem>
+                    <Name>Max SubIndex</Name>
+                    <Info>
+                      <DefaultValue>1</DefaultValue>
+                    </Info>
+                  </SubItem>
+                  <SubItem>
+                    <Name>News</Name>
+                    <Info>
+                      <DefaultValue>#x70000028</DefaultValue>
+                    </Info>
+                  </SubItem>
+                </Info>
+                <Flags>
+                  <Access>ro</Access>
+                </Flags>
+              </Object>
+              <Object>
                 <Index>#x1C00</Index>
                 <Name>Sync Manager Communication Type</Name>
                 <Type>DT1C00</Type>
@@ -799,6 +882,29 @@ extern _Objects Obj;
                     <Name>Communications Type SM3</Name>
                     <Info>
                       <DefaultValue>4</DefaultValue>
+                    </Info>
+                  </SubItem>
+                </Info>
+                <Flags>
+                  <Access>ro</Access>
+                </Flags>
+              </Object>
+              <Object>
+                <Index>#x1C12</Index>
+                <Name>Sync Manager 2 PDO Assignment</Name>
+                <Type>DT1C12</Type>
+                <BitSize>32</BitSize>
+                <Info>
+                  <SubItem>
+                    <Name>Max SubIndex</Name>
+                    <Info>
+                      <DefaultValue>1</DefaultValue>
+                    </Info>
+                  </SubItem>
+                  <SubItem>
+                    <Name>PDO Mapping</Name>
+                    <Info>
+                      <DefaultValue>#x1600</DefaultValue>
                     </Info>
                   </SubItem>
                 </Info>
@@ -853,7 +959,7 @@ extern _Objects Obj;
     </Devices>
   </Descriptions>
 </EtherCATInfo>`;
-        expect(result).toEqual(expectedesi);
+        expect(result).toEqualLines(expectedesi);
       });
 
       it("hex_generator should generate config data", function() {
@@ -941,12 +1047,18 @@ static const char acName1018_01[] = "Vendor ID";
 static const char acName1018_02[] = "Product Code";
 static const char acName1018_03[] = "Revision Number";
 static const char acName1018_04[] = "Serial Number";
+static const char acName1600[] = "News";
+static const char acName1600_00[] = "Max SubIndex";
+static const char acName1600_01[] = "News";
 static const char acName1C00[] = "Sync Manager Communication Type";
 static const char acName1C00_00[] = "Max SubIndex";
 static const char acName1C00_01[] = "Communications Type SM0";
 static const char acName1C00_02[] = "Communications Type SM1";
 static const char acName1C00_03[] = "Communications Type SM2";
 static const char acName1C00_04[] = "Communications Type SM3";
+static const char acName1C12[] = "Sync Manager 2 PDO Assignment";
+static const char acName1C12_00[] = "Max SubIndex";
+static const char acName1C12_01[] = "PDO Mapping";
 static const char acName7000[] = "News";
 
 const _objd SDO1000[] =
@@ -973,6 +1085,11 @@ const _objd SDO1018[] =
   {0x03, DTYPE_UNSIGNED32, 32, ATYPE_RO, acName1018_03, 2, NULL},
   {0x04, DTYPE_UNSIGNED32, 32, ATYPE_RO, acName1018_04, 1, &Obj.serial},
 };
+const _objd SDO1600[] =
+{
+  {0x00, DTYPE_UNSIGNED8, 8, ATYPE_RO, acName1600_00, 1, NULL},
+  {0x01, DTYPE_UNSIGNED32, 32, ATYPE_RO, acName1600_01, 0x70000028, NULL},
+};
 const _objd SDO1C00[] =
 {
   {0x00, DTYPE_UNSIGNED8, 8, ATYPE_RO, acName1C00_00, 4, NULL},
@@ -980,6 +1097,11 @@ const _objd SDO1C00[] =
   {0x02, DTYPE_UNSIGNED8, 8, ATYPE_RO, acName1C00_02, 2, NULL},
   {0x03, DTYPE_UNSIGNED8, 8, ATYPE_RO, acName1C00_03, 3, NULL},
   {0x04, DTYPE_UNSIGNED8, 8, ATYPE_RO, acName1C00_04, 4, NULL},
+};
+const _objd SDO1C12[] =
+{
+  {0x00, DTYPE_UNSIGNED8, 8, ATYPE_RO, acName1C12_00, 1, NULL},
+  {0x01, DTYPE_UNSIGNED16, 16, ATYPE_RO, acName1C12_01, 0x1600, NULL},
 };
 const _objd SDO7000[] =
 {
@@ -993,12 +1115,14 @@ const _objectlist SDOobjects[] =
   {0x1009, OTYPE_VAR, 0, 0, acName1009, SDO1009},
   {0x100A, OTYPE_VAR, 0, 0, acName100A, SDO100A},
   {0x1018, OTYPE_RECORD, 4, 0, acName1018, SDO1018},
+  {0x1600, OTYPE_RECORD, 1, 0, acName1600, SDO1600},
   {0x1C00, OTYPE_ARRAY, 4, 0, acName1C00, SDO1C00},
+  {0x1C12, OTYPE_ARRAY, 1, 0, acName1C12, SDO1C12},
   {0x7000, OTYPE_VAR, 0, 0, acName7000, SDO7000},
   {0xffff, 0xff, 0xff, 0xff, NULL, NULL}
 };
 `;
-        expect(result).toEqual(objectlist);
+        expect(result).toEqualLines(objectlist);
       });
 
       it("utypes_generator should generate expected code", function() {

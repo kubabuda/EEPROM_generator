@@ -126,7 +126,12 @@ describe("od", function() {
           { name: 'Product Code', dtype: 'UNSIGNED32', value: 131474 }, 
           { name: 'Revision Number', dtype: 'UNSIGNED32', value: 1 }, 
           { name: 'Serial Number', dtype: 'UNSIGNED32', data: '&Obj.serial', value: 1 }
-      ]},
+        ]},
+        expected['10F1'] = { otype: 'RECORD', name: 'Error Settings', access: 'RO', items: [
+          { name: 'Max SubIndex' },
+          { name: 'Local Error Reaction', dtype: 'UNSIGNED32', data: '&Obj.Error_Settings.Local_Error_Reaction', value: '0', access: 'RO' },
+          { name: 'SyncErrorCounterLimit', dtype: 'UNSIGNED32', value: '200', access: 'RO', data: '&Obj.Error_Settings.SyncErrorCounterLimit' } 
+        ], isSDOitem: true };
         expected['1600'] = { otype: 'RECORD', name: 'Control Word', items: [
           { name: 'Max SubIndex' },
           { name: 'Control Word', dtype: 'UNSIGNED32', value: '0x60400010' }
@@ -135,11 +140,6 @@ describe("od", function() {
           { name: 'Max SubIndex' },
           { name: 'Target position', dtype: 'UNSIGNED32', value: '0x607A0020' }
         ] };
-        expected['10F1'] = { otype: 'RECORD', name: 'Error Settings', access: 'RO', items: [
-          { name: 'Max SubIndex' },
-          { name: 'Local Error Reaction', dtype: 'UNSIGNED32', data: '&Obj.Error_Settings.Local_Error_Reaction', value: '0', access: 'RO' },
-          { name: 'SyncErrorCounterLimit', dtype: 'UNSIGNED32', value: '200', access: 'RO', data: '&Obj.Error_Settings.SyncErrorCounterLimit' } 
-        ], isSDOitem: true };
         expected['1C32'] = { otype: 'RECORD', name: 'Sync Manager 2 Parameters', access: 'RO', items: [
           { name: 'Max SubIndex' },
           { name: 'Sync mode', dtype: 'UNSIGNED16', value: '1', access: 'RWpre', data: '&Obj.Sync_Manager_2_Parameters.Sync_mode' },
@@ -156,11 +156,6 @@ describe("od", function() {
           { name: 'Sync modes supported', dtype: 'UNSIGNED16', value: '6', access: 'RO', data: '&Obj.Sync_Manager_3_Parameters.Sync_modes_supported' },
           { name: 'Minimum Cycle Time', dtype: 'UNSIGNED32', value: '125000', access: 'RO', data: '&Obj.Sync_Manager_3_Parameters.Minimum_Cycle_Time' } 
         ], isSDOitem: true };
-        expected['1C13'] = { otype: 'ARRAY', dtype: 'UNSIGNED16', name: 'Sync Manager 3 PDO Assignment', items: [
-          { name: 'Max SubIndex' },
-          { name: 'PDO Mapping', value: '0x1A00' },
-          { name: 'PDO Mapping', value: '0x1A01' } 
-        ] };
         expected['1A00'] = { otype: 'RECORD', name: 'Status Word', items: [
           { name: 'Max SubIndex' },
           { name: 'Status Word', dtype: 'UNSIGNED32', value: '0x60410010' } 
@@ -173,6 +168,11 @@ describe("od", function() {
           { name: 'Max SubIndex' },
           { name: 'PDO Mapping', value: '0x1600' },
           { name: 'PDO Mapping', value: '0x1601' } 
+        ] };
+        expected['1C13'] = { otype: 'ARRAY', dtype: 'UNSIGNED16', name: 'Sync Manager 3 PDO Assignment', items: [
+          { name: 'Max SubIndex' },
+          { name: 'PDO Mapping', value: '0x1A00' },
+          { name: 'PDO Mapping', value: '0x1A01' } 
         ] };
         expected['6040'] = { otype: 'VAR', name: 'Control Word', access: 'RO', pdo_mappings: [ 'rxpdo' ], dtype: 'UNSIGNED16', value: '0', data: '&Obj.Control_Word' };
         expected['6041'] = { otype: 'VAR', name: 'Status Word', access: 'RO', pdo_mappings: [ 'txpdo' ], dtype: 'UNSIGNED16', value: '0', data: '&Obj.Status_Word' };
