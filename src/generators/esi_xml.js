@@ -13,10 +13,6 @@
 
 // ####################### ESI.xml generating ####################### //
 
-function esiDTbitsize(dtype) {
-	return ESI_DT[dtype].bitsize;
-}
-
 //See ETG2000 for ESI format
 function esi_generator(form, od, indexes, dc)
 {

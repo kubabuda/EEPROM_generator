@@ -126,6 +126,10 @@ function addTXPDOitems(form, odSections, od, booleanPaddingCount) {
 	return addPdoObjectsSection(od, txpdoSection, pdo, booleanPaddingCount);
 }
 
+function esiDTbitsize(dtype) {
+	return ESI_DT[dtype].bitsize;
+}
+
 /** 
  * Takes OD entries from given UI SDO/PDO section and adds to given OD
  * using provided SM offset, and SM assignment address.
@@ -165,7 +169,7 @@ function addPdoObjectsSection(od, odSection, pdo, booleanPaddingCount) {
 				let subindex = 1;
 				objd.items.slice(subindex).forEach(subitem => { 
 					// create PDO mappings
-					pdoMappingObj.items.push({ name: subitem.name, dtype: DTYPE.UNSIGNED32, value: getPdoMappingValue(index, subindex , objd.dtype) });
+					pdoMappingObj.items.push({ name: subitem.name, dtype: DTYPE.UNSIGNED32, value: getPdoMappingValue(index, subindex, objd.dtype) });
 					// TODO handle padding on array of booleans
 					++subindex;
 				});
@@ -175,7 +179,7 @@ function addPdoObjectsSection(od, odSection, pdo, booleanPaddingCount) {
 				let subindex = 1;
 				objd.items.slice(subindex).forEach(subitem => {
 					// create PDO mappings
-					pdoMappingObj.items.push({ name: subitem.name, dtype: DTYPE.UNSIGNED32, value: getPdoMappingValue(index, subindex , subitem.dtype) });
+					pdoMappingObj.items.push({ name: subitem.name, dtype: DTYPE.UNSIGNED32, value: getPdoMappingValue(index, subindex, subitem.dtype) });
 					if (subitem.dtype == DTYPE.BOOLEAN) { 
 						addBooleanPadding(pdoMappingObj.items, ++booleanPaddingCount);
 					}
