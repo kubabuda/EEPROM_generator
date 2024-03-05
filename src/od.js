@@ -159,7 +159,7 @@ function addPdoObjectsSection(od, odSection, pdo, booleanPaddingCount) {
 			switch (objd.otype) {
 			case  OTYPE.VAR: {
 				// create PDO mapping
-				pdoMappingObj.items.push({ name: objd.name, dtype: DTYPE.UNSIGNED32, value: getPdoMappingValue(index, 0, objd.dtype) });
+				pdoMappingObj.items.push({ name: objd.name, dtype: DTYPE.UNSIGNED32, value: getPdoMappingValue(index, 0, objd.dtype, objd) });
 				if (objd.dtype == DTYPE.BOOLEAN) { 
 					addBooleanPadding(pdoMappingObj.items, ++booleanPaddingCount);
 				}
@@ -169,7 +169,7 @@ function addPdoObjectsSection(od, odSection, pdo, booleanPaddingCount) {
 				let subindex = 1;
 				objd.items.slice(subindex).forEach(subitem => { 
 					// create PDO mappings
-					pdoMappingObj.items.push({ name: subitem.name, dtype: DTYPE.UNSIGNED32, value: getPdoMappingValue(index, subindex, objd.dtype) });
+					pdoMappingObj.items.push({ name: subitem.name, dtype: DTYPE.UNSIGNED32, value: getPdoMappingValue(index, subindex, objd.dtype, objd) });
 					// TODO handle padding on array of booleans
 					++subindex;
 				});
@@ -229,7 +229,7 @@ function addPdoObjectsSection(od, odSection, pdo, booleanPaddingCount) {
 		return pdoAssignments;
 	}
 	
-	function getPdoMappingValue(index, subindex, dtype) {
+	function getPdoMappingValue(index, subindex, dtype, objd) {
 		function toByte(value) {
 			let result = value.toString(16).slice(0, 2);
 			while (result.length < 2) {
@@ -237,7 +237,10 @@ function addPdoObjectsSection(od, odSection, pdo, booleanPaddingCount) {
 			}
 			return result;
 		}
-		const bitsize = esiDTbitsize(dtype);
+		let bitsize = esiDTbitsize(dtype);
+		if (dtype == DTYPE.VISIBLE_STRING) {
+			bitsize *= parseInt(objd?.size); // TODO handle arrays
+		}
 		
 		return `0x${index}${toByte(subindex)}${toByte(bitsize)}`;
 	}	

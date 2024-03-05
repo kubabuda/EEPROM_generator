@@ -434,7 +434,7 @@ function odModalSaveChanges() {
 			objd.value = modalform.InitalValue.value;
 			
 			if (objd.dtype == DTYPE.VISIBLE_STRING) {
-				objd.size = modalform.Size.value;
+				objd.size = parseInt(modalform.Size.value);
 			} else {
 				// validate initial value for numeric type
 				if (modalform.InitalValue.value != '0' && isNaN(modalform.InitalValue.value)) {
