@@ -226,14 +226,14 @@ function esi_generator(form, od, indexes, dc)
 		switch (objd.otype) {
 		case OTYPE.VAR: {
 			const esiType = esiVariableTypeName(objd);
-			const bitsize = esiDTbitsize(objd.dtype);
+			const bitsize = varBitsize(objd);
 			esi += `\n          <Entry>\n            <Index>#x${index}</Index>\n            <SubIndex>#x${subindex.toString(16)}</SubIndex>\n            <BitLen>${bitsize}</BitLen>\n            <Name>${objd.name}</Name>\n            <DataType>${esiType}</DataType>\n          </Entry>`;
 			esi += pdoBooleanPadding(objd);
 			break;
 		}
 		case OTYPE.ARRAY: {
 			const esiType = esiVariableTypeName(objd);
-			const bitsize = esiDTbitsize(objd.dtype);
+			const bitsize = varBitsize(objd); //  todo probably esiBitsize() ?
 			subindex = 1;  // skip 'Max subindex'
 			objd.items.slice(subindex).forEach(subitem => {
 				esi += `\n          <Entry>\n            <Index>#x${index}</Index>\n            <SubIndex>#x${subindex.toString(16)}</SubIndex>\n            <BitLen>${bitsize}</BitLen>\n            <Name>${subitem.name}</Name>\n            <DataType>${esiType}</DataType>\n          </Entry>`;
@@ -246,7 +246,7 @@ function esi_generator(form, od, indexes, dc)
 			subindex = 1;  // skip 'Max subindex'
 			objd.items.slice(subindex).forEach(subitem => {
 				const esiType = esiVariableTypeName(subitem);
-				const bitsize = esiDTbitsize(subitem.dtype);
+				const bitsize = varBitsize(subitem); //  todo probably esiBitsize() ?
 				esi += `\n          <Entry>\n            <Index>#x${index}</Index>\n            <SubIndex>#x${subindex.toString(16)}</SubIndex>\n            <BitLen>${bitsize}</BitLen>\n            <Name>${subitem.name}</Name>\n            <DataType>${esiType}</DataType>\n          </Entry>`;
 				esi += pdoBooleanPadding(subitem);
 				++subindex;
@@ -373,11 +373,7 @@ function esi_generator(form, od, indexes, dc)
 	function esiBitsize(element) {
 		switch (element.otype) {
 			case OTYPE.VAR: {
-				let bitsize = esiDTbitsize(element.dtype);
-				if (element.dtype == DTYPE.VISIBLE_STRING) {
-					return bitsize * element.size;
-				}
-				return bitsize;
+				return varBitsize(element);
 			}
 			case OTYPE.ARRAY: {
 				const maxsubindex_bitsize = esiDTbitsize(DTYPE.UNSIGNED8);

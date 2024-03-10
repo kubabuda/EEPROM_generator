@@ -130,6 +130,14 @@ function esiDTbitsize(dtype) {
 	return ESI_DT[dtype].bitsize;
 }
 
+function varBitsize(objd) {
+	let bitsize = esiDTbitsize(objd.dtype);
+	if (objd.dtype == DTYPE.VISIBLE_STRING) {
+		bitsize *= parseInt(objd.size);
+	}
+	return bitsize;
+}
+
 /** 
  * Takes OD entries from given UI SDO/PDO section and adds to given OD
  * using provided SM offset, and SM assignment address.
@@ -237,12 +245,8 @@ function addPdoObjectsSection(od, odSection, pdo, booleanPaddingCount) {
 			}
 			return result;
 		}
-		let bitsize = esiDTbitsize(objd.dtype);
-		if (objd.dtype == DTYPE.VISIBLE_STRING) {
-			bitsize *= parseInt(objd?.size);
-		}
-		
-		return `0x${index}${toByte(subindex)}${toByte(bitsize)}`;
+
+		return `0x${index}${toByte(subindex)}${toByte(varBitsize(objd))}`;
 	}	
 }
 /** populates mandatory objects with values from UI */

@@ -514,7 +514,7 @@ extern _Objects Obj;
       });
     });
 
-    xdescribe("for project with single VISIBLE_STRING variable in PDO", function() {
+    describe("for project with single VISIBLE_STRING variable in PDO", function() {
       let form;
       let odSections;
       let od;
@@ -941,7 +941,7 @@ extern _Objects Obj;
           <Entry>
             <Index>#x7000</Index>
             <SubIndex>#x0</SubIndex>
-            <BitLen>8</BitLen>
+            <BitLen>40</BitLen>
             <Name>News</Name>
             <DataType>STRING(5)</DataType>
           </Entry>
