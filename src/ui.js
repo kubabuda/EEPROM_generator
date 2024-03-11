@@ -432,8 +432,9 @@ function odModalSaveChanges() {
 		case OTYPE.VAR:
 			objd.dtype = modalform.DTYPE.value;
 			objd.value = modalform.InitalValue.value;
+			sizeCheckClear(objd, objd.dtype);
 			
-			if (objd.hasSize(dtype)) {
+			if (hasSize(objd.dtype)) {
 				objd.size = parseInt(modalform.Size.value);
 			} else {
 				// validate initial value for numeric type

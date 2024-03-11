@@ -57,6 +57,13 @@ function hasSize(dtype) {
 	return dtype == DTYPE.VISIBLE_STRING;
 }
 
+/** checks if objd.size is needed, removes it if not */
+function sizeCheckClear(objd, dtype) {
+	if (objd.size != undefined && !hasSize(dtype)) {
+		delete objd.size;
+	}
+}
+
 function isInArray(array, seekValue) {
 	return array && (array[0] == seekValue
 		|| array.find(currentValue => currentValue == seekValue));
