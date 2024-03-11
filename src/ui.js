@@ -216,7 +216,7 @@ function odModalShowSizeInput(visible=false) {
 }
 
 function odModalShowSizeInputForDtype(dtype) {
-	odModalShowSizeInput(dtype == DTYPE.VISIBLE_STRING);
+	odModalShowSizeInput(hasSize(dtype));
 }
 
 function odModalIndexChanged(index) {
@@ -231,7 +231,7 @@ function odModalDTYPEChanged(dtype) {
 function odModalInitialValueChanged(value) {
 	const dtype = odModal.form.DTYPE.value;
 	odModal.form.InitalValue.value = sanitizeInitialValue(value, dtype);
-	if (dtype == DTYPE.VISIBLE_STRING && odModal.form.Size.value < value.length) {
+	if (hasSize(dtype) && odModal.form.Size.value < value.length) {
 		odModal.form.Size.value = value.length;
 	}
 }
@@ -244,7 +244,7 @@ function odModalSizeInputChanged(value) {
 	if (value < 1) {
 		odModal.form.Size.value = 1;
 		
-		if (odModal.form.DTYPE.value == DTYPE.VISIBLE_STRING) {
+		if (hasSize(odModal.form.DTYPE.value)) {
 			odModal.form.Size.value = getMinimumStringLength(odModal.form);
 		}
 	}
@@ -433,7 +433,7 @@ function odModalSaveChanges() {
 			objd.dtype = modalform.DTYPE.value;
 			objd.value = modalform.InitalValue.value;
 			
-			if (objd.dtype == DTYPE.VISIBLE_STRING) {
+			if (objd.hasSize(dtype)) {
 				objd.size = parseInt(modalform.Size.value);
 			} else {
 				// validate initial value for numeric type

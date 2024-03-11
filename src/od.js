@@ -52,6 +52,11 @@ function removeObject(od, index) {
 	}
 }
 
+/** checks if variable size is instance dependent */
+function hasSize(dtype) {
+	return dtype == DTYPE.VISIBLE_STRING;
+}
+
 function isInArray(array, seekValue) {
 	return array && (array[0] == seekValue
 		|| array.find(currentValue => currentValue == seekValue));
@@ -126,13 +131,15 @@ function addTXPDOitems(form, odSections, od, booleanPaddingCount) {
 	return addPdoObjectsSection(od, txpdoSection, pdo, booleanPaddingCount);
 }
 
+/** returns bit size per data type */
 function esiDTbitsize(dtype) {
 	return ESI_DT[dtype].bitsize;
 }
 
+/** returns bit size for variable - including VISIBLE_STRING size */
 function varBitsize(objd) {
 	let bitsize = esiDTbitsize(objd.dtype);
-	if (objd.dtype == DTYPE.VISIBLE_STRING) {
+	if (hasSize(objd.dtype)) {
 		bitsize *= parseInt(objd.size);
 	}
 	return bitsize;
