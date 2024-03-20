@@ -90,7 +90,30 @@ const ESI_DT = {
 	'VISIBLE_STRING': { name: 'STRING', bitsize: 8, ctype: 'char' },
 };
 
-
+const dtypes_PDO_allowed = new Set([
+	'BIT1',
+	'BIT2',
+	'BIT3',
+	'BIT4',
+	'BIT5',
+	'BIT6',
+	'BIT7',
+	'BIT8',
+	'BOOLEAN',
+	'UNSIGNED8',
+	'INTEGER8',
+	'BITARR8',
+	'UNSIGNED16',
+	'INTEGER16',
+	'BITARR16',
+	'REAL32',
+	'UNSIGNED32',
+	'INTEGER32',
+	'BITARR32',
+	'REAL64',
+	'UNSIGNED64',
+	'INTEGER64'
+  ])
 
 /** These are required by minimal CiA 301 device */
 const SDO_category = {
