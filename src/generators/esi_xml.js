@@ -293,7 +293,7 @@ function esi_generator(form, od, indexes, dc)
 	}
 
 	function getEsiDCsection(dc) {
-		if (!dc) {
+		if (!dc || dc.length == 0) {
 			return '';
 		}
 		let dcSection = '        <Dc>';

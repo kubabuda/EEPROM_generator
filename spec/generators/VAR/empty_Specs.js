@@ -309,8 +309,6 @@ describe("OTYPE VAR", function() {
         <Mailbox DataLinkLayer="true">
           <CoE SdoInfo="true" PdoAssign="false" PdoConfig="false" PdoUpload="true" CompleteAccess="false" />
         </Mailbox>
-        <Dc>
-        </Dc>
         <Eeprom>
           <ByteSize>2048</ByteSize>
           <ConfigData>05060344640000</ConfigData>
