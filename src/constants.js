@@ -207,6 +207,7 @@ function getFormDefaultValues() {
 		CoeDetailsEnablePDOConfiguration: false,
 		CoeDetailsEnableUploadAtStartup: true,
 		CoeDetailsEnableSDOCompleteAccess: false,
+		DetailsEnableUseFoE: false,
 	}};  
 };
 

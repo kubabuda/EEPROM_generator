@@ -27,7 +27,7 @@ function isBackedUp(formControl) {
 }
 
 function isRadioButton(formControl) {
-	return formControl.name.startsWith('CoeDetailsEnable');
+	return formControl.name.startsWith('DetailsEnable') || formControl.name.startsWith('CoeDetailsEnable');
 }
 
 function prepareBackupObject(form, odSections, dc) {

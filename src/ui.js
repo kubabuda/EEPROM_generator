@@ -387,6 +387,7 @@ function editRECORD_Click(odSectionName, indexValue = null) {
 function onEditObjectSubmit(e) {
 	// dummy
 	e.preventDefault();
+	odModalSaveChanges();
 	return false;
 }
 

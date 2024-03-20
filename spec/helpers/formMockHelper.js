@@ -57,6 +57,7 @@ function getEmptyFrom() {
         CoeDetailsEnablePDOConfiguration: { name: "CoeDetailsEnablePDOConfiguration", },
         CoeDetailsEnableUploadAtStartup: { name: "CoeDetailsEnableUploadAtStartup", },
         CoeDetailsEnableSDOCompleteAccess: { name: "CoeDetailsEnableSDOCompleteAccess", },
+        DetailsEnableUseFoE: { name: "DetailsEnableUseFoE", },
         GenerateDownload: { name: "GenerateDownload", },
         Generate: { name: "Generate", },
         Save: { name: "Save", },

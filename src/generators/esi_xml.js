@@ -205,7 +205,11 @@ function esi_generator(form, od, indexes, dc)
 	}
 	
 	//Add Mailbox DLL
-	esi += `        <Mailbox DataLinkLayer="true">\n          <CoE ${getCoEString(form)}/>\n        </Mailbox>\n`;
+	esi += `        <Mailbox DataLinkLayer="true">\n          <CoE ${getCoEMailboxSection(form)}/>\n`
+	if (form.DetailsEnableUseFoE.checked) {
+	esi += `          <FoE/>\n`
+	}
+	esi +=`        </Mailbox>\n`;
 	//Add DCs
 	esi += getEsiDCsection(dc);
 	//Add EEPROM
@@ -319,7 +323,7 @@ function esi_generator(form, od, indexes, dc)
 	}
 
 	//See Table 40 ETG2000
-	function getCoEString(form)
+	function getCoEMailboxSection(form)
 	{
 		let result = ""
 	//	if(form.CoeDetailsEnableSDO.checked) 

@@ -91,7 +91,7 @@ function hex_generator(form, stringOnly=false)
 	writeEEPROMword_wordaddress(parseInt(form.MailboxSize.value),25,record); //Standard Rx mailbox size
 	writeEEPROMword_wordaddress(parseInt(form.TxMailboxOffset.value),26,record); //Standard Tx mailbox offset
 	writeEEPROMword_wordaddress(parseInt(form.MailboxSize.value),27,record); //Standard Tx mailbox size
-	writeEEPROMword_wordaddress(0x04,28,record); //CoE protocol, see Table18 in ETG1000.6
+	writeEEPROMword_wordaddress(getMailboxProtocols(form),28,record); //CoE and FoE protocols, see Table18 in ETG1000.6
 	for (let count = 29; count <= 61; count++) {		//fill reserved area with zeroes
 		writeEEPROMword_wordaddress(0,count,record);
 	}
@@ -170,7 +170,7 @@ function hex_generator(form, stringOnly=false)
 		writeEEPROMbyte_byteaddress(4,offset++,record);//index to string for Device Name Information
 		offset++; //byte 4 is reserved
 		writeEEPROMbyte_byteaddress(getCOEdetails(form),offset++,record);//CoE Details
-		writeEEPROMbyte_byteaddress(0,offset++,record); //Enable FoE
+		writeEEPROMbyte_byteaddress(getEnableFoEBit(form),offset++,record); //Enable FoE 
 		writeEEPROMbyte_byteaddress(0,offset++,record); //Enable EoE
 		writeEEPROMbyte_byteaddress(0,offset++,record); //reserved
 		writeEEPROMbyte_byteaddress(0,offset++,record); //reserved
@@ -336,5 +336,15 @@ function hex_generator(form, stringOnly=false)
 			configdata += (record[bytecount] + 0x100).toString(16).slice(-2).toUpperCase();
 		}
 		return configdata;
+	}
+
+	// see Table18 in ETG1000.6
+	// always enabled CoE = 0x04, optionally enable FoE
+	function getMailboxProtocols(form) {
+		return form.DetailsEnableUseFoE.checked ? 0x0C : 0x04
+	}
+
+	function getEnableFoEBit(form) {
+		return form.DetailsEnableUseFoE.checked ? 1 : 0;
 	}
 }

@@ -15,8 +15,9 @@
 
 function ecat_options_generator(form, od, indexes)
 {
-	let ecat_options = '#ifndef __ECAT_OPTIONS_H__\n#define __ECAT_OPTIONS_H__\n\n#define USE_FOE          0\n#define USE_EOE          0\n\n';
-
+	let ecat_options = '#ifndef __ECAT_OPTIONS_H__\n#define __ECAT_OPTIONS_H__\n\n';
+	ecat_options += '#define USE_FOE          ' + (form.DetailsEnableUseFoE.checked ? '1' : '0')
+				+ '\n#define USE_EOE          0\n\n';
 	//Mailbox size
 	ecat_options += '#define MBXSIZE          ' + parseInt(form.MailboxSize.value).toString()
 				+ '\n#define MBXSIZEBOOT      ' + parseInt(form.MailboxSize.value).toString()
