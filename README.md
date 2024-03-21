@@ -77,8 +77,19 @@ Code generation copies all values into single OD, adds PDO mappings and SM assig
 
 Currently single, non-dynamic PDO is supported for TX and RX respectively.
 
+## Diff binary files visually in Bash (works in git bash too)
+
+```bash
+diff <(xxd et1100.bin) <(xxd lan9252.bin)
+```
+
 ## Binary file comparison tool for Windows: [VBinDiff](https://www.cjmweb.net/vbindiff/VBinDiff-Win32)
 
 ```cmd
 VBinDiff et1100.bin  lan9252.bin
 ```
+
+# Disclaimer
+
+The EtherCAT Technology, the trade name and logo "EtherCAT" are the intellectual
+property of, and protected by Beckhoff Automation GmbH.
