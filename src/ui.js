@@ -417,7 +417,6 @@ function odModalSaveChanges() {
 		return;
 	}
 	const objd = odModal.objd;
-	const objectType = objd.otype;
 	const index = indexToString(modalform.Index.value);
 	const newName = modalform.ObjectName.value;
 
@@ -429,10 +428,15 @@ function odModalSaveChanges() {
 	}
 	objd.name = newName;
 
-	switch (objectType) {
+	switch (objd.otype) {
 		case OTYPE.VAR:
 			objd.dtype = modalform.DTYPE.value;
 			objd.value = modalform.InitalValue.value;
+			if (objd.pdo_mappings && !dtypes_PDO_allowed.has(objd.dtype)) {
+				alert(`Data type ${objd.dtype} cannot be used in PDO-mapped object!`);
+				return false;
+			}
+
 			sizeCheckClear(objd, objd.dtype);
 			
 			if (hasSize(objd.dtype)) {
@@ -455,7 +459,7 @@ function odModalSaveChanges() {
 		
 			break;
 		default:
-			alert(`Unexpected type ${objectType} on object ${modalform.ObjectName} being edited!`);
+			alert(`Unexpected type ${objd.otype} on object ${modalform.ObjectName} being edited!`);
 			return false;
 	}
 	
