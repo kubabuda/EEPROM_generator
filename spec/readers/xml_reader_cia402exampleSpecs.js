@@ -1320,13 +1320,13 @@ describe("readers", function() {
     it("xml_reader should read expected form", function() {
       // arrange
       // act
-      const result = xml_reader(esi_xml);
+      const result = xml_reader(esi_xml, 'AX58100');
 
       // assert
       expect(result.form.VendorName).toEqual("kubabuda");
       expect(result.form.VendorID).toEqual("0x1337");
-      // expect(result.form.ProductCode).toEqual("0x20192");
-      // expect(result.form.ProfileNo).toEqual("402");
+      expect(result.form.ProductCode).toEqual("0x20192");
+      expect(result.form.ProfileNo).toEqual("402");
       // expect(result.form.RevisionNumber).toEqual("0x001");
       // expect(result.form.SerialNumber).toEqual("0x001");
       // expect(result.form.HWversion).toEqual("0.0.1");
@@ -1337,16 +1337,16 @@ describe("readers", function() {
       // expect(result.form.MailboxSize).toEqual("512");
       // expect(result.form.SM2Offset).toEqual("0x1600");
       // expect(result.form.SM3Offset).toEqual("0x1A00");
-      // expect(result.form.TextGroupType).toEqual("Servodrives");
-      // expect(result.form.TextGroupName5).toEqual("CiA402-compatible");
+      expect(result.form.TextGroupType).toEqual("Servodrives");
+      expect(result.form.TextGroupName5).toEqual("CiA402-compatible");
       // expect(result.form.ImageName).toEqual("IMGCBY");
-      // expect(result.form.TextDeviceType).toEqual("AC servodrive");
-      // expect(result.form.TextDeviceName).toEqual("STMBL ECAT");
+      expect(result.form.TextDeviceType).toEqual("AC servodrive");
+      expect(result.form.TextDeviceName).toEqual("STMBL ECAT");
       // expect(result.form.Port0Physical).toEqual("Y");
       // expect(result.form.Port1Physical).toEqual("Y");
       // expect(result.form.Port2Physical).toEqual(" ");
       // expect(result.form.Port3Physical).toEqual(" ");
-      // expect(result.form.ESC).toEqual("AX58100");
+      expect(result.form.ESC).toEqual("AX58100");
       // expect(result.form.SPImode).toEqual("0");
       // expect(result.form.CoeDetailsEnableSDO).toEqual(true);
       // expect(result.form.CoeDetailsEnableSDOInfo).toEqual(true);
@@ -1355,6 +1355,7 @@ describe("readers", function() {
       // expect(result.form.CoeDetailsEnableUploadAtStartup).toEqual(true);
       // expect(result.form.CoeDetailsEnableSDOCompleteAccess).toEqual(false);
       // expect(result.form.CoeDetailsEnableUseFoE).toEqual(false);
+      
       // const result_string  = JSON.stringify(backupObject, null, 2);
       // expect(result_string).toEqualLines(expectedesi);
     });

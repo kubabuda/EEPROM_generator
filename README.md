@@ -17,7 +17,6 @@ It also backs up your current project in localstorage. You can save project to J
 
 - Only single, non-dynamic PDO is supported for TX and RX respectively
 - Some data types might not be supported
-- Browsers other than Firefox might not be supported
 
 If you need more, [RT-Labs](https://rt-labs.com/ethercat/) offers professional IDE - EtherCAT SDK, and training.
 
