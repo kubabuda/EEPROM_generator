@@ -1,4 +1,4 @@
-const cia_esi_json = `{
+const expected_json = `{
   "form": {
     "VendorName": "kubabuda",
     "VendorID": "0x1337",
@@ -1327,11 +1327,11 @@ describe("readers", function() {
       expect(result.form.VendorID).toEqual("0x1337");
       expect(result.form.ProductCode).toEqual("0x20192");
       expect(result.form.ProfileNo).toEqual("402");
-      // expect(result.form.RevisionNumber).toEqual("0x001");
+      expect(result.form.RevisionNumber).toEqual("0x1");
       // expect(result.form.SerialNumber).toEqual("0x001");
       // expect(result.form.HWversion).toEqual("0.0.1");
       // expect(result.form.SWversion).toEqual("0.0.1");
-      // expect(result.form.EEPROMsize).toEqual("2048");
+      expect(result.form.EEPROMsize).toEqual("2048");
       // expect(result.form.RxMailboxOffset).toEqual("0x1000");
       // expect(result.form.TxMailboxOffset).toEqual("0x1200");
       // expect(result.form.MailboxSize).toEqual("512");
@@ -1347,7 +1347,7 @@ describe("readers", function() {
       // expect(result.form.Port2Physical).toEqual(" ");
       // expect(result.form.Port3Physical).toEqual(" ");
       expect(result.form.ESC).toEqual("AX58100");
-      // expect(result.form.SPImode).toEqual("0");
+      expect(result.form.SPImode).toEqual("0");
       // expect(result.form.CoeDetailsEnableSDO).toEqual(true);
       // expect(result.form.CoeDetailsEnableSDOInfo).toEqual(true);
       // expect(result.form.CoeDetailsEnablePDOAssign).toEqual(false);
@@ -1357,7 +1357,7 @@ describe("readers", function() {
       // expect(result.form.CoeDetailsEnableUseFoE).toEqual(false);
       
       // const result_string  = JSON.stringify(backupObject, null, 2);
-      // expect(result_string).toEqualLines(expectedesi);
+      // expect(result_string).toEqualLines(expected_json);
     });
   });
 });
