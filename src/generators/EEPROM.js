@@ -57,46 +57,64 @@ function hex_generator(form, stringOnly=false)
 		}
 		
 		//WORD ADDRESS 0-7
-		writeEEPROMbyte_byteaddress(pdiControl, 0, record); //PDI control: SPI slave (mapped to register 0x0140)
-		writeEEPROMbyte_byteaddress(0x06, 1, record); //ESC configuration: Distributed clocks Sync Out and Latch In enabled (mapped register 0x0141)
-		writeEEPROMbyte_byteaddress(spiMode, 2, record); //SPI mode (mapped to register 0x0150)
-		writeEEPROMbyte_byteaddress(0x44, 3, record); //SYNC /LATCH configuration (mapped to 0x0151). Make both Syncs output
-		writeEEPROMword_wordaddress(0x0064, 2, record); //Syncsignal Pulselenght in 10ns units(mapped to 0x0982:0x0983)
-		writeEEPROMword_wordaddress(0x00, 3, record); //Extended PDI configuration (none for SPI slave)(0x0152:0x0153)
-		writeEEPROMword_wordaddress(0x00, 4, record); //Configured Station Alias (0x0012:0x0013)
-		writeEEPROMword_wordaddress(reserved_0x05, 5, record); //Reserved, 0 (when not AX58100, LAN9253/4/5)
-		writeEEPROMword_wordaddress(0, 6, record); //Reserved, 0
+		writeEEPROMbyte_byteaddress(pdiControl, 0, record);    // PDI control: SPI slave (mapped to register 0x0140)
+		writeEEPROMbyte_byteaddress(0x06,       1, record);    // ESC configuration: Distributed clocks Sync Out and Latch In enabled (mapped register 0x0141)
+		writeEEPROMbyte_byteaddress(spiMode,    2, record);    // SPI mode (mapped to register 0x0150)
+		writeEEPROMbyte_byteaddress(0x44,       3, record);    // SYNC /LATCH configuration (mapped to 0x0151). Make both Syncs output
+		writeEEPROMword_wordaddress(0x0064,     2, record);    // Syncsignal Pulselenght in 10ns units(mapped to 0x0982:0x0983)
+		writeEEPROMword_wordaddress(0x00,       3, record);    // Extended PDI configuration (none for SPI slave)(0x0152:0x0153)
+		writeEEPROMword_wordaddress(0x00,       4, record);    // Configured Station Alias (0x0012:0x0013)
+		writeEEPROMword_wordaddress(reserved_0x05,5, record);  // Reserved, 0 (when not AX58100, LAN9253/4/5)
+		writeEEPROMword_wordaddress(0,          6, record);    // Reserved, 0
 		const crc = FindCRC(record, 14);
-		writeEEPROMword_wordaddress(crc, 7, record); //CRC
+		writeEEPROMword_wordaddress(crc,    7, record);        // CRC
 		
 		return record;
 	}
 
 	//WORD ADDRESS 8-15
-	writeEEPROMDword_wordaddress(parseInt(form.VendorID.value),8,record);		//CoE 0x1018:01
-	writeEEPROMDword_wordaddress(parseInt(form.ProductCode.value),10,record);	//CoE 0x1018:02
-	writeEEPROMDword_wordaddress(parseInt(form.RevisionNumber.value),12,record);//CoE 0x1018:03
-	writeEEPROMDword_wordaddress(parseInt(form.SerialNumber.value),14,record);	//CoE 0x1018:04
+	const VendorID =        parseInt(form.VendorID.value)
+	const ProductCode =     parseInt(form.ProductCode.value)
+	const RevisionNumber =  parseInt(form.RevisionNumber.value)
+	const SerialNumber =    parseInt(form.SerialNumber.value)
+	const RxMailboxOffset = parseInt(form.RxMailboxOffset.value);
+	const MailboxSize =     parseInt(form.MailboxSize.value);
+	const TxMailboxOffset = parseInt(form.TxMailboxOffset.value);
+	const EEPROMsize = (Math.floor(parseInt(form.EEPROMsize.value) / 128)) - 1;
+
+	writeEEPROMDword_wordaddress(VendorID,      8, record); // CoE 0x1018:01
+	writeEEPROMDword_wordaddress(ProductCode,   10,record); // CoE 0x1018:02
+	writeEEPROMDword_wordaddress(RevisionNumber,12,record); // CoE 0x1018:03
+	writeEEPROMDword_wordaddress(SerialNumber,  14,record); // CoE 0x1018:04
 	//WORD ADDRESS 16-23
-	writeEEPROMword_wordaddress(0,16,record); //Execution Delay Time; units?
-	writeEEPROMword_wordaddress(0,17,record); //Port0 Delay Time; units?
-	writeEEPROMword_wordaddress(0,18,record); //Port1 Delay Time; units?
-	writeEEPROMword_wordaddress(0,19,record); //Reserved, zero
-	writeEEPROMword_wordaddress(0,20,record); //Bootstrap Rx mailbox offset    //Bootstrap not supported
-	writeEEPROMword_wordaddress(0,21,record); //Bootstrap Rx mailbox size
-	writeEEPROMword_wordaddress(0,22,record); //Bootstrap Tx mailbox offset
-	writeEEPROMword_wordaddress(0,23,record); //Bootstrap Tx mailbox size
-	//WORD ADDRESS 24-...
-	writeEEPROMword_wordaddress(parseInt(form.RxMailboxOffset.value),24,record); //Standard Rx mailbox offset   
-	writeEEPROMword_wordaddress(parseInt(form.MailboxSize.value),25,record); //Standard Rx mailbox size
-	writeEEPROMword_wordaddress(parseInt(form.TxMailboxOffset.value),26,record); //Standard Tx mailbox offset
-	writeEEPROMword_wordaddress(parseInt(form.MailboxSize.value),27,record); //Standard Tx mailbox size
-	writeEEPROMword_wordaddress(getMailboxProtocols(form),28,record); //CoE and FoE protocols, see Table18 in ETG1000.6
-	for (let count = 29; count <= 61; count++) {		//fill reserved area with zeroes
-		writeEEPROMword_wordaddress(0,count,record);
+	writeEEPROMword_wordaddress(0,              16, record); // Execution Delay Time; units?
+	writeEEPROMword_wordaddress(0,              17, record); // Port0 Delay Time; units?
+	writeEEPROMword_wordaddress(0,              18, record); // Port1 Delay Time; units?
+	writeEEPROMword_wordaddress(0,              19, record); // Reserved, zero
+	
+	if (form.DetailsEnableUseFoE.checked) {						  // Set standard values to bootstrap mailbox settings
+		writeEEPROMword_wordaddress(RxMailboxOffset, 20, record); // Bootstrap Rx mailbox offset
+		writeEEPROMword_wordaddress(MailboxSize,     21, record); // Bootstrap Rx mailbox size
+		writeEEPROMword_wordaddress(TxMailboxOffset, 22, record); // Bootstrap Tx mailbox offset
+		writeEEPROMword_wordaddress(MailboxSize,     23, record); // Bootstrap Tx mailbox size
+	} else {							              		// Bootstrap disabled, set to 0s
+		writeEEPROMword_wordaddress(0,               20, record); // Bootstrap Rx mailbox offset 
+		writeEEPROMword_wordaddress(0,               21, record); // Bootstrap Rx mailbox size 
+		writeEEPROMword_wordaddress(0,               22, record); // Bootstrap Tx mailbox offset 
+		writeEEPROMword_wordaddress(0,               23, record); // Bootstrap Tx mailbox size 
 	}
-	writeEEPROMword_wordaddress((Math.floor(parseInt(form.EEPROMsize.value)/128))-1,62,record); //EEPROM size
-	writeEEPROMword_wordaddress(1,63,record); //Version
+
+	//WORD ADDRESS 24-...
+	writeEEPROMword_wordaddress(RxMailboxOffset,   24, record); // Standard Rx mailbox offset   
+	writeEEPROMword_wordaddress(MailboxSize,       25, record); // Standard Rx mailbox size
+	writeEEPROMword_wordaddress(TxMailboxOffset,   26, record); // Standard Tx mailbox offset
+	writeEEPROMword_wordaddress(MailboxSize,       27, record); // Standard Tx mailbox size
+	writeEEPROMword_wordaddress(getProtocols(form),28, record); // CoE and FoE protocols, see Table18 in ETG1000.6
+	for (let count = 29; count <= 61; count++) {                // fill reserved area with zeroes
+		writeEEPROMword_wordaddress(0,          count, record);
+	}
+	writeEEPROMword_wordaddress(EEPROMsize,        62, record); // EEPROM size
+	writeEEPROMword_wordaddress(1,                 63, record); // Version
 	////////////////////////////////////
 	///    Vendor Specific Info	      //
 	////////////////////////////////////
@@ -340,11 +358,12 @@ function hex_generator(form, stringOnly=false)
 
 	// see Table18 in ETG1000.6
 	// always enabled CoE = 0x04, optionally enable FoE
-	function getMailboxProtocols(form) {
+	function getProtocols(form) {
 		return form.DetailsEnableUseFoE.checked ? 0x0C : 0x04
 	}
 
 	function getEnableFoEBit(form) {
 		return form.DetailsEnableUseFoE.checked ? 1 : 0;
 	}
+	
 }
