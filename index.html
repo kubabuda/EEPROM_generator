@@ -286,7 +286,8 @@
             </tr>
             <tr><td colspan="6"><hr></td</tr>
             <tr>
-               <td>ESC (EtherCAT Slave Chip):</td><td><select name="ESC" title="Select which ESC (EtherCAT Slave Chip) is used">
+               <td>ESC (EtherCAT Slave Chip):</td><td><select name="ESC" title="Select which ESC (EtherCAT Slave Chip) is used"
+                  onchange="onFormESCchanged(this.value)">
                   <option value="AX58100">AX58100</option>
                   <option value="ET1100">ET1100</option>
                   <option value="LAN9252">LAN9252</option>

@@ -166,12 +166,18 @@ const SupportedESC = {
 };
 
 /** ESCs that are using reserved bytes for configuration, for example AX58100 configdata reaches 0x0A byte */
-const configOnReservedBytes = [
+const configOnReservedBytes = new Set([
 	SupportedESC.AX58100, 
 	SupportedESC.LAN9253_Beckhoff,
 	SupportedESC.LAN9253_Direct,
 	SupportedESC.LAN9253_Indirect,
-];
+]);
+
+const ESCspecificSettings = {
+	AX58100: {
+		MaxMailboxSize: 128
+	}
+};
 
 //** Form default values */
 function getFormDefaultValues() {

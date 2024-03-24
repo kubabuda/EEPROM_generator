@@ -347,7 +347,7 @@ function hex_generator(form, stringOnly=false)
 
 	/** takes bytes array and count, returns ConfigData string */
 	function getConfigDataString(record, esc) {
-		const configdata_bytecount = new Set(configOnReservedBytes).has(esc) ? 14 : 7;
+		const configdata_bytecount = configOnReservedBytes.has(esc) ? 14 : 7;
 
 		let configdata = '';
 		for (let bytecount = 0; bytecount < configdata_bytecount; bytecount++) {

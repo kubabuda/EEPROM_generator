@@ -191,6 +191,15 @@ function onDownloadBinClick() {
 	downloadFile(record, 'eeprom.bin', 'application/octet-stream');
 }
 
+function onFormESCchanged(newValue) {
+	const form = getForm();
+	if (newValue == SupportedESC.AX58100) {
+		form.MailboxSize.value = Math.min(
+			ESCspecificSettings.AX58100.MaxMailboxSize, 
+			parseInt(form.MailboxSize.value));
+	}
+}
+
 // ####################### Handle modal dialog ####################### //
 
 var odModal = {};
@@ -235,6 +244,7 @@ function odModalInitialValueChanged(value) {
 		odModal.form.Size.value = value.length;
 	}
 }
+
 
 function getMinimumStringLength(modalform) {
 	return modalform.InitalValue.value.length; // + 1 TODO should I add byte for string termination '\0'? check in twincat
