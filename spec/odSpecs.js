@@ -93,9 +93,9 @@ describe("od", function() {
         const expected = getExpectedEmptyOd();
         expected['1C12'] = { otype: 'ARRAY', dtype: 'UNSIGNED16', name: 'Sync Manager 2 PDO Assignment', items: [ 
             { name: 'Max SubIndex' },
-            { name: 'PDO Mapping', value: '0x1600' }
+            { name: 'PDO Mapping', value: '0x1400' }
         ]};
-        expected['1600'] = { otype: 'RECORD', name: 'RxPDO', items: [ 
+        expected['1400'] = { otype: 'RECORD', name: 'RxPDO', items: [ 
             { name: 'Max SubIndex' },
             { name: 'RxPDO', dtype: 'UNSIGNED32', value: '0x70000008' }
         ]};
@@ -132,11 +132,11 @@ describe("od", function() {
           { name: 'Local Error Reaction', dtype: 'UNSIGNED32', data: '&Obj.Error_Settings.Local_Error_Reaction', value: '0', access: 'RO' },
           { name: 'SyncErrorCounterLimit', dtype: 'UNSIGNED32', value: '200', access: 'RO', data: '&Obj.Error_Settings.SyncErrorCounterLimit' } 
         ], isSDOitem: true };
-        expected['1600'] = { otype: 'RECORD', name: 'Control Word', items: [
+        expected['1400'] = { otype: 'RECORD', name: 'Control Word', items: [
           { name: 'Max SubIndex' },
           { name: 'Control Word', dtype: 'UNSIGNED32', value: '0x60400010' }
         ] };
-        expected['1601'] = { otype: 'RECORD', name: 'Target position', items: [
+        expected['1401'] = { otype: 'RECORD', name: 'Target position', items: [
           { name: 'Max SubIndex' },
           { name: 'Target position', dtype: 'UNSIGNED32', value: '0x607A0020' }
         ] };
@@ -166,8 +166,8 @@ describe("od", function() {
         ] };
         expected['1C12'] = { otype: 'ARRAY', dtype: 'UNSIGNED16', name: 'Sync Manager 2 PDO Assignment', items: [
           { name: 'Max SubIndex' },
-          { name: 'PDO Mapping', value: '0x1600' },
-          { name: 'PDO Mapping', value: '0x1601' } 
+          { name: 'PDO Mapping', value: '0x1400' },
+          { name: 'PDO Mapping', value: '0x1401' } 
         ] };
         expected['1C13'] = { otype: 'ARRAY', dtype: 'UNSIGNED16', name: 'Sync Manager 3 PDO Assignment', items: [
           { name: 'Max SubIndex' },

@@ -12,7 +12,7 @@ const expected_json = `{
     "RxMailboxOffset": "0x1000",
     "TxMailboxOffset": "0x1200",
     "MailboxSize": "512",
-    "SM2Offset": "0x1600",
+    "SM2Offset": "0x1400",
     "SM3Offset": "0x1A00",
     "TextGroupType": "Servodrives",
     "TextGroupName5": "CiA402-compatible",
@@ -383,7 +383,7 @@ const esi_xml =
                 </SubItem>
               </DataType>
               <DataType>
-                <Name>DT1600</Name>
+                <Name>DT1400</Name>
                 <BitSize>48</BitSize>
                 <SubItem>
                   <SubIdx>0</SubIdx>
@@ -407,7 +407,7 @@ const esi_xml =
                 </SubItem>
               </DataType>
               <DataType>
-                <Name>DT1601</Name>
+                <Name>DT1401</Name>
                 <BitSize>48</BitSize>
                 <SubItem>
                   <SubIdx>0</SubIdx>
@@ -861,9 +861,9 @@ const esi_xml =
                 </Flags>
               </Object>
               <Object>
-                <Index>#x1600</Index>
+                <Index>#x1400</Index>
                 <Name>Control Word</Name>
-                <Type>DT1600</Type>
+                <Type>DT1400</Type>
                 <BitSize>48</BitSize>
                 <Info>
                   <SubItem>
@@ -884,9 +884,9 @@ const esi_xml =
                 </Flags>
               </Object>
               <Object>
-                <Index>#x1601</Index>
+                <Index>#x1401</Index>
                 <Name>Target position</Name>
-                <Type>DT1601</Type>
+                <Type>DT1401</Type>
                 <BitSize>48</BitSize>
                 <Info>
                   <SubItem>
@@ -1008,13 +1008,13 @@ const esi_xml =
                   <SubItem>
                     <Name>PDO Mapping</Name>
                     <Info>
-                      <DefaultValue>#x1600</DefaultValue>
+                      <DefaultValue>#x1400</DefaultValue>
                     </Info>
                   </SubItem>
                   <SubItem>
                     <Name>PDO Mapping</Name>
                     <Info>
-                      <DefaultValue>#x1601</DefaultValue>
+                      <DefaultValue>#x1401</DefaultValue>
                     </Info>
                   </SubItem>
                 </Info>
@@ -1241,10 +1241,10 @@ const esi_xml =
         <Fmmu>MBoxState</Fmmu>
         <Sm DefaultSize="512" StartAddress="#x1000" ControlByte="#x26" Enable="1">MBoxOut</Sm>
         <Sm DefaultSize="512" StartAddress="#x1200" ControlByte="#x22" Enable="1">MBoxIn</Sm>
-        <Sm StartAddress="#x1600" ControlByte="#x24" Enable="1">Outputs</Sm>
+        <Sm StartAddress="#x1400" ControlByte="#x24" Enable="1">Outputs</Sm>
         <Sm StartAddress="#x1A00" ControlByte="#x20" Enable="1">Inputs</Sm>
         <RxPdo Fixed="true" Mandatory="true" Sm="2">
-          <Index>#x1600</Index>
+          <Index>#x1400</Index>
           <Name>Control Word</Name>
           <Entry>
             <Index>#x6040</Index>
@@ -1255,7 +1255,7 @@ const esi_xml =
           </Entry>
         </RxPdo>
         <RxPdo Fixed="true" Mandatory="true" Sm="2">
-          <Index>#x1601</Index>
+          <Index>#x1401</Index>
           <Name>Target position</Name>
           <Entry>
             <Index>#x607A</Index>
@@ -1335,7 +1335,7 @@ describe("readers", function() {
       // expect(result.form.RxMailboxOffset).toEqual("0x1000");
       // expect(result.form.TxMailboxOffset).toEqual("0x1200");
       // expect(result.form.MailboxSize).toEqual("512");
-      // expect(result.form.SM2Offset).toEqual("0x1600");
+      // expect(result.form.SM2Offset).toEqual("0x1400");
       // expect(result.form.SM3Offset).toEqual("0x1A00");
       expect(result.form.TextGroupType).toEqual("Servodrives");
       expect(result.form.TextGroupName5).toEqual("CiA402-compatible");

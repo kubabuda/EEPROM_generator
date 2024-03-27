@@ -291,7 +291,7 @@ describe("generators", function() {
         <Fmmu>MBoxState</Fmmu>
         <Sm DefaultSize="512" StartAddress="#x1000" ControlByte="#x26" Enable="1">MBoxOut</Sm>
         <Sm DefaultSize="512" StartAddress="#x1200" ControlByte="#x22" Enable="1">MBoxIn</Sm>
-        <Sm StartAddress="#x1600" ControlByte="#x24" Enable="0">Outputs</Sm>
+        <Sm StartAddress="#x1400" ControlByte="#x24" Enable="0">Outputs</Sm>
         <Sm StartAddress="#x1A00" ControlByte="#x20" Enable="0">Inputs</Sm>
         <Mailbox DataLinkLayer="true">
           <CoE SdoInfo="true" PdoAssign="false" PdoConfig="false" PdoUpload="true" CompleteAccess="false" />
@@ -333,7 +333,7 @@ describe("generators", function() {
 :2000A00068616E6E656C20487970657267616C616374696320696E707574207375706572CB
 :2000C000696D7065726D616E61746F721E00100002030104001301000000000000000000C5
 :2000E000110000000000000000000000000000002800020001020300290010000010000274
-:200100002600010100120002220001020016000024000103001A000020000104FFFFFFFF5
+:200100002600010100120002220001020014000024000103001A000020000104FFFFFFFF7
 :20012000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFDF
 :20014000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFBF
 :20016000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF9F
@@ -428,7 +428,7 @@ describe("generators", function() {
 #define MBX1_sme_b       MBX1_sma_b+MBX1_sml_b-1
 #define MBX1_smc_b       0x22
 
-#define SM2_sma          0x1600
+#define SM2_sma          0x1400
 #define SM2_smc          0x24
 #define SM2_act          1
 #define SM3_sma          0x1A00

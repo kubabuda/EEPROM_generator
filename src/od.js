@@ -111,7 +111,7 @@ function isPdoWithVariables(od, indexes, pdoName) {
 	}
 	return false;
 }
-/** Regardles of value set, SDK was generating RXPDO mappings as SDO1600
+/** Regardles of value set, SDK was generating RXPDO mappings as SDO1400
  * This offset _can_ be changed, not sure why one would need it
  */
 function getSM2_MappingOffset(form) {
@@ -123,7 +123,7 @@ function addRXPDOitems(form, odSections, od, booleanPaddingCount) {
 	const pdo = {
 		name : rxpdo,
 		SMassignmentIndex : '1C12',
-		smOffset : getSM2_MappingOffset(form), // usually 0x1600
+		smOffset : getSM2_MappingOffset(form), // usually 0x1400
 	};
 	return addPdoObjectsSection(od, rxpdoSection, pdo, booleanPaddingCount);
 }

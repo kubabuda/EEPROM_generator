@@ -194,7 +194,7 @@ function getFormDefaultValues() {
 		RxMailboxOffset: "0x1000",
 		TxMailboxOffset: "0x1200",
 		MailboxSize: "512",
-		SM2Offset: "0x1600",
+		SM2Offset: "0x1400",
 		SM3Offset: "0x1A00",
 		TextGroupType: "DigIn",
 		TextGroupName5: "Digital input",
