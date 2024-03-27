@@ -460,7 +460,7 @@ describe("OTYPE VAR", function() {
         
         // assert
         const configData = `05060344640000`;
-        expect(result).toEqual(configData);
+        expect(result).toEqualLines(configData);
       });
 
       it("ecat_options_generator should generate expected code", function() {
@@ -484,7 +484,7 @@ describe("OTYPE VAR", function() {
 #define MBX0_sml         MBXSIZE
 #define MBX0_sme         MBX0_sma+MBX0_sml-1
 #define MBX0_smc         0x26
-#define MBX1_sma         MBX0_sma+MBX0_sml
+#define MBX1_sma         0x1200
 #define MBX1_sml         MBXSIZE
 #define MBX1_sme         MBX1_sma+MBX1_sml-1
 #define MBX1_smc         0x22
@@ -493,7 +493,7 @@ describe("OTYPE VAR", function() {
 #define MBX0_sml_b       MBXSIZEBOOT
 #define MBX0_sme_b       MBX0_sma_b+MBX0_sml_b-1
 #define MBX0_smc_b       0x26
-#define MBX1_sma_b       MBX0_sma_b+MBX0_sml_b
+#define MBX1_sma_b       0x1200
 #define MBX1_sml_b       MBXSIZEBOOT
 #define MBX1_sme_b       MBX1_sma_b+MBX1_sml_b-1
 #define MBX1_smc_b       0x22
@@ -513,7 +513,7 @@ describe("OTYPE VAR", function() {
 
 #endif /* __ECAT_OPTIONS_H__ */
 `;
-        expect(result).toEqual(ecat_options);
+        expect(result).toEqualLines(ecat_options);
       });
 
       it("objectlist_generator should generate expected code", function() {
@@ -613,7 +613,7 @@ const _objectlist SDOobjects[] =
   {0xffff, 0xff, 0xff, 0xff, NULL, NULL}
 };
 `;
-        expect(result).toEqual(objectlist);
+        expect(result).toEqualLines(objectlist);
       });
 
       it("utypes_generator should generate expected code", function() {
@@ -646,7 +646,7 @@ extern _Objects Obj;
 
 #endif /* __UTYPES_H__ */
 `;
-        expect(result).toEqual(expectedUtypes);
+        expect(result).toEqualLines(expectedUtypes);
       });
     });
   });

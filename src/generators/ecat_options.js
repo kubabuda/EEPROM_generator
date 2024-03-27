@@ -28,7 +28,7 @@ function ecat_options_generator(form, od, indexes)
 				+ '\n#define MBX0_sme         MBX0_sma+MBX0_sml-1' 
 				+ '\n#define MBX0_smc         0x26\n';
 	//Mailbox 1 Config
-	ecat_options += `#define MBX1_sma         MBX0_sma+MBX0_sml` //'0x${indexToString(form.TxMailboxOffset.value)}`;
+	ecat_options += `#define MBX1_sma         0x${indexToString(form.TxMailboxOffset.value)}`
 				+ '\n#define MBX1_sml         MBXSIZE' 
 				+ '\n#define MBX1_sme         MBX1_sma+MBX1_sml-1'
 				+ '\n#define MBX1_smc         0x22\n\n';
@@ -37,7 +37,7 @@ function ecat_options_generator(form, od, indexes)
 				+ '\n#define MBX0_sml_b       MBXSIZEBOOT' 
 				+ '\n#define MBX0_sme_b       MBX0_sma_b+MBX0_sml_b-1' 
 				+ '\n#define MBX0_smc_b       0x26\n';
-	ecat_options += `#define MBX1_sma_b       MBX0_sma_b+MBX0_sml_b` //'0x${indexToString(form.TxMailboxOffset.value)}`;
+	ecat_options += `#define MBX1_sma_b       0x${indexToString(form.TxMailboxOffset.value)}`
 				+ '\n#define MBX1_sml_b       MBXSIZEBOOT' 
 				+ '\n#define MBX1_sme_b       MBX1_sma_b+MBX1_sml_b-1'
 				+ '\n#define MBX1_smc_b       0x22\n\n';
